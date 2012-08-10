@@ -18,26 +18,24 @@ __license__ = """
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA..
 """
 
-import contextlib
 import os
 import subprocess
 import logging
 import re
 import apt
 
+from xivo_dao.alchemy import dbconnection
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 from xivo import OrderedConf
-from xivo import xivo_helpers
-from xivo import urisup
 from xivo.moresynchro import RWLock
 from xivo.AsteriskConfigParser import AsteriskConfigParser
 
 log = logging.getLogger('xivo_sysconf.modules.wizard')  # pylint: disable-msg=C0103
 
 
-WIZARDLOCK  = RWLock()
+WIZARDLOCK = RWLock()
 
 Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr', 'share', 'pf-xivo-base-config', 'templates'),
        'custom_templates_path':                 os.path.join(os.path.sep, 'etc', 'pf-xivo', 'custom-templates'),
@@ -57,9 +55,9 @@ Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr',
        'webinterface_config_path':              None}
 
 
-WIZARD_ASTERISK_EXTCONFIG_RE    = re.compile(r'^([^,]*)(?:,(".*"|[^,]*)(?:,(.*))?)?$').match
+WIZARD_ASTERISK_EXTCONFIG_RE = re.compile(r'^([^,]*)(?:,(".*"|[^,]*)(?:,(.*))?)?$').match
 
-WIZARD_IPBX_ENGINES         = {'asterisk':
+WIZARD_IPBX_ENGINES = {'asterisk':
                                 {'extconfig':   {'queue_log': 'queue_log'},
                                 'database':
                                     {'postgresql':
@@ -71,15 +69,7 @@ WIZARD_IPBX_ENGINES         = {'asterisk':
                                                      'dbport':  'dbport',
                                                      'charset': 'dbcharset',
                                                      'encoding': 'dbcharset'},
-
                                          'modules': ('res_config_pgsql.so',)}}}}
-
-WIZARD_XIVO_DB_ENGINES      = {'postgresql': {'params': {'encoding': 'utf8'}}}
-
-POSTGRES_LOCALE = 'en_US.UTF-8'
-POSTGRES_CHARSET = 'UTF-8'
-LOCALE_GEN_PATH = '/etc/locale.gen'
-
 
 def _find_template_file(tplfilename, customtplfilename, newfilename):
     """
@@ -87,8 +77,8 @@ def _find_template_file(tplfilename, customtplfilename, newfilename):
     Return configuration filename and file stat
     """
     if os.access(customtplfilename, (os.F_OK | os.R_OK)):
-        filename    = customtplfilename
-        filestat    = os.stat(customtplfilename)
+        filename = customtplfilename
+        filestat = os.stat(customtplfilename)
     else:
         filename = tplfilename
         if os.access(tplfilename, (os.F_OK | os.R_OK)):
@@ -123,15 +113,15 @@ def merge_config_file(tplfilename, customtplfilename, newfilename, cfgdict, ipbx
     xdict = dict(cfgdict)
 
     if ipbxengine == 'asterisk':
-        cfg     = AsteriskConfigParser(filename=filename)
-        newcfg  = AsteriskConfigParser()
+        cfg = AsteriskConfigParser(filename=filename)
+        newcfg = AsteriskConfigParser()
         putfunc = newcfg.append
 
         for directive in cfg.directives():
             newcfg.add_directive(directive[0], directive[1])
     else:
-        cfg     = OrderedConf.OrderedRawConf(filename=filename)
-        newcfg  = OrderedConf.OrderedRawConf(allow_multiple=False)
+        cfg = OrderedConf.OrderedRawConf(filename=filename)
+        newcfg = OrderedConf.OrderedRawConf(allow_multiple=False)
         putfunc = newcfg.set
 
     for sec in cfg:
@@ -162,17 +152,17 @@ def asterisk_modules_config(tplfilename, customtplfilename, newfilename, modules
     """
     Generate Asterisk modules.conf from a template
     """
-    filename, filestat  = _find_template_file(tplfilename, customtplfilename, newfilename)
-    customfile          = customtplfilename == filename
+    filename, filestat = _find_template_file(tplfilename, customtplfilename, newfilename)
+    customfile = customtplfilename == filename
 
-    cfg         = AsteriskConfigParser(filename=filename)
-    newcfg      = AsteriskConfigParser()
+    cfg = AsteriskConfigParser(filename=filename)
+    newcfg = AsteriskConfigParser()
 
     for directive in cfg.directives():
         newcfg.add_directive(directive[0], directive[1])
 
-    mods        = list(modules)
-    appendmods  = True
+    mods = list(modules)
+    appendmods = True
 
     if customfile and cfg.has_option('modules', 'noload'):
         for optname, optvalue in cfg.items('modules'):
@@ -210,11 +200,11 @@ def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, d
     """
     Generate Asterisk extconfig.conf from a template
     """
-    filename, filestat  = _find_template_file(tplfilename, customtplfilename, newfilename)
-    customfile          = customtplfilename == filename
+    filename, filestat = _find_template_file(tplfilename, customtplfilename, newfilename)
+    customfile = customtplfilename == filename
 
-    cfg         = AsteriskConfigParser(filename=filename)
-    newcfg      = AsteriskConfigParser()
+    cfg = AsteriskConfigParser(filename=filename)
+    newcfg = AsteriskConfigParser()
 
     for directive in cfg.directives():
         newcfg.add_directive(directive[0], directive[1])
@@ -258,81 +248,10 @@ def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, d
     _write_config_file(newfilename, newcfg, filestat)
 
 
-def asterisk_postgresql_config(authority, database, params, options):
-    """
-    Return PostgreSQL options for Asterisk
-    """
-
-    if WIZARD_XIVO_DB_ENGINES['postgresql']:
-        dbparams = WIZARD_XIVO_DB_ENGINES['postgresql']['params']
-    else:
-        dbparams = {}
-
-    rs = {}
-
-    xdict = dict(options)
-
-    if isinstance(authority, (tuple, list)):
-        if authority[0]:
-            rs[xdict['dbuser']] = authority[0]
-
-        if authority[1]:
-            rs[xdict['dbpass']] = authority[1]
-
-        if authority[2]:
-            rs[xdict['dbhost']] = authority[2]
-
-        if authority[3]:
-            rs[xdict['dbport']] = authority[3]
-
-    if database:
-        rs[xdict['dbname']] = database
-
-    del(xdict['dbuser'],
-        xdict['dbpass'],
-        xdict['dbhost'],
-        xdict['dbport'],
-        xdict['dbname'])
-    
-    rs = dict(rs, **dbparams)
-
-    if params:
-        for k, v in params.iteritems():
-            if xdict.has_key(k):
-                rs[xdict[k]] = v
-            else:
-                rs[k] = v
-
-    return rs
-
-
-def asterisk_configuration(dburi, dbinfo, dbparams):
+def asterisk_configuration(dbinfo):
     """
     Entry point for Asterisk configuration
     """
-    dbname = 'asterisk'
-    dbtype = dburi[0]
-
-    if dburi[0] == 'postgresql':
-        if dburi[2]:
-            if dburi[2][0] == '/':
-                dbname = dburi[2][1:]
-            else:
-                dbname = dburi[2]
-
-        merge_config_file(Wdc['asterisk_res_postgresql_tpl_file'],
-                          Wdc['asterisk_res_postgresql_custom_tpl_file'],
-                          Wdc['asterisk_res_postgresql_file'],
-                          {'general':
-                                asterisk_postgresql_config(dburi[1],
-                                                      dbname,
-                                                      dbparams,
-                                                      dbinfo['res'])},
-                          ipbxengine='asterisk')
-
-        # change db type for asterisk compatibility
-        dbtype = 'pgsql'
-
     if 'modules' in dbinfo:
         asterisk_modules_config(Wdc['asterisk_modules_tpl_file'],
                                 Wdc['asterisk_modules_custom_tpl_file'],
@@ -344,84 +263,41 @@ def asterisk_configuration(dburi, dbinfo, dbparams):
                            Wdc['asterisk_extconfig_custom_tpl_file'],
                            Wdc['asterisk_extconfig_file'],
                            WIZARD_IPBX_ENGINES['asterisk']['extconfig'],
-                           dbtype,
-                           dbname)
+                           'pgsql',
+                           'asterisk')
 
 def set_db_backends(args, options): # pylint: disable-msg=W0613
     """
     POST /set_db_backends
     """
-    
+
     if 'xivo' not in args:
         raise HttpReqError(415, "missing option 'xivo'")
-    else:
-        xivodburi = list(urisup.uri_help_split(args['xivo']))
-
-        if xivodburi[0] is None or xivodburi[0].lower() not in WIZARD_XIVO_DB_ENGINES:
-            raise HttpReqError(415, "invalid option 'xivo'")
-        else:
-            xivodburi[0] = xivodburi[0].lower()
-
-        if WIZARD_XIVO_DB_ENGINES[xivodburi[0]]:
-            xivodbparams = WIZARD_XIVO_DB_ENGINES[xivodburi[0]]['params']
-        else:
-            xivodbparams = {}
-
-        if xivodburi[3]:
-            xivodbparams.update(dict(xivodburi[3]))
-
-        if xivodbparams:
-            xivodburi[3] = zip(xivodbparams.keys(), xivodbparams.values())
-        else:
-            xivodburi[3] = None
-
-        args['xivo'] = urisup.uri_help_unsplit(xivodburi)
-
-    if 'ipbxengine' not in args:
+    elif 'ipbx' not in args:
+        raise HttpReqError(415, "missing option 'ipbx'")
+    elif 'ipbxengine' not in args:
         raise HttpReqError(415, "missing option 'ipbxengine'")
     elif args['ipbxengine'] not in WIZARD_IPBX_ENGINES:
         raise HttpReqError(415, "invalid ipbxengine: %r" % args['ipbxengine'])
-
-    ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
-
-    if 'ipbx' not in args:
-        raise HttpReqError(415, "missing option 'ipbx'")
-    else:
-        ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
-
-        if ipbxdburi[0] is None or ipbxdburi[0].lower() not in ipbxdbinfo:
-            raise HttpReqError(415, "invalid option 'ipbx'")
-        else:
-            ipbxdburi[0] = ipbxdburi[0].lower()
-
-        if ipbxdbinfo[ipbxdburi[0]]['params']:
-            ipbxdbparams = ipbxdbinfo[ipbxdburi[0]]['params']
-        else:
-            ipbxdbparams = {}
-
-        if ipbxdburi[3]:
-            ipbxdbparams.update(dict(ipbxdburi[3]))
-
-        if ipbxdbparams:
-            ipbxdburi[3] = zip(ipbxdbparams.keys(), ipbxdbparams.values())
-        else:
-            ipbxdburi[3] = None
-
-        args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
 
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
 
     try:
-        connect = xivo_helpers.db_connect(args['xivo'])
+        _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
+        dbconnection.register_db_connection_pool(_new_db_connection_pool)
 
-        if not connect:
+        dbconnection.add_connection_as(args['xivo'], 'xivo')
+        connection = dbconnection.get_connection('xivo')
+        if not connection:
             raise HttpReqError(415, "unable to connect to 'xivo' database")
+        connection.close()
 
-        connect = xivo_helpers.db_connect(args['ipbx'])
-
-        if not connect:
+        dbconnection.add_connection_as(args['ipbx'], 'asterisk')
+        connection = dbconnection.get_connection('asterisk')
+        if not connection:
             raise HttpReqError(415, "unable to connect to 'ipbx' database")
+        connection.close()
 
         merge_config_file(Wdc['agid_config_tpl_file'],
                           Wdc['agid_config_custom_tpl_file'],
@@ -451,95 +327,11 @@ def set_db_backends(args, options): # pylint: disable-msg=W0613
                                 {'datastorage': '"%s"' % args['ipbx']}})
 
         if args['ipbxengine'] == 'asterisk':
-            asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
+            ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
+            asterisk_configuration(ipbxdbinfo)
     finally:
         WIZARDLOCK.release()
 
-
-def _update_locale_gen(locale, charset):
-    is_installed = False
-    with open(LOCALE_GEN_PATH, 'r+') as fobj:
-        for cur_raw_line in fobj:
-            cur_line = cur_raw_line.strip()
-            if cur_line and not cur_line.startswith('#'):
-                cur_locale, cur_charset = cur_line.split()
-                if cur_locale == locale and cur_charset == charset:
-                    is_installed = True
-                    break
-        if not is_installed:
-            fobj.seek(0, os.SEEK_END)
-            fobj.write('%s %s\n' % (locale, charset))
-    if not is_installed:
-        subprocess.check_call(['locale-gen'])
-
-
-@contextlib.contextmanager
-def _modified_env(name, new_value):
-    old_value = os.environ.get(name)
-    os.environ[name] = new_value
-    try:
-        yield
-    finally:
-        if old_value is not None:
-            os.environ[name] = old_value
-
-
-def _install_postgresql(apt_cache):
-    postgresql_pkg = apt_cache['postgresql']
-    if not postgresql_pkg.is_installed:
-        _update_locale_gen(POSTGRES_LOCALE, POSTGRES_CHARSET)
-        postgresql_pkg.mark_install()
-        with _modified_env('LC_ALL', POSTGRES_LOCALE):
-            apt_cache.commit()
-
-
-def _install_php5_pgsql(apt_cache):
-    php5_pgsql_pkg = apt_cache['php5-pgsql']
-    if not php5_pgsql_pkg.is_installed:
-        php5_pgsql_pkg.mark_install()
-        apt_cache.commit()
-
-
-def exec_db_file(args, options):
-    """
-    POST /exec_db_file
-    """
-    if 'backend' not in args:
-        raise HttpReqError(415, "missing option 'backend'")
-    elif 'xivoscript' not in args:
-        raise HttpReqError(415, "missing option 'xivoscript'")
-    elif 'xivodb' not in args:
-        raise HttpReqError(415, "missing option 'xivodb'")
-    elif 'ipbxscript' not in args:
-        raise HttpReqError(415, "missing option 'ipbxscript'")
-    elif 'ipbxdb' not in args:
-        raise HttpReqError(415, "missing option 'ipbxdb'")
-    
-    if args['backend'] == 'postgresql':
-        try:
-            apt_cache = apt.Cache()
-            _install_postgresql(apt_cache)
-            _install_php5_pgsql(apt_cache)
-        except Exception:
-            log.exception('error')
-            raise HttpReqError(500, "Can't install postgresql packages")
-        try:
-            subprocess.check_call(["sudo", "-u", "postgres", "psql", "-f",
-                                   "/%s" % args['xivoscript']])
-        except (OSError, subprocess.CalledProcessError), e:
-            log.exception('error')
-            raise HttpReqError(500, "Can't create xivo DB with postgresql")
-        try:
-            subprocess.check_call(["sudo", "-u", "postgres", "psql", "-f",
-                                   "/%s" % args['ipbxscript']])
-        except (OSError, subprocess.CalledProcessError), e:
-            log.exception('error')
-            raise HttpReqError(500, "Can't create IPBX DB with postgresql")
-    else:
-        raise HttpReqError(415, "invalid db backend")
-
-
-http_json_server.register(exec_db_file, CMD_RW, name="exec_db_file")
 
 def safe_init(options):
     """Load parameters, etc"""
