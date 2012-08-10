@@ -29,7 +29,10 @@ from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 from xivo import OrderedConf
+<<<<<<< HEAD
 from xivo import urisup
+=======
+>>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
 from xivo.moresynchro import RWLock
 from xivo.AsteriskConfigParser import AsteriskConfigParser
 
@@ -249,6 +252,7 @@ def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, d
     _write_config_file(newfilename, newcfg, filestat)
 
 
+<<<<<<< HEAD
 def asterisk_pgsql_config(authority, database, params, options):
     """
     Return PostgreSQL options for Asterisk
@@ -305,6 +309,12 @@ def asterisk_configuration(dburi, dbinfo, dbparams):
                                               dbinfo['res'])},
                   ipbxengine='asterisk')
 
+=======
+def asterisk_configuration(dbinfo):
+    """
+    Entry point for Asterisk configuration
+    """
+>>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
     if 'modules' in dbinfo:
         asterisk_modules_config(Wdc['asterisk_modules_tpl_file'],
                                 Wdc['asterisk_modules_custom_tpl_file'],
@@ -335,6 +345,7 @@ def set_db_backends(args, options):
 
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
+<<<<<<< HEAD
 
     ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
     ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
@@ -358,6 +369,8 @@ def set_db_backends(args, options):
         ipbxdburi[3] = None
 
     args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
+=======
+>>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
 
     try:
         _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
@@ -403,7 +416,8 @@ def set_db_backends(args, options):
                                 {'datastorage': '"%s"' % args['ipbx']}})
 
         if args['ipbxengine'] == 'asterisk':
-            asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
+            ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
+            asterisk_configuration(ipbxdbinfo)
     finally:
         WIZARDLOCK.release()
 
