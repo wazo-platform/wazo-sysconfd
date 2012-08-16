@@ -23,17 +23,17 @@ import subprocess
 import logging
 import re
 import apt
-import urisup
 
 from xivo_dao.alchemy import dbconnection
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 from xivo import OrderedConf
+from xivo import urisup
 from xivo.moresynchro import RWLock
 from xivo.AsteriskConfigParser import AsteriskConfigParser
 
-log = logging.getLogger('xivo_sysconf.modules.wizard')  # pylint: disable-msg=C0103
+log = logging.getLogger('xivo_sysconf.modules.wizard')
 
 
 WIZARDLOCK = RWLock()
@@ -254,7 +254,7 @@ def asterisk_pgsql_config(authority, database, params, options):
     Return PostgreSQL options for Asterisk
     """
 
-    dbparams = WIZARD_XIVO_DB_ENGINES['postgresql']['params']
+    dbparams = WIZARD_IPBX_ENGINES['asterisk']['database']['postgresql']['params']
 
     rs = {}
 
