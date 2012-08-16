@@ -108,15 +108,12 @@ class RequestHandlers(object):
     def _exec_dird_cmd(self, cmds):
         logger.debug('-----------------------DIRDBUS--------------------------')
         logger.debug(cmds)
-        ret = []
         for cmd in cmds:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             socket_obj.connect((self.dirdbus_host, self.dirdbus_port))
             socket_obj.send(cmd)
-            data = socket_obj.recv(1024)
-            ret.append(data)
             socket_obj.close()
-        return ret
+        
 
     def process(self, args, options):
         for kind in args.keys():
@@ -125,8 +122,8 @@ class RequestHandlers(object):
 
         ret = {}
         ret['ipbx'] = self._exec_ast_cmd(args['ipbx'])
-        ret['ctibus'] = self._exec_ctibus_cmd(args['ctibus'])
-        ret['dird'] = self._exec_dird_cmd(args['dird'])
+        self._exec_ctibus_cmd(args['ctibus'])
+        self._exec_dird_cmd(args['dird'])
         logger.debug(ret)
         return ret
 
