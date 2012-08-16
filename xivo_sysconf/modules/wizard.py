@@ -23,6 +23,7 @@ import subprocess
 import logging
 import re
 import apt
+import urisup
 
 from xivo_dao.alchemy import dbconnection
 from xivo import http_json_server
