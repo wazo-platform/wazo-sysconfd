@@ -45,7 +45,7 @@ Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr',
        'agid_config_path':                      None,
        'asterisk_modules_config_filename':      "modules.conf",
        'asterisk_extconfig_config_filename':    "extconfig.conf",
-       'asterisk_res_postgresql_config_filename': "res_pgsql.conf",
+       'asterisk_res_pgsql_config_filename':    "res_pgsql.conf",
        'asterisk_config_path':                  os.path.join(os.path.sep, 'etc', 'asterisk'),
        'asterisk_tpl_directory':                'asterisk',
        'webinterface_xivo_config_filename':     "xivo.ini",
@@ -248,10 +248,62 @@ def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, d
     _write_config_file(newfilename, newcfg, filestat)
 
 
-def asterisk_configuration(dbinfo):
+def asterisk_pgsql_config(authority, database, params, options):
+    """
+    Return PostgreSQL options for Asterisk
+    """
+
+    dbparams = WIZARD_XIVO_DB_ENGINES['postgresql']['params']
+
+    rs = {}
+
+    xdict = dict(options)
+    if isinstance(authority, (tuple, list)):
+        if authority[0]:
+            rs[xdict['dbuser']] = authority[0]
+        if authority[1]:
+            rs[xdict['dbpass']] = authority[1]
+        if authority[2]:
+            rs[xdict['dbhost']] = authority[2]
+        if authority[3]:
+            rs[xdict['dbport']] = authority[3]
+
+    if database:
+        rs[xdict['dbname']] = database
+
+    del(xdict['dbuser'],
+        xdict['dbpass'],
+        xdict['dbhost'],
+        xdict['dbport'],
+        xdict['dbname'])
+
+    rs = dict(rs, **dbparams)
+
+    if params:
+        for k, v in params.iteritems():
+            if xdict.has_key(k):
+                rs[xdict[k]] = v
+            else:
+                rs[k] = v
+
+    return rs
+
+
+def asterisk_configuration(dburi, dbinfo, dbparams):
     """
     Entry point for Asterisk configuration
     """
+
+    merge_config_file(Wdc['asterisk_res_pgsql_tpl_file'],
+                  Wdc['asterisk_res_pgsql_custom_tpl_file'],
+                  Wdc['asterisk_res_pgsql_file'],
+                  {'general':
+                        asterisk_pgsql_config(dburi[1],
+                                              'asterisk',
+                                              dbparams,
+                                              dbinfo['res'])},
+                  ipbxengine='asterisk')
+
     if 'modules' in dbinfo:
         asterisk_modules_config(Wdc['asterisk_modules_tpl_file'],
                                 Wdc['asterisk_modules_custom_tpl_file'],
@@ -266,7 +318,7 @@ def asterisk_configuration(dbinfo):
                            'pgsql',
                            'asterisk')
 
-def set_db_backends(args, options): # pylint: disable-msg=W0613
+def set_db_backends(args, options):
     """
     POST /set_db_backends
     """
@@ -282,6 +334,29 @@ def set_db_backends(args, options): # pylint: disable-msg=W0613
 
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
+
+    ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
+    ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
+
+    if ipbxdburi[0] is None or ipbxdburi[0].lower() not in ipbxdbinfo:
+        raise HttpReqError(415, "invalid option 'ipbx'")
+    else:
+        ipbxdburi[0] = ipbxdburi[0].lower()
+
+    if ipbxdbinfo[ipbxdburi[0]]['params']:
+        ipbxdbparams = ipbxdbinfo[ipbxdburi[0]]['params']
+    else:
+        ipbxdbparams = {}
+
+    if ipbxdburi[3]:
+        ipbxdbparams.update(dict(ipbxdburi[3]))
+
+    if ipbxdbparams:
+        ipbxdburi[3] = zip(ipbxdbparams.keys(), ipbxdbparams.values())
+    else:
+        ipbxdburi[3] = None
+
+    args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
 
     try:
         _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
@@ -327,8 +402,7 @@ def set_db_backends(args, options): # pylint: disable-msg=W0613
                                 {'datastorage': '"%s"' % args['ipbx']}})
 
         if args['ipbxengine'] == 'asterisk':
-            ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
-            asterisk_configuration(ipbxdbinfo)
+            asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
     finally:
         WIZARDLOCK.release()
 
@@ -366,7 +440,7 @@ def safe_init(options):
                                                             Wdc["%s_tpl_directory" % x],
                                                             Wdc["%s_config_filename" % x])
 
-    for x in ('modules', 'extconfig', 'res_postgresql'):
+    for x in ('modules', 'extconfig', 'res_pgsql'):
         Wdc["asterisk_%s_file" % x] = os.path.join(Wdc['asterisk_config_path'],
                                                    Wdc["asterisk_%s_config_filename" % x])
 
