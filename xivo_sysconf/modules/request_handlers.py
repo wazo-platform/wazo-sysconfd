@@ -68,8 +68,8 @@ class RequestHandlers(object):
         self.dirdbus_port = int(conf_obj.get('dirdbus', 'port'))
 
     def _exec_ast_cmd(self, cmds):
-        print '-----------------------ASTERISK--------------------------'
-        pprint(cmds)
+        logger.debug('-----------------------ASTERISK--------------------------')
+        logger.debug(cmds)
         ret = []
         for cmd in cmds:
             if cmd in AST_CMDS or cmd.startswith('sip show peer'):
@@ -93,8 +93,8 @@ class RequestHandlers(object):
         return ret
 
     def _exec_ctibus_cmd(self, cmds):
-        print '-----------------------CTIBUS--------------------------'
-        pprint(cmds)
+        logger.debug('-----------------------CTIBUS--------------------------')
+        logger.debug(cmds)
         ret = []
         for cmd in cmds:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -106,8 +106,8 @@ class RequestHandlers(object):
         return ret
 
     def _exec_dird_cmd(self, cmds):
-        print '-----------------------DIRDBUS--------------------------'
-        pprint(cmds)
+        logger.debug('-----------------------DIRDBUS--------------------------')
+        logger.debug(cmds)
         ret = []
         for cmd in cmds:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -127,7 +127,7 @@ class RequestHandlers(object):
         ret['ipbx'] = self._exec_ast_cmd(args['ipbx'])
         ret['ctibus'] = self._exec_ctibus_cmd(args['ctibus'])
         ret['dird'] = self._exec_dird_cmd(args['dird'])
-        pprint(ret)
+        logger.debug(ret)
         return ret
 
 request_handlers = RequestHandlers()
