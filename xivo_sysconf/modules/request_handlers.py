@@ -25,13 +25,9 @@ import socket
 
 from xivo.http_json_server import register, HttpReqError, CMD_RW
 
-from pprint import pprint
-
-
 logger = logging.getLogger(__name__)
 
 SOCKET_CONFFILE = '/etc/pf-xivo/sysconfd/socket.conf'
-
 AST_CMDS = [
     'core reload',
     'core restart now',
@@ -54,6 +50,7 @@ AST_CMDS = [
     'sccp show config',
     'sccp update config',
     ]
+
 
 class RequestHandlers(object):
 
@@ -113,7 +110,6 @@ class RequestHandlers(object):
             socket_obj.connect((self.dirdbus_host, self.dirdbus_port))
             socket_obj.send(cmd)
             socket_obj.close()
-        
 
     def process(self, args, options):
         for kind in args.keys():
@@ -126,6 +122,7 @@ class RequestHandlers(object):
         self._exec_dird_cmd(args['dird'])
         logger.debug(ret)
         return ret
+
 
 request_handlers = RequestHandlers()
 register(request_handlers.process, CMD_RW, name='exec_request_handlers')
