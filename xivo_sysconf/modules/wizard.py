@@ -89,6 +89,7 @@ def _find_template_file(tplfilename, customtplfilename, newfilename):
 
     return filename, filestat
 
+
 def _write_config_file(filename, config, filestat=None):
     """
     Write configuration file
@@ -104,6 +105,7 @@ def _write_config_file(filename, config, filestat=None):
         os.chown(tmpfilename, filestat[4], filestat[5])
 
     os.rename(tmpfilename, filename)
+
 
 def merge_config_file(tplfilename, customtplfilename, newfilename, cfgdict, ipbxengine=None):
     """
@@ -148,6 +150,7 @@ def merge_config_file(tplfilename, customtplfilename, newfilename, cfgdict, ipbx
             putfunc(sec, optname, optvalue)
 
     _write_config_file(newfilename, newcfg, filestat)
+
 
 def asterisk_modules_config(tplfilename, customtplfilename, newfilename, modules):
     """
@@ -196,6 +199,7 @@ def asterisk_modules_config(tplfilename, customtplfilename, newfilename, modules
             newcfg.append('modules', 'preload', module)
 
     _write_config_file(newfilename, newcfg, filestat)
+
 
 def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, dbtype, dbname):
     """
@@ -319,6 +323,7 @@ def asterisk_configuration(dburi, dbinfo, dbparams):
                            'pgsql',
                            'asterisk')
 
+
 def set_db_backends(args, options):
     """
     POST /set_db_backends
@@ -335,6 +340,29 @@ def set_db_backends(args, options):
 
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
+
+    ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
+    ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
+
+    if ipbxdburi[0] is None or ipbxdburi[0].lower() not in ipbxdbinfo:
+        raise HttpReqError(415, "invalid option 'ipbx'")
+    else:
+        ipbxdburi[0] = ipbxdburi[0].lower()
+
+    if ipbxdbinfo[ipbxdburi[0]]['params']:
+        ipbxdbparams = ipbxdbinfo[ipbxdburi[0]]['params']
+    else:
+        ipbxdbparams = {}
+
+    if ipbxdburi[3]:
+        ipbxdbparams.update(dict(ipbxdburi[3]))
+
+    if ipbxdbparams:
+        ipbxdburi[3] = zip(ipbxdbparams.keys(), ipbxdbparams.values())
+    else:
+        ipbxdburi[3] = None
+
+    args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
 
     try:
         _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
@@ -380,8 +408,7 @@ def set_db_backends(args, options):
                                 {'datastorage': '"%s"' % args['ipbx']}})
 
         if args['ipbxengine'] == 'asterisk':
-            ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
-            asterisk_configuration(ipbxdbinfo)
+            asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
     finally:
         WIZARDLOCK.release()
 
@@ -442,5 +469,6 @@ def safe_init(options):
         Wdc["webinterface_%s_custom_tpl_file" % x] = os.path.join(Wdc['custom_templates_path'],
                                                                   Wdc['webinterface_tpl_directory'],
                                                                   Wdc["webinterface_%s_config_filename" % x])
+
 
 http_json_server.register(set_db_backends, CMD_RW, safe_init=safe_init)
