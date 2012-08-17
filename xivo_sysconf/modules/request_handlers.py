@@ -92,24 +92,30 @@ class RequestHandlers(object):
     def _exec_ctibus_cmd(self, cmds):
         logger.debug('-----------------------CTIBUS--------------------------')
         logger.debug(cmds)
-        ret = []
         for cmd in cmds:
-            socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket_obj.connect((self.ctibus_host, self.ctibus_port))
-            socket_obj.send(cmd)
-            data = socket_obj.recv(1024)
-            ret.append(data)
-            socket_obj.close()
-        return ret
+            try:
+                socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                socket_obj.connect((self.ctibus_host, self.ctibus_port))
+                socket_obj.send(cmd)
+                socket_obj.close()
+            except Exception:
+                logger.exception("Error while executing CTI command: %s", cmd)
+            else:
+                logger.info("CTI command '%s' successfully executed", cmd)
 
     def _exec_dird_cmd(self, cmds):
         logger.debug('-----------------------DIRDBUS--------------------------')
         logger.debug(cmds)
         for cmd in cmds:
-            socket_obj = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            socket_obj.connect((self.dirdbus_host, self.dirdbus_port))
-            socket_obj.send(cmd)
-            socket_obj.close()
+            try:
+                socket_obj = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                socket_obj.connect((self.dirdbus_host, self.dirdbus_port))
+                socket_obj.send(cmd)
+                socket_obj.close()
+            except Exception:
+                logger.exception("Error while executing DIRD command: %s", cmd)
+            else:
+                logger.info("DIRD command '%s' successfully executed", cmd)
 
     def process(self, args, options):
         for kind in args.keys():
