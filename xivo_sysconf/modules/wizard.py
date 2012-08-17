@@ -29,10 +29,7 @@ from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 from xivo import OrderedConf
-<<<<<<< HEAD
 from xivo import urisup
-=======
->>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
 from xivo.moresynchro import RWLock
 from xivo.AsteriskConfigParser import AsteriskConfigParser
 
@@ -252,7 +249,6 @@ def asterisk_extconfig(tplfilename, customtplfilename, newfilename, extconfig, d
     _write_config_file(newfilename, newcfg, filestat)
 
 
-<<<<<<< HEAD
 def asterisk_pgsql_config(authority, database, params, options):
     """
     Return PostgreSQL options for Asterisk
@@ -309,12 +305,6 @@ def asterisk_configuration(dburi, dbinfo, dbparams):
                                               dbinfo['res'])},
                   ipbxengine='asterisk')
 
-=======
-def asterisk_configuration(dbinfo):
-    """
-    Entry point for Asterisk configuration
-    """
->>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
     if 'modules' in dbinfo:
         asterisk_modules_config(Wdc['asterisk_modules_tpl_file'],
                                 Wdc['asterisk_modules_custom_tpl_file'],
@@ -345,32 +335,6 @@ def set_db_backends(args, options):
 
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
-<<<<<<< HEAD
-
-    ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
-    ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
-
-    if ipbxdburi[0] is None or ipbxdburi[0].lower() not in ipbxdbinfo:
-        raise HttpReqError(415, "invalid option 'ipbx'")
-    else:
-        ipbxdburi[0] = ipbxdburi[0].lower()
-
-    if ipbxdbinfo[ipbxdburi[0]]['params']:
-        ipbxdbparams = ipbxdbinfo[ipbxdburi[0]]['params']
-    else:
-        ipbxdbparams = {}
-
-    if ipbxdburi[3]:
-        ipbxdbparams.update(dict(ipbxdburi[3]))
-
-    if ipbxdbparams:
-        ipbxdburi[3] = zip(ipbxdbparams.keys(), ipbxdbparams.values())
-    else:
-        ipbxdburi[3] = None
-
-    args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
-=======
->>>>>>> [clean]refactor and cleanup useless data dbconfig in wizard
 
     try:
         _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
