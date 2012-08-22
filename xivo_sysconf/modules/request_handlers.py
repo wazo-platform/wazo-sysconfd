@@ -56,7 +56,8 @@ class RequestHandlers(object):
 
     def __init__(self):
         conf_obj = ConfigParser.RawConfigParser()
-        conf_obj.readfp(open(SOCKET_CONFFILE))
+        with open(SOCKET_CONFFILE) as fobj:
+            conf_obj.readfp(fobj)
 
         self.ctibus_host = conf_obj.get('ctibus', 'bindaddr')
         self.ctibus_port = int(conf_obj.get('ctibus', 'port'))
