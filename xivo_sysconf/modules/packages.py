@@ -18,19 +18,17 @@ __license__ = """
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA..
 """
 
+import apt
 import logging
 
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_R
 from xivo.moresynchro import RWLock
-
 from xivo_sysconf import helpers
 
-import apt
 
-
-log = logging.getLogger('xivo_sysconf.modules.packages') # pylint: disable-msg=C0103
+log = logging.getLogger('xivo_sysconf.modules.packages')
 
 PACKAGES_LOCK_TIMEOUT = 60 # XXX
 PACKAGESLOCK = RWLock()
@@ -66,7 +64,7 @@ class Packages:
         self.args = {}
         self.options = {}
 
-    def aptcache_update(self, args, options):    # pylint: disable-msg=W0613
+    def aptcache_update(self, args, options):
         """
         GET /aptcache_update
         """

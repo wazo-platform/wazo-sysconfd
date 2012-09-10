@@ -35,11 +35,11 @@ from xivo import system
 
 from xivo_sysconf import helpers
 
-log = logging.getLogger('xivo_sysconf.modules.resolvconf') # pylint: disable-msg=C0103
+log = logging.getLogger('xivo_sysconf.modules.resolvconf')
 
-RESOLVCONFLOCK          = RWLock()
+RESOLVCONFLOCK = RWLock()
 
-Rcc =   {'hostname_file':       os.path.join(os.path.sep, 'etc', 'hostname'),
+Rcc = {'hostname_file':       os.path.join(os.path.sep, 'etc', 'hostname'),
          'hostname_tpl_file':   os.path.join('resolvconf', 'hostname'),
          'hostname_update_cmd': "/etc/init.d/hostname.sh start",
          'hosts_file':          os.path.join(os.path.sep, 'etc', 'hosts'),
@@ -83,7 +83,7 @@ hostname:   !~domain_label
 domain:     !~search_domain
 """)
 
-def Hosts(args, options):    # pylint: disable-msg=W0613
+def Hosts(args, options):
     """
     POST /hosts
 
@@ -104,14 +104,14 @@ def Hosts(args, options):    # pylint: disable-msg=W0613
         raise HttpReqError(503, "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'])
 
     hostnamebakfile = None
-    hostsbakfile    = None
+    hostsbakfile = None
 
     try:
         try:
             hostnamebakfile = _write_config_file('hostname',
                                                  {'_XIVO_HOSTNAME': args['hostname']})
 
-            hostsbakfile    = _write_config_file('hosts',
+            hostsbakfile = _write_config_file('hosts',
                                                  {'_XIVO_HOSTNAME': args['hostname'],
                                                   '_XIVO_DOMAIN':   args['domain']})
 
@@ -146,7 +146,7 @@ def _resolv_conf_variables(args):
 
     return xvars
 
-def ResolvConf(args, options):    # pylint: disable-msg=W0613
+def ResolvConf(args, options):
     """
     POST /resolv_conf
 
@@ -206,9 +206,9 @@ def safe_init(options):
 
     cfg = options.configuration
 
-    tpl_path        = cfg.get('general', 'templates_path')
+    tpl_path = cfg.get('general', 'templates_path')
     custom_tpl_path = cfg.get('general', 'custom_templates_path')
-    backup_path     = cfg.get('general', 'backup_path')
+    backup_path = cfg.get('general', 'backup_path')
 
     if cfg.has_section('resolvconf'):
         for x in Rcc.iterkeys():
@@ -237,12 +237,12 @@ def GetDns(args, options):
     with open('/etc/resolv.conf') as f:
         for line in f.xreadlines():
             line = line[:-1].split(' ')
-            
-            if line[0]   == 'nameserver':
+
+            if line[0] == 'nameserver':
                 dns['nameservers'].append(line[1])
             elif line[0] == 'search':
                 dns['search'].append(line[1])
-        
+
     return dns
 
 http_json_server.register(Hosts, CMD_RW, safe_init=safe_init, name='hosts')

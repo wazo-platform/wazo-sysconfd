@@ -18,6 +18,8 @@ __license__ = """
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA..
 """
 
+import re
+import subprocess
 import logging
 
 from xivo import http_json_server
@@ -25,18 +27,15 @@ from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_R
 from xivo.moresynchro import RWLock
 from xivo import xml2dict
-
 from xivo_sysconf import helpers
 
-import re
-import subprocess
 
-log = logging.getLogger('xivo_sysconf.modules.lshw') # pylint: disable-msg=C0103
+log = logging.getLogger('xivo_sysconf.modules.lshw')
 
-LSHW_LOCK_TIMEOUT       = 60 # XXX
-LSHWLOCK                = RWLock()
+LSHW_LOCK_TIMEOUT = 60 # XXX
+LSHWLOCK = RWLock()
 
-LSHW_BIN                = "/usr/bin/lshw"
+LSHW_BIN = "/usr/bin/lshw"
 
 LSHW_RE_XML_DECLARATION = re.compile(r'^\s*(<\?xml\s+[^>]*>)((?:\s*.*)*)', re.M).match
 
@@ -59,7 +58,7 @@ LSHW_CLASS_LIST = ('system',
                    'volume',
                    'generic')
 
-LSHW_TEST_LIST  = ('dmi',
+LSHW_TEST_LIST = ('dmi',
                    'device-tree',
                    'spd',
                    'memory',
@@ -77,7 +76,8 @@ LSHW_TEST_LIST  = ('dmi',
 class LshwExecutionError(Exception):
     pass
 
-def Lshw(args, options):    # pylint: disable-msg=W0613
+
+def Lshw(args, options):
     """
     GET /lshw
     

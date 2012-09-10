@@ -35,7 +35,7 @@ NET_LOCK_TIMEOUT = 60 # XXX
 NETLOCK = RWLock()
 
 
-def network_config(args): # pylint: disable-msg=W0613
+def network_config(args):
     """
     GET /network_config
     
@@ -115,8 +115,6 @@ def _val_modify_network_config(args):
 def modify_network_config(args):
     """
     POST /modify_network_config
-    
-    XXX
     """
     if not _val_modify_network_config(args):
         raise HttpReqError(415, "invalid arguments for command")

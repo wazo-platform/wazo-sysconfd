@@ -41,7 +41,7 @@ from xivo import system
 from xivo_sysconf import helpers
 
 
-log = logging.getLogger('xivo_sysconf.modules.dnetintf') # pylint: disable-msg=C0103
+log = logging.getLogger('xivo_sysconf.modules.dnetintf')
 
 
 class InetxParser:
@@ -634,7 +634,7 @@ class DNETIntf:
 
     def get_interface_filecontent(self, conf):
         backupfilepath = None
-        
+
         if not os.path.isdir(self.CONFIG['interfaces_backup_path']):
             os.makedirs(self.CONFIG['interfaces_backup_path'])
 
