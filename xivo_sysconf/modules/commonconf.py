@@ -100,7 +100,7 @@ class CommonConf(jsoncore.JsonCore):
         '8. Databases'  : ['xivo.xivodb' , 'xivo.astdb']
     }
     KEYSELECT = ''
-    
+
     ## overriden generators
     def _gen_bool(self, f, key, value):
         value = 1 if value else 0
@@ -110,8 +110,8 @@ class CommonConf(jsoncore.JsonCore):
     def apply(self, args, options):
         ret = -1
         try:
-            p = subprocess.Popen([self.cmd], 
-                                 stdout=subprocess.PIPE, 
+            p = subprocess.Popen([self.cmd],
+                                 stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
             ret = p.wait()
@@ -122,8 +122,8 @@ class CommonConf(jsoncore.JsonCore):
                 raise HttpReqError(500, output)
 
             # monit configuration also need to be updated (if emails changed)
-            p = subprocess.Popen([self.monit], 
-                                 stdout=subprocess.PIPE, 
+            p = subprocess.Popen([self.monit],
+                                 stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
             ret = p.wait()
@@ -137,5 +137,5 @@ class CommonConf(jsoncore.JsonCore):
             raise HttpReqError(500, "can't apply ha changes")
 
         return output
-        
+
 commonconf = CommonConf()

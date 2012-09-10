@@ -80,7 +80,7 @@ class LshwExecutionError(Exception):
 def Lshw(args, options):
     """
     GET /lshw
-    
+
     Just returns the list hardware
 
     >>> lshw({}, {'class':  'network'})

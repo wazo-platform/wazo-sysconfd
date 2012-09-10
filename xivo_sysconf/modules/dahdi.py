@@ -49,26 +49,26 @@ CONFIG_ESF = (1 << 5)
 CONFIG_AMI = (1 << 6)
 CONFIG_B8ZS = (1 << 7)
 # E1
-CONFIG_CCS = (1 << 8) # CCS (ISDN) instead of CAS  = (Robbed Bit) 
-CONFIG_HDB3 = (1 << 9) # HDB3 instead of AMI  = (line coding) 
-CONFIG_CRC4 = (1 << 10) # CRC4 framing 
+CONFIG_CCS = (1 << 8) # CCS (ISDN) instead of CAS  = (Robbed Bit)
+CONFIG_HDB3 = (1 << 9) # HDB3 instead of AMI  = (line coding)
+CONFIG_CRC4 = (1 << 10) # CRC4 framing
 CONFIG_NOTOPEN = (1 << 16)
 #            . BRI
-CONFIG_NTTE = (1 << 11)        # To enable NT mode, set this bit to 1, for TE this should be 0 
-CONFIG_TERM = (1 << 12)      # To enable Termination resistance set this bit to 1 
+CONFIG_NTTE = (1 << 11)        # To enable NT mode, set this bit to 1, for TE this should be 0
+CONFIG_TERM = (1 << 12)      # To enable Termination resistance set this bit to 1
 
-# Alarm Condition bits 
+# Alarm Condition bits
 ALARM_NONE = 0              # No = alarms
 ALARM_RECOVER = (1 << 0)     # Recovering from alarm
 ALARM_LOOPBACK = (1 << 1)     # In loopback
 ALARM_YELLOW = (1 << 2)     # Yellow Alarm
-ALARM_RED = (1 << 3)     # Red Alarm 
-ALARM_BLUE = (1 << 4)     # Blue Alarm 
+ALARM_RED = (1 << 3)     # Red Alarm
+ALARM_BLUE = (1 << 4)     # Blue Alarm
 ALARM_NOTOPEN = (1 << 5)
-# Verbose alarm states (upper byte) 
+# Verbose alarm states (upper byte)
 ALARM_LOS = (1 << 8)     # Loss of Signal
 ALARM_LFA = (1 << 9)     # Loss of Frame Alignment
-ALARM_LMFA = (1 << 10)    # Loss of Multi-Frame Align 
+ALARM_LMFA = (1 << 10)    # Loss of Multi-Frame Align
 
 # signaling type
 SIG_BROKEN = (1 << 31)    # The port is broken and/or failed initialization

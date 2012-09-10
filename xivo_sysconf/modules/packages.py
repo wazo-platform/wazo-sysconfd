@@ -157,7 +157,7 @@ class Packages:
     def dependencies_asterisk(self, args, options):
         """
         GET /dependencies_asterisk
-        
+
         Just returns asterisk dependencies and their status
         """
 
@@ -174,7 +174,7 @@ class Packages:
     def dependencies_postgresql(self, args, options):
         """
         GET /dependencies_postgresql
-        
+
         Just returns postgresql dependencies and their status
         """
 
@@ -192,7 +192,7 @@ class Packages:
     def dependencies_mysql(self, args, options):
         """
         GET /dependencies_mysql
-        
+
         Just returns mysql dependencies and their status
         """
 
@@ -210,7 +210,7 @@ class Packages:
     def dependencies_sqlite(self, args, options):
         """
         GET /dependencies_sqlite
-        
+
         Just returns sqlite dependencies and their status
         """
 
@@ -228,7 +228,7 @@ class Packages:
     def dependencies_xivo(self, args, options):
         """
         GET /dependencies_xivo
-        
+
         Just returns xivo dependencies and their status
         """
 

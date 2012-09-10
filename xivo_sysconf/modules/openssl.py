@@ -103,7 +103,7 @@ class OpenSSL(object):
                     'path'      : os.path.join(self.certsdir, fname)
             }
 
-            # guess what filetype is it, reading content, 
+            # guess what filetype is it, reading content,
             # and searching for '---- BEGIN xxx ----' lines
             with open(os.path.join(self.certsdir, fname)) as f:
                 content = f.read()
@@ -135,7 +135,7 @@ class OpenSSL(object):
 
                     returns
                         a dictionary containing certificate informations
-                
+
                     >>> getCertificateInfos('wiki.proformatique.com')
                         {
                             'sn'             : 2445288...L
@@ -201,7 +201,7 @@ class OpenSSL(object):
 
                     returns
                         a text stream (pubkey)
-                
+
                     >>> getPubKey('wiki.proformatique.com')
                     -----BEGIN PUBLIC KEY-----
                     MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGPItvzRZKECt6mLOpuFLZUAqy
@@ -220,7 +220,7 @@ class OpenSSL(object):
 
     def export(self, args, options):
         """Export certificate, private key or public key
- 
+
                 args:
                       . filename
         """
@@ -318,7 +318,7 @@ class OpenSSL(object):
                             certificate validity start from now until now+validity
                         . extens                : certificat key/value extensions
                             i.e: a CA certificate need 'basicConstraints: CA=TRUE' extension
-                            
+
                     returns:
                         the X509 certificate
 

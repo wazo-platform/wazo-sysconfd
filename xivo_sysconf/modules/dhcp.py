@@ -28,7 +28,7 @@ def dhcpd_update(args, options):
     """Download the latest ISC dhcp server configuration files and
     regenerate the affected configuration files via the dhcpd-update
     command.
-    
+
     """
     try:
         returncode = subprocess.call(DHCPD_UDPATE_COMMAND, close_fds=True)

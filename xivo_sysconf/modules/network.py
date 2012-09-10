@@ -38,7 +38,7 @@ NETLOCK = RWLock()
 def network_config(args):
     """
     GET /network_config
-    
+
     Just returns the network configuration
     """
     if not NETLOCK.acquire_read(NET_LOCK_TIMEOUT):
@@ -58,7 +58,7 @@ new_name: !~~prefixedDec eth
 def rename_ethernet_interface(args):
     """
     POST /rename_ethernet_interface
-    
+
     args ex:
     {'old_name': "eth42",
      'new_name': "eth1"}
@@ -82,7 +82,7 @@ name2: !~~prefixedDec eth
 def swap_ethernet_interfaces(args):
     """
     POST /swap_ethernet_interfaces
-    
+
     args ex:
     {'name1': "eth0",
      'name2': "eth1"}
