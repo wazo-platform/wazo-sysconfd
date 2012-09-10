@@ -379,11 +379,13 @@ class Dahdi(object):
                 # coding
                 for c in ('B8ZS', 'AMI', 'HDB3'):
                     if ret[_s.index('lineconfig')] & eval('CONFIG_' + c) != 0:
-                        span['config']['coding'] = c; break
+                        span['config']['coding'] = c
+                        break
                 # framing
                 for c in ('ESF', 'D4', 'CCS'):
                     if ret[_s.index('lineconfig')] & eval('CONFIG_' + c) != 0:
-                        span['config']['framing'] = c; break
+                        span['config']['framing'] = c
+                        break
 
             else:
                 # analogic
@@ -431,7 +433,8 @@ class Dahdi(object):
             for i in (7, 5, 3):
                 subkey = ''.join(pcikey[:i])
                 if subkey in PCI_IDS:
-                    dev.update(PCI_IDS[subkey]); devices[pciid] = dev; break
+                    dev.update(PCI_IDS[subkey]); devices[pciid] = dev
+                    break
 
 
         DRVPATH = '/sys/bus/pci/drivers'
