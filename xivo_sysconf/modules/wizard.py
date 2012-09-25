@@ -38,7 +38,7 @@ log = logging.getLogger('xivo_sysconf.modules.wizard')
 
 WIZARDLOCK = RWLock()
 
-Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr', 'share', 'pf-xivo-base-config', 'templates'),
+Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr', 'share', 'xivo-config', 'templates'),
        'custom_templates_path':                 os.path.join(os.path.sep, 'etc', 'pf-xivo', 'custom-templates'),
        'lock_timeout':                          60,
        'agid_config_filename':                  "xivo-agid.conf",
