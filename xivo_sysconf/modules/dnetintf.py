@@ -110,7 +110,7 @@ class InetxParser:
                 option, args = self.parse_multiargs(line)
                 if not option:
                     continue
-                elif not self.OPTIONS.has_key(option):
+                elif option not in self.OPTIONS:
                     self.interfaces[ifname].append((option, args))
                     continue
 
@@ -139,7 +139,7 @@ class NetworkConfig(dumbnet.intf):
     """
 
     INTF_TYPES = dict((getattr(dumbnet, x), x[10:].lower())
-                       for x in dir(dumbnet) if x.startswith("INTF_TYPE_"))
+                      for x in dir(dumbnet) if x.startswith("INTF_TYPE_"))
 
     def __init__(self):
         dumbnet.intf.__init__(self)
@@ -158,7 +158,7 @@ class NetworkConfig(dumbnet.intf):
         route = self.route.get(xaddr)
 
         if not defgw \
-           or (route and defgw != route):
+                or (route and defgw != route):
             return None
 
         defgwstr = str(defgw)
@@ -175,12 +175,12 @@ class NetworkConfig(dumbnet.intf):
         Return the configuration for a network interface as a dict like interfaces(5).
         """
         if not ifent \
-           or ifent['type'] not in (dumbnet.INTF_TYPE_LOOPBACK, dumbnet.INTF_TYPE_ETH):
+                or ifent['type'] not in (dumbnet.INTF_TYPE_LOOPBACK, dumbnet.INTF_TYPE_ETH):
             return ifent
 
         ret = {'name': ifent['name']}
 
-        if not ifent.has_key('addr'):
+        if 'addr' not in ifent:
             ret['mtu'] = ifent['mtu']
             ret['flags'] = ifent['flags']
             ret['type'] = self.INTF_TYPES[ifent['type']]
@@ -191,7 +191,7 @@ class NetworkConfig(dumbnet.intf):
             else:
                 ret['family'] = 'unknown'
 
-            if ifent.has_key('link_addr'):
+            if 'link_addr' in ifent:
                 ret['hwaddress'] = str(ifent['link_addr'])
 
             return ret
@@ -200,7 +200,7 @@ class NetworkConfig(dumbnet.intf):
         if xaddr.addrtype == dumbnet.ADDR_TYPE_IP:
             ret['address'] = dumbnet.ip_ntoa(xaddr.ip)
             ret['netmask'] = network.format_ipv4(
-                                        network.bitmask_to_mask_ipv4(xaddr.bits))
+                network.bitmask_to_mask_ipv4(xaddr.bits))
             ret['broadcast'] = str(xaddr.bcast())
             ret['network'] = str(xaddr.net())
             ret['mtu'] = ifent['mtu']
@@ -214,10 +214,10 @@ class NetworkConfig(dumbnet.intf):
             if gw:
                 ret['gateway'] = gw
 
-            if ifent.has_key('dst_addr'):
+            if 'dst_addr' in ifent:
                 ret['pointopoint'] = str(ifent['dst_addr'])
 
-            if ifent.has_key('link_addr'):
+            if 'link_addr' in ifent:
                 ret['hwaddress'] = str(ifent['link_addr'])
         elif xaddr.addrtype == dumbnet.ADDR_TYPE_IP6:
             ret['address'] = dumbnet.ip6_ntoa(xaddr.ip6)
@@ -228,7 +228,7 @@ class NetworkConfig(dumbnet.intf):
             ret['type'] = self.INTF_TYPES[ifent['type']]
             ret['family'] = 'inet6'
 
-            if ifent.has_key('link_addr'):
+            if 'link_addr' in ifent:
                 ret['hwaddress'] = str(ifent['link_addr'])
 
         return ret
@@ -247,7 +247,7 @@ class NetworkConfig(dumbnet.intf):
         Return the configuration for the best interface with which to
         reach the specified dst address.
         """
-        self.__realloc__() # XXX: Workarround
+        self.__realloc__()  # XXX: Workarround
         return self._intf_repr(dumbnet.intf.get_dst(self, dst))
 
     def get_src(self, src):
@@ -274,7 +274,7 @@ class NetworkConfig(dumbnet.intf):
         newgateway = None
         delgateway = None
 
-        if d.has_key('gateway'):
+        if 'gateway' in d:
             if iface['type'] != 'eth' or iface['family'] != 'inet':
                 raise NotImplementedError("This method only supports modify IPv4 gateway for ethernet interface")
 
@@ -283,16 +283,16 @@ class NetworkConfig(dumbnet.intf):
             if iface.get('gateway', None) != gwstr:
                 newgateway = dumbnet.addr("%s" % d['gateway'])
         # If d hasn't gateway but iface has a gateway, remove previous gateway.
-        elif iface.has_key('gateway'):
+        elif 'gateway' in iface:
             if iface['type'] != 'eth' or iface['family'] != 'inet':
                 raise NotImplementedError("This method only supports modify IPv4 gateway for ethernet interface")
 
             delgateway = d['addr']
 
-        if d.has_key('pointopoint'):
+        if 'pointopoint' in d:
             d['dst_addr'] = dumbnet.addr("%s" % d['pointopoint'])
 
-        if d.has_key('hwaddress'):
+        if 'hwaddress' in d:
             d['link_addr'] = dumbnet.addr("%s" % d['hwaddress'], dumbnet.ADDR_TYPE_ETH)
 
         dumbnet.intf.set(self, d)
@@ -303,7 +303,7 @@ class NetworkConfig(dumbnet.intf):
                 self.route.delete(self.default_dst_ipv4)
             except OSError, e:
                 # If an error has occurred, rollback
-                if iface.has_key('gateway'):
+                if 'gateway' in iface:
                     del iface['gateway']
 
                 self.set(iface)
@@ -321,7 +321,7 @@ class NetworkConfig(dumbnet.intf):
                 self.route.add(self.default_dst_ipv4, newgateway)
             except OSError, e:
                 # If an error has occurred, rollback
-                if iface.has_key('gateway'):
+                if 'gateway' in iface:
                     del iface['gateway']
 
                 self.set(iface)
@@ -349,12 +349,12 @@ class DNETIntf:
     """
 
     LOCK = RWLock()
-    CONFIG = {'interfaces_file':       os.path.join(os.path.sep, 'etc', 'network', 'interfaces'),
-               'interfaces_tpl_file':   os.path.join('network', 'interfaces'),
-               'netiface_up_cmd':       "sudo /sbin/ifup",
-               'netiface_down_cmd':     "sudo /sbin/ifdown",
-               'netiface_ip_delete_cmd':     "sudo /bin/ip link delete",
-               'lock_timeout':          60}
+    CONFIG = {'interfaces_file': os.path.join(os.path.sep, 'etc', 'network', 'interfaces'),
+              'interfaces_tpl_file': os.path.join('network', 'interfaces'),
+              'netiface_up_cmd': "sudo /sbin/ifup",
+              'netiface_down_cmd': "sudo /sbin/ifdown",
+              'netiface_ip_delete_cmd': "sudo /bin/ip link delete",
+              'lock_timeout': 60}
 
     def __init__(self):
         self.netcfg = NetworkConfig()
@@ -394,7 +394,7 @@ class DNETIntf:
         except OSError:
             return False
 
-        if not info or not info.has_key('family'):
+        if not info or 'family' not in info:
             return False
 
         info['carrier'] = False
@@ -415,13 +415,13 @@ class DNETIntf:
             info['vlanif'] = network.is_linux_vlan_if(iface)
             info['hwtypeid'] = network.get_interface_hwtypeid(iface)
 
-            if not info['physicalif'] and info.has_key('gateway'):
+            if not info['physicalif'] and 'gateway' in info:
                 del info['gateway']
 
-            if not info.has_key('hwaddress'):
+            if 'hwaddress' not in info:
                 info['hwaddress'] = network.get_interface_hwaddress(iface)
 
-            if not info.has_key('mtu'):
+            if 'mtu' not in info:
                 info['mtu'] = network.get_interface_mtu(iface)
         else:
             if network.is_alias_if(iface):
@@ -430,7 +430,7 @@ class DNETIntf:
                 info['alias-raw-device'] = phyifname
 
                 if network.is_linux_netdev_if(phyifname):
-                    if info.has_key('gateway'):
+                    if 'gateway' in info:
                         try:
                             phyinfo = self.netcfg.get(phyifname)
                             if phyinfo.get('gateway') == info['gateway']:
@@ -441,13 +441,13 @@ class DNETIntf:
                     info['carrier'] = network.is_interface_plugged(phyifname)
                     info['hwtypeid'] = network.get_interface_hwtypeid(phyifname)
 
-            if not info.has_key('flags'):
+            if 'flags' not in info:
                 info['flags'] = None
 
-            if not info.has_key('hwaddress'):
+            if 'hwaddress' not in info:
                 info['hwaddress'] = None
 
-            if not info.has_key('mtu'):
+            if 'mtu' not in info:
                 info['mtu'] = None
 
         if info['family'] in ('inet', 'inet6'):
@@ -461,8 +461,8 @@ class DNETIntf:
                 info['vlan-raw-device'] = xdict.get('vlan-raw-device')
 
                 if 'address' not in info \
-                    and 'address' in xdict \
-                    and 'netmask' in xdict:
+                        and 'address' in xdict \
+                        and 'netmask' in xdict:
                     info['address'] = xdict.get('address')
                     info['netmask'] = xdict['netmask']
 
@@ -473,13 +473,13 @@ class DNETIntf:
                         info['network'] = xdict['network']
 
                 if info['family'] == 'inet' \
-                   and not info.has_key('gateway') \
-                   and info.has_key('netmask') \
-                   and info.has_key('network') \
-                   and xdict.has_key('gateway') \
-                   and network.ipv4_in_network(network.parse_ipv4(xdict['gateway']),
-                                               network.parse_ipv4(info['netmask']),
-                                               network.parse_ipv4(info['network'])):
+                        and 'gateway' not in info \
+                        and 'netmask' in info \
+                        and 'network' in info \
+                        and 'gateway' in xdict \
+                        and network.ipv4_in_network(network.parse_ipv4(xdict['gateway']),
+                                                    network.parse_ipv4(info['netmask']),
+                                                    network.parse_ipv4(info['network'])):
                     info['gateway'] = xdict['gateway']
         else:
             info['method'] = None
@@ -601,7 +601,7 @@ class DNETIntf:
     def _get_valid_eth_ipv4(self):
         if 'ifname' in self.options:
             if not isinstance(self.options['ifname'], basestring) \
-               or not xivo_config.netif_managed(self.options['ifname']):
+                    or not xivo_config.netif_managed(self.options['ifname']):
                 raise HttpReqError(415, "invalid interface name, ifname: %r" % self.options['ifname'])
 
             try:
@@ -654,17 +654,18 @@ class DNETIntf:
         template_lines = template_file.readlines()
         template_file.close()
 
-        filecontent = xivo_config.txtsubst(template_lines,
-                                           {'_XIVO_NETWORK_INTERFACES':
-                                                ''.join(xivo_config.generate_interfaces(old_lines, conf))},
-                                           self.CONFIG['interfaces_file'],
-                                           'utf8')
+        filecontent = xivo_config.txtsubst(
+            template_lines,
+            {
+                '_XIVO_NETWORK_INTERFACES': ''.join(xivo_config.generate_interfaces(old_lines, conf))
+            },
+            self.CONFIG['interfaces_file'],
+            'utf8')
 
         if old_lines:
             old_lines.close()
 
         return (filecontent, backupfilepath)
-
 
     MODIFY_PHYSICAL_ETH_IPV4_SCHEMA = xys.load("""
     method:     !~~enum(static,dhcp)
@@ -709,9 +710,9 @@ class DNETIntf:
         self.args['auto'] = self.args.get('auto', True)
         self.args['family'] = 'inet'
 
-        conf = {'netIfaces':        {},
-                'vlans':            {},
-                'customipConfs':    {}}
+        conf = {'netIfaces': {},
+                'vlans': {},
+                'customipConfs': {}}
 
         netifacesbakfile = None
 
@@ -740,7 +741,6 @@ class DNETIntf:
             return True
         finally:
             self.LOCK.release()
-
 
     REPLACE_VIRTUAL_ETH_IPV4_SCHEMA = xys.load("""
     ifname:         !!str vlan42
@@ -835,9 +835,9 @@ class DNETIntf:
         self.args['auto'] = self.args.get('auto', True)
         self.args['family'] = 'inet'
 
-        conf = {'netIfaces':        {},
-                'vlans':            {},
-                'customipConfs':    {}}
+        conf = {'netIfaces': {},
+                'vlans': {},
+                'customipConfs': {}}
 
         netifacesbakfile = None
 
@@ -867,7 +867,6 @@ class DNETIntf:
             return True
         finally:
             self.LOCK.release()
-
 
     MODIFY_ETH_IPV4_SCHEMA = xys.load("""
     address:    !~ipv4_address 192.168.0.1
@@ -904,20 +903,20 @@ class DNETIntf:
         if not xys.validate(self.args, self.MODIFY_ETH_IPV4_SCHEMA):
             raise HttpReqError(415, "invalid arguments for command")
 
-        if self.args.has_key('up'):
+        if 'up' in self.args:
             if self.args['up']:
                 eth['flags'] |= dumbnet.INTF_FLAG_UP
             else:
                 eth['flags'] &= ~dumbnet.INTF_FLAG_UP
             del self.args['up']
 
-        if not self.args.has_key('broadcast') and eth.has_key('broadcast'):
+        if 'broadcast' not in self.args and 'broadcast' in eth:
             del eth['broadcast']
 
-        if not self.args.has_key('gateway') and eth.has_key('gateway'):
+        if 'gateway' not in self.args and 'gateway' in eth:
             del eth['gateway']
 
-        if not self.args.has_key('mtu') and eth.has_key('mtu'):
+        if 'mtu' not in self.args and 'mtu' in eth:
             del eth['mtu']
 
         eth.update(self.args)
@@ -931,17 +930,17 @@ class DNETIntf:
         elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
             raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
 
-        conf = {'netIfaces':    {},
-                'vlans':        {},
-                'ipConfs':      {}}
+        conf = {'netIfaces': {},
+                'vlans': {},
+                'ipConfs': {}}
 
         ret = False
         netifacesbakfile = None
 
         try:
             if self.CONFIG['netiface_down_cmd'] \
-               and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0 \
-               and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
+                    and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0 \
+                    and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
                 ret = True
 
             for iface in netifaces.interfaces():
@@ -958,12 +957,12 @@ class DNETIntf:
                 system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
 
                 if self.CONFIG['netiface_up_cmd'] \
-                   and (eth['flags'] & dumbnet.INTF_FLAG_UP) \
-                   and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
+                        and (eth['flags'] & dumbnet.INTF_FLAG_UP) \
+                        and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
                     ret = True
 
                 if not ret:
-                    if eth.has_key('gateway') and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
+                    if 'gateway' in eth and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
                         del eth['gateway']
                     self.netcfg.set(eth)
             except Exception, e:
@@ -973,7 +972,6 @@ class DNETIntf:
             return True
         finally:
             self.LOCK.release()
-
 
     CHANGE_STATE_ETH_SCHEMA = xys.load("""
     state:  !!bool True
@@ -996,9 +994,9 @@ class DNETIntf:
         elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
             raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
 
-        conf = {'netIfaces':        {},
-                'vlans':            {},
-                'customipConfs':    {}}
+        conf = {'netIfaces': {},
+                'vlans': {},
+                'customipConfs': {}}
 
         ret = False
         netifacesbakfile = None
@@ -1012,14 +1010,14 @@ class DNETIntf:
                 eth['flags'] |= dumbnet.INTF_FLAG_UP
 
                 if self.CONFIG['netiface_up_cmd'] \
-                   and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
+                        and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
                     ret = True
             else:
                 eth['auto'] = False
                 eth['flags'] &= ~dumbnet.INTF_FLAG_UP
 
                 if self.CONFIG['netiface_down_cmd'] \
-                   and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0:
+                        and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0:
                     ret = True
 
             eth['ifname'] = eth['name']
@@ -1033,7 +1031,7 @@ class DNETIntf:
                 system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
 
                 if not ret:
-                    if not self.args['state'] and eth.has_key('gateway'):
+                    if not self.args['state'] and 'gateway' in eth:
                         del eth['gateway']
                     self.netcfg.set(eth)
             except Exception, e:
@@ -1065,7 +1063,7 @@ class DNETIntf:
         if not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
             raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
 
-        conf = {'netIfaces':    {}}
+        conf = {'netIfaces': {}}
 
         ret = False
         netifacesbakfile = None
@@ -1078,7 +1076,7 @@ class DNETIntf:
             conf['netIfaces'][ifname] = 'removed'
 
             if self.CONFIG['netiface_ip_delete_cmd'] \
-               and subprocess.call(self.CONFIG['netiface_ip_delete_cmd'].strip().split() + [ifname]) == 0:
+                    and subprocess.call(self.CONFIG['netiface_ip_delete_cmd'].strip().split() + [ifname]) == 0:
                 ret = True
 
             filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
@@ -1092,7 +1090,7 @@ class DNETIntf:
                     raise HttpReqError(404, "interface not found")
 
                 eth['flags'] &= ~dumbnet.INTF_FLAG_UP
-                if eth.has_key('gateway'):
+                if 'gateway' in eth:
                     del eth['gateway']
                 self.netcfg.set(eth)
             except HttpReqError, e:
