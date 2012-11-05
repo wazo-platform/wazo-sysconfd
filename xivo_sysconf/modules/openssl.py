@@ -74,21 +74,30 @@ class OpenSSL(object):
         self.m = magic.open(magic.MAGIC_NONE)
         self.m.load('/usr/share/file/magic.mgc')
 
+    def _get_abs_path_file(self, namefile):
+        rel_file_path = os.path.join(self.certsdir, namefile)
+        abs_file_path = os.path.abspath(rel_file_path)
+
+        if not abs_file_path.startswith(self.certsdir):
+            raise HttpReqError(404, "file not valid", json=True)
+
+        return abs_file_path
+
     def _keyfile(self, name):
         """private key"""
-        return os.path.join(self.certsdir, name + '.key')
+        return self._get_abs_path_file(name + '.key')
 
     def _crtfile(self, name):
         """certificate"""
-        return os.path.join(self.certsdir, name + '.crt')
+        return self._get_abs_path_file(name + '.crt')
 
     def _pemfile(self, name):
         """private key + certificate"""
-        return os.path.join(self.certsdir, name + '.pem')
+        return self._get_abs_path_file(name + '.pem')
 
     def _pubfile(self, name):
         """pub key"""
-        return os.path.join(self.certsdir, name + '.pub')
+        return self._get_abs_path_file(name + '.pub')
 
     def listCertificates(self, args, options):
         """Return list of available certificates & keys
@@ -104,7 +113,7 @@ class OpenSSL(object):
             }
 
             # guess what filetype is it, reading content,
-            # and searching for '---- BEGIN xxx ----' lines
+            #  and searching for '---- BEGIN xxx ----' lines
             with open(os.path.join(self.certsdir, fname)) as f:
                 content = f.read()
 
@@ -227,10 +236,12 @@ class OpenSSL(object):
         if 'name' not in options:
             raise HttpReqError(400, "missing 'name' option", json=True)
 
-        if not os.path.exists(os.path.join(self.certsdir, options['name'])):
+        abs_file_path = self._get_abs_path_file(options['name'])
+
+        if not os.path.exists(abs_file_path):
             raise HttpReqError(404, "file not found", json=True)
 
-        with open(os.path.join(self.certsdir, options['name']), 'r') as f:
+        with open(abs_file_path, 'r') as f:
             content = f.read()
 
         return content
@@ -254,7 +265,7 @@ class OpenSSL(object):
 
         def _getpwd(*_args):
             return password
-        #NOTE: when empty password, need not to use a cipher, or generated key file is empty
+        # NOTE: when empty password, need not to use a cipher, or generated key file is empty
         rsa.save_key(self._keyfile(name),
             cipher=cipher if len(password) > 0 else None,
                         callback=_getpwd)
@@ -285,7 +296,7 @@ class OpenSSL(object):
 
         # Create request
         req = X509.Request()
-        #req.set_version(req.get_version())
+        # req.set_version(req.get_version())
         req.set_pubkey(pubkey)
         name = X509.X509_Name()
         name.CN = subject.get('CN', '*')
@@ -402,7 +413,7 @@ class OpenSSL(object):
         # Create x509 certificate (autosigned)
         cert = self._makecert(req, (req, pubkey), args.get('validity', 365), {'basicConstraints': 'CA:TRUE'})
 
-        # saving certificate
+        #  saving certificate
         cert.save(self._crtfile(args['name']))
         # make PEM as concatenation of key + x509 certificate
         pem = open(os.path.join(self.certsdir, args['name'] + '.pem'), 'wb')
@@ -467,8 +478,8 @@ class OpenSSL(object):
                 raise HttpReqError(409, "CA certificate key not found", json=True)
 
             # loading CA private key
-        #NOTE: RSA fail to read password (with "bad password read message") if we
-            #make "args.get()" IN _getpass()
+        # NOTE: RSA fail to read password (with "bad password read message") if we
+            # make "args.get()" IN _getpass()
             pwd = args.get('ca_password', '')
             def _getpass(*args, **kwargs):
                 return pwd
@@ -516,7 +527,7 @@ class OpenSSL(object):
 
         os.remove(os.path.join(self.certsdir, options['name']))
 
-        # deleting symlinks if exists
+        #  deleting symlinks if exists
         for name in (options['name'], options['name'] + '.pub', options['name'] + '.key'):
             path = os.path.join('/var/lib/asterisk/keys', name)
             if os.path.lexists(path) and os.path.islink(path) and os.readlink(path) == os.path.join(self.certsdir, options['name']):
