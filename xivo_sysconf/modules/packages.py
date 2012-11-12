@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 __license__ = """
-    Copyright (C) 2010  Avencall
+    Copyright (C) 2012  Avencall
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,36 +30,32 @@ from xivo_sysconf import helpers
 
 log = logging.getLogger('xivo_sysconf.modules.packages')
 
-PACKAGES_LOCK_TIMEOUT = 60 # XXX
+PACKAGES_LOCK_TIMEOUT = 60  # XXX
 PACKAGESLOCK = RWLock()
 
-PACKAGES_LIST = {'asterisk':
-                                {'depends':     ['asterisk'],
-                                 'recommends':  ['asterisk-moh-opsound-g722', 'asterisk-moh-opsound-gsm', 'asterisk-moh-opsound-wav']},
-                   'mysql':
-                                {'depends':     ['php5-mysql'],
-                                 'ipbxengine':  {'asterisk':
-                                                                {'depends': ['asterisk-mysql']}}},
-                   'sqlite':
-                                {'depends':     ['sqlite', 'php5-sqlite'],
-                                 'ipbxengine':
-                                                {'asterisk':
-                                                                {'depends':  ['pf-asterisk-res-sqlite2']}}},
-		   'postgresql':{'depends':     ['postgresql', 'php5-pgsql']},
-                   'xivo':      {'depends':     ['pf-xivo']}}
+PACKAGES_LIST = {'asterisk': {'depends': ['asterisk'],
+                              'recommends': ['asterisk-moh-opsound-g722',
+                                             'asterisk-moh-opsound-gsm',
+                                             'asterisk-moh-opsound-wav']
+                             },
+                 'postgresql': {'depends': ['postgresql',
+                                            'php5-pgsql']
+                               },
+                 'xivo': {'depends': ['pf-xivo']}
+                }
 
 PACKAGES_DEPENDENCY_LEVELS = ('depends',
-                                'recommends',
-                                'suggests',
-                                'enhances',
-                                'pre-depends')
+                              'recommends',
+                              'suggests',
+                              'enhances',
+                              'pre-depends')
 
 
-class Packages:
+class Packages(object):
+
     def __init__(self):
         self.aptcache = None
         self.reqpkg = None
-
         self.opts = {}
         self.args = {}
         self.options = {}
@@ -189,42 +185,6 @@ class Packages:
 
         return self._dependencies_list()
 
-    def dependencies_mysql(self, args, options):
-        """
-        GET /dependencies_mysql
-
-        Just returns mysql dependencies and their status
-        """
-
-        self.reqpkg = 'mysql'
-        self.opts = {}
-
-        self.args = args
-        self.options = options
-
-        self._get_dependency_level()
-        self._get_ipbxengine()
-
-        return self._dependencies_list()
-
-    def dependencies_sqlite(self, args, options):
-        """
-        GET /dependencies_sqlite
-
-        Just returns sqlite dependencies and their status
-        """
-
-        self.reqpkg = 'sqlite'
-        self.opts = {}
-
-        self.args = args
-        self.options = options
-
-        self._get_dependency_level()
-        self._get_ipbxengine()
-
-        return self._dependencies_list()
-
     def dependencies_xivo(self, args, options):
         """
         GET /dependencies_xivo
@@ -247,7 +207,5 @@ packages = Packages()
 
 http_json_server.register(packages.aptcache_update, CMD_R)
 http_json_server.register(packages.dependencies_asterisk, CMD_R)
-http_json_server.register(packages.dependencies_mysql, CMD_R)
 http_json_server.register(packages.dependencies_postgresql, CMD_R)
-http_json_server.register(packages.dependencies_sqlite, CMD_R)
 http_json_server.register(packages.dependencies_xivo, CMD_R)
