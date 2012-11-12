@@ -1,8 +1,7 @@
 # -*- coding: utf8 -*-
 
-__author__ = "Guillaume Bour <gbour@proformatique.com>"
 __license__ = """
-    Copyright (C) 2010-2011  Avencall
+    Copyright (C) 2010-2012  Avencall
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,8 +29,8 @@ from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW, CMD_R
 
 CIPHERS = {
-    'aes'  : 'aes_128_cbc',
-    'des'  : 'des_ede_cbc',
+    'aes' : 'aes_128_cbc',
+    'des' : 'des_ede_cbc',
     'des3' : 'des_ede3_cbc',
     'idea' : 'idea_cbc'
 }
@@ -40,10 +39,10 @@ DEFAULT_CIPHER = CIPHERS['aes']
 
 # certificates/keys magic headers
 MAGIC = {
-    '-----BEGIN CERTIFICATE-----\n'         : 'certificate',
-    '-----BEGIN RSA PRIVATE KEY-----\n'     : 'privkey',
-    '-----BEGIN DSA PRIVATE KEY-----\n'     : 'privkey',
-    '-----BEGIN PUBLIC KEY-----\n'          : 'pubkey',
+    '-----BEGIN CERTIFICATE-----\n' : 'certificate',
+    '-----BEGIN RSA PRIVATE KEY-----\n' : 'privkey',
+    '-----BEGIN DSA PRIVATE KEY-----\n' : 'privkey',
+    '-----BEGIN PUBLIC KEY-----\n' : 'pubkey',
     '-----BEGIN CERTIFICATE REQUEST-----\n' : 'request',
 }
 
