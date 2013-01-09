@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 __license__ = """
-    Copyright (C) 2012  Avencall
+    Copyright (C) 2012-2013  Avencall
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ import subprocess
 import socket
 
 from xivo.http_json_server import register, HttpReqError, CMD_RW
+from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
+from xivo_agent.ctl.client import AgentClient
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +56,10 @@ AST_CMDS = [
 
 class RequestHandlers(object):
 
-    def __init__(self):
+    def __init__(self, agent_bus_handler):
+        self._agent_bus_handler = agent_bus_handler
+
+    def read_config(self):
         conf_obj = ConfigParser.RawConfigParser()
         with open(SOCKET_CONFFILE) as fobj:
             conf_obj.readfp(fobj)
@@ -118,18 +123,30 @@ class RequestHandlers(object):
             else:
                 logger.info("DIRD command '%s' successfully executed", cmd)
 
+    def _exec_agentbus_cmd(self, cmds):
+        self._agent_bus_handler.handle_commands(cmds)
+
     def process(self, args, options):
         for kind in args.keys():
-            if kind not in ['ipbx', 'ctibus', 'dird']:
-                raise HttpReqError(500, "Error wrong data received")
+            if kind not in ['ipbx', 'ctibus', 'dird', 'agentbus']:
+                raise HttpReqError(500, 'Error wrong data received')
 
         ret = {}
         ret['ipbx'] = self._exec_ast_cmd(args['ipbx'])
         self._exec_ctibus_cmd(args['ctibus'])
         self._exec_dird_cmd(args['dird'])
+        self._exec_agentbus_cmd(args.get('agentbus', []))
         logger.debug(ret)
         return ret
 
 
-request_handlers = RequestHandlers()
-register(request_handlers.process, CMD_RW, name='exec_request_handlers')
+def at_start(config):
+    request_handlers.read_config()
+    agent_client.connect()
+    logger.info('request handler setup complete')
+
+agent_client = AgentClient()
+agent_bus_handler = AgentBusHandler(agent_client)
+request_handlers = RequestHandlers(agent_bus_handler)
+
+register(request_handlers.process, CMD_RW, name='exec_request_handlers', at_start=at_start)
