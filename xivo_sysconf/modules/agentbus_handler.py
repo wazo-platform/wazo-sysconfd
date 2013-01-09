@@ -32,11 +32,7 @@ class AgentBusHandler(object):
     def __init__(self, agent_client):
         self._agent_client = agent_client
 
-    def handle_commands(self, commands):
-        for command in commands:
-            self._handle_command(command)
-
-    def _handle_command(self, command):
+    def handle_command(self, command):
         bus_command = self._parse_command(command)
         if bus_command:
             self._execute_bus_command(bus_command)

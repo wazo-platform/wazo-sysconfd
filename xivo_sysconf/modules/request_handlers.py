@@ -124,7 +124,13 @@ class RequestHandlers(object):
                 logger.info("DIRD command '%s' successfully executed", cmd)
 
     def _exec_agentbus_cmd(self, cmds):
-        self._agent_bus_handler.handle_commands(cmds)
+        for cmd in cmds:
+            try:
+                self._agent_bus_handler.handle_command(cmd)
+            except Exception:
+                logger.exception("Error wile executing AGENTBUS command: %s", cmd)
+            else:
+                logger.info("AGENTBUS command '%s' successfully executed", cmd)
 
     def process(self, args, options):
         for kind in args.keys():

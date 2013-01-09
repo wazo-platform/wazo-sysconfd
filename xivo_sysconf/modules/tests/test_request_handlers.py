@@ -12,15 +12,15 @@ class TestRequestHandlers(unittest.TestCase):
         agent_bus_handler = Mock()
         handler = RequestHandlers(agent_bus_handler)
 
-        agent_commands = ['agent.add.1']
+        agent_command = 'agent.add.1'
 
         commands = {
             'ipbx': [],
             'ctibus': [],
             'dird': [],
-            'agentbus': agent_commands,
+            'agentbus': [agent_command],
         }
 
         handler.process(commands, Mock())
 
-        agent_bus_handler.handle_commands.assert_called_once_with(agent_commands)
+        agent_bus_handler.handle_command.assert_called_once_with(agent_command)
