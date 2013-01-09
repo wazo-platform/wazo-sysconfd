@@ -83,10 +83,10 @@ class TestAgentBusHandler(unittest.TestCase):
         agent_client = Mock()
         handler = AgentBusHandler(agent_client)
 
-        commands = ['queue.edit.1']
+        command = 'queue.edit.1'
         queue_id = '1'
 
-        handler.handle_commands(commands)
+        handler.handle_command(command)
 
         agent_client.on_queue_updated.assert_called_once_with(queue_id)
 
