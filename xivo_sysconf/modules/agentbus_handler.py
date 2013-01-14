@@ -49,9 +49,7 @@ class AgentBusHandler(object):
     def _execute_bus_command(self, bus_command):
         client_action = (bus_command.module, bus_command.action)
 
-        if client_action == ('agent', 'add'):
-            self._agent_client.on_agent_added(bus_command.id)
-        elif client_action == ('agent', 'edit'):
+        if client_action == ('agent', 'edit'):
             self._agent_client.on_agent_updated(bus_command.id)
         elif client_action == ('agent', 'delete'):
             self._agent_client.on_agent_deleted(bus_command.id)

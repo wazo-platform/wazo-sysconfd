@@ -46,17 +46,6 @@ class TestAgentBusHandler(unittest.TestCase):
 
         agent_client.on_agent_deleted.assert_called_once_with(agent_id)
 
-    def test_agent_add_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
-        command = 'agent.add.1'
-        agent_id = '1'
-
-        handler.handle_command(command)
-
-        agent_client.on_agent_added.assert_called_once_with(agent_id)
-
     def test_agent_edit_command(self):
         agent_client = Mock()
         handler = AgentBusHandler(agent_client)
