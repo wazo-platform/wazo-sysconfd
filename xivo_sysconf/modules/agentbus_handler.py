@@ -53,9 +53,3 @@ class AgentBusHandler(object):
             self._agent_client.on_agent_updated(bus_command.id)
         elif client_action == ('agent', 'delete'):
             self._agent_client.on_agent_deleted(bus_command.id)
-        elif client_action == ('queue', 'add'):
-            self._agent_client.on_queue_added(bus_command.id)
-        elif client_action == ('queue', 'edit'):
-            self._agent_client.on_queue_updated(bus_command.id)
-        elif client_action == ('queue', 'delete'):
-            self._agent_client.on_queue_deleted(bus_command.id)
