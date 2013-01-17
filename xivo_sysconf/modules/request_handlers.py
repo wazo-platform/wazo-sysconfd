@@ -146,13 +146,28 @@ class RequestHandlers(object):
         return ret
 
 
-def at_start(config):
-    request_handlers.read_config()
-    agent_client.connect()
-    logger.info('request handler setup complete')
+class RequestHandlersProxy(object):
 
-agent_client = AgentClient()
-agent_bus_handler = AgentBusHandler(agent_client)
-request_handlers = RequestHandlers(agent_bus_handler)
+    def __init__(self):
+        self._initialized = False
 
-register(request_handlers.process, CMD_RW, name='exec_request_handlers', at_start=at_start)
+    def handle_request(self, args, options):
+        if not self._initialized:
+            self._initialize()
+            self._initialized = True
+        self._request_handlers.process(args, options)
+
+    def _initialize(self):
+        logger.info('initializing request handlers')
+        self._request_handlers = self._new_request_handlers()
+        self._request_handlers.read_config()
+
+    def _new_request_handlers(self):
+        agent_client = AgentClient()
+        agent_client.connect()
+        agent_bus_handler = AgentBusHandler(agent_client)
+        return RequestHandlers(agent_bus_handler)
+
+
+request_handlers_proxy = RequestHandlersProxy()
+register(request_handlers_proxy.handle_request, CMD_RW, name='exec_request_handlers')
