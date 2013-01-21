@@ -155,7 +155,7 @@ class RequestHandlersProxy(object):
         if not self._initialized:
             self._initialize()
             self._initialized = True
-        self._request_handlers.process(args, options)
+        return self._request_handlers.process(args, options)
 
     def _initialize(self):
         logger.info('initializing request handlers')
