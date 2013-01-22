@@ -71,6 +71,7 @@ class RequestHandlers(object):
         self.dirdbus_host = conf_obj.get('dirdbus', 'bindaddr')
         self.dirdbus_port = int(conf_obj.get('dirdbus', 'port'))
 
+    @debug.trace_duration
     def _exec_ast_cmd(self, cmds):
         logger.debug('-----------------------ASTERISK--------------------------')
         logger.debug(cmds)
@@ -96,6 +97,7 @@ class RequestHandlers(object):
                 logger.error("cmd %s not authorized on", cmd)
         return ret
 
+    @debug.trace_duration
     def _exec_ctibus_cmd(self, cmds):
         logger.debug('-----------------------CTIBUS--------------------------')
         logger.debug(cmds)
@@ -110,6 +112,7 @@ class RequestHandlers(object):
             else:
                 logger.info("CTI command '%s' successfully executed", cmd)
 
+    @debug.trace_duration
     def _exec_dird_cmd(self, cmds):
         logger.debug('-----------------------DIRDBUS--------------------------')
         logger.debug(cmds)
@@ -124,6 +127,7 @@ class RequestHandlers(object):
             else:
                 logger.info("DIRD command '%s' successfully executed", cmd)
 
+    @debug.trace_duration
     def _exec_agentbus_cmd(self, cmds):
         for cmd in cmds:
             try:
