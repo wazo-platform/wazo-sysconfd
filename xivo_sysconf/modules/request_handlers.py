@@ -23,6 +23,7 @@ import logging
 import subprocess
 import socket
 
+from xivo import debug
 from xivo.http_json_server import register, HttpReqError, CMD_RW
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
 from xivo_agent.ctl.client import AgentClient
@@ -132,6 +133,7 @@ class RequestHandlers(object):
             else:
                 logger.info("AGENTBUS command '%s' successfully executed", cmd)
 
+    @debug.trace_duration
     def process(self, args, options):
         for kind in args.keys():
             if kind not in ['ipbx', 'ctibus', 'dird', 'agentbus']:
