@@ -56,3 +56,36 @@ class TestAgentBusHandler(unittest.TestCase):
         handler.handle_command(command)
 
         agent_client.on_agent_updated.assert_called_once_with(agent_id)
+
+    def test_queue_add_command(self):
+        agent_client = Mock()
+        handler = AgentBusHandler(agent_client)
+
+        command = 'queue.add.1'
+        queue_id = '1'
+
+        handler.handle_command(command)
+
+        agent_client.on_queue_added.assert_called_once_with(queue_id)
+
+    def test_queue_edit_command(self):
+        agent_client = Mock()
+        handler = AgentBusHandler(agent_client)
+
+        command = 'queue.edit.1'
+        queue_id = '1'
+
+        handler.handle_command(command)
+
+        agent_client.on_queue_updated.assert_called_once_with(queue_id)
+
+    def test_queue_delete_command(self):
+        agent_client = Mock()
+        handler = AgentBusHandler(agent_client)
+
+        command = 'queue.delete.1'
+        queue_id = '1'
+
+        handler.handle_command(command)
+
+        agent_client.on_queue_deleted.assert_called_once_with(queue_id)
