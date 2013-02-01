@@ -40,7 +40,6 @@ AST_CMDS = [
     'iax2 reload',
     'module reload',
     'module reload app_queue.so',
-    'module reload chan_agent.so',
     'module reload app_meetme.so',
     'features reload',
     'voicemail reload',
