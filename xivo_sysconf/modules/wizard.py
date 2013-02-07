@@ -24,7 +24,7 @@ import apt
 from xivo_dao.alchemy import dbconnection
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_RW
+from xivo.http_json_server import CMD_R
 from xivo import OrderedConf
 from xivo import urisup
 from xivo.moresynchro import RWLock
@@ -33,41 +33,46 @@ from xivo.AsteriskConfigParser import AsteriskConfigParser
 log = logging.getLogger('xivo_sysconf.modules.wizard')
 
 
+AST_DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk?charset=utf8'
+XIVO_DB_URI = 'postgresql://xivo:proformatique@localhost/xivo?encoding=utf8'
+
 WIZARDLOCK = RWLock()
 
-Wdc = {'templates_path':                        os.path.join(os.path.sep, 'usr', 'share', 'xivo-config', 'templates'),
-       'custom_templates_path':                 os.path.join(os.path.sep, 'etc', 'pf-xivo', 'custom-templates'),
-       'lock_timeout':                          60,
-       'agid_config_filename':                  "xivo-agid.conf",
-       'agid_tpl_directory':                    os.path.join('xivo-agid', 'etc', 'pf-xivo'),
-       'agid_config_path':                      None,
-       'asterisk_modules_config_filename':      "modules.conf",
-       'asterisk_extconfig_config_filename':    "extconfig.conf",
-       'asterisk_res_pgsql_config_filename':    "res_pgsql.conf",
-       'asterisk_config_path':                  os.path.join(os.path.sep, 'etc', 'asterisk'),
-       'asterisk_tpl_directory':                'asterisk',
-       'webinterface_xivo_config_filename':     "xivo.ini",
-       'webinterface_ipbx_config_filename':     "ipbx.ini",
-       'webinterface_cti_config_filename':      "cti.ini",
-       'webinterface_tpl_directory':            "web-interface",
-       'webinterface_config_path':              None}
+Wdc = {
+    'templates_path': os.path.join(os.path.sep, 'usr', 'share', 'xivo-config', 'templates'),
+    'custom_templates_path': os.path.join(os.path.sep, 'etc', 'pf-xivo', 'custom-templates'),
+    'lock_timeout': 60,
+    'agid_config_path': None,
+    'asterisk_modules_config_filename': "modules.conf",
+    'asterisk_extconfig_config_filename': "extconfig.conf",
+    'asterisk_res_pgsql_config_filename': "res_pgsql.conf",
+    'asterisk_config_path': os.path.join(os.path.sep, 'etc', 'asterisk'),
+    'asterisk_tpl_directory':  'asterisk',
+}
 
 
 WIZARD_ASTERISK_EXTCONFIG_RE = re.compile(r'^([^,]*)(?:,(".*"|[^,]*)(?:,(.*))?)?$').match
 
-WIZARD_IPBX_ENGINES = {'asterisk':
-                                {'extconfig':   {'queue_log': 'queue_log'},
-                                'database':
-                                    {'postgresql':
-                                        {'params':  {'charset':    'utf8'},
-                                         'res':     {'dbname':  'dbname',
-                                                     'dbuser':  'dbuser',
-                                                     'dbpass':  'dbpass',
-                                                     'dbhost':  'dbhost',
-                                                     'dbport':  'dbport',
-                                                     'charset': 'dbcharset',
-                                                     'encoding': 'dbcharset'},
-                                         'modules': ('res_config_pgsql.so',)}}}}
+WIZARD_IPBX_ENGINES = {
+    'extconfig': {
+        'queue_log': 'queue_log'
+    },
+    'database': {
+        'postgresql': {
+            'params': {'charset': 'utf8'},
+            'res': {
+                'dbname': 'dbname',
+                'dbuser': 'dbuser',
+                'dbpass': 'dbpass',
+                'dbhost': 'dbhost',
+                'dbport': 'dbport',
+                'charset': 'dbcharset',
+                'encoding': 'dbcharset'
+            },
+            'modules': ('res_config_pgsql.so',)
+        }
+    }
+}
 
 def _find_template_file(tplfilename, customtplfilename, newfilename):
     """
@@ -255,7 +260,7 @@ def asterisk_pgsql_config(authority, database, params, options):
     Return PostgreSQL options for Asterisk
     """
 
-    dbparams = WIZARD_IPBX_ENGINES['asterisk']['database']['postgresql']['params']
+    dbparams = WIZARD_IPBX_ENGINES['database']['postgresql']['params']
 
     rs = {}
 
@@ -312,34 +317,21 @@ def asterisk_configuration(dburi, dbinfo, dbparams):
                                 Wdc['asterisk_modules_file'],
                                 dbinfo['modules'])
 
-    if 'extconfig' in WIZARD_IPBX_ENGINES['asterisk']:
+    if 'extconfig' in WIZARD_IPBX_ENGINES:
         asterisk_extconfig(Wdc['asterisk_extconfig_tpl_file'],
                            Wdc['asterisk_extconfig_custom_tpl_file'],
                            Wdc['asterisk_extconfig_file'],
-                           WIZARD_IPBX_ENGINES['asterisk']['extconfig'],
+                           WIZARD_IPBX_ENGINES['extconfig'],
                            'pgsql',
                            'asterisk')
 
 
-def set_db_backends(args, options):
-    """
-    POST /set_db_backends
-    """
-
-    if 'xivo' not in args:
-        raise HttpReqError(415, "missing option 'xivo'")
-    elif 'ipbx' not in args:
-        raise HttpReqError(415, "missing option 'ipbx'")
-    elif 'ipbxengine' not in args:
-        raise HttpReqError(415, "missing option 'ipbxengine'")
-    elif args['ipbxengine'] not in WIZARD_IPBX_ENGINES:
-        raise HttpReqError(415, "invalid ipbxengine: %r" % args['ipbxengine'])
-
+def set_ast_conf(args, options):
     if not WIZARDLOCK.acquire_read(Wdc['lock_timeout']):
         raise HttpReqError(503, "unable to take WIZARDLOCK for reading after %s seconds" % Wdc['lock_timeout'])
 
-    ipbxdbinfo = WIZARD_IPBX_ENGINES[args['ipbxengine']]['database']
-    ipbxdburi = list(urisup.uri_help_split(args['ipbx']))
+    ipbxdbinfo = WIZARD_IPBX_ENGINES['database']
+    ipbxdburi = list(urisup.uri_help_split(AST_DB_URI))
 
     if ipbxdburi[0] is None or ipbxdburi[0].lower() not in ipbxdbinfo:
         raise HttpReqError(415, "invalid option 'ipbx'")
@@ -359,53 +351,8 @@ def set_db_backends(args, options):
     else:
         ipbxdburi[3] = None
 
-    args['ipbx'] = urisup.uri_help_unsplit(ipbxdburi)
-
     try:
-        _new_db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
-        dbconnection.register_db_connection_pool(_new_db_connection_pool)
-
-        dbconnection.add_connection_as(args['xivo'], 'xivo')
-        connection = dbconnection.get_connection('xivo')
-        if not connection:
-            raise HttpReqError(415, "unable to connect to 'xivo' database")
-        connection.close()
-
-        dbconnection.add_connection_as(args['ipbx'], 'asterisk')
-        connection = dbconnection.get_connection('asterisk')
-        if not connection:
-            raise HttpReqError(415, "unable to connect to 'ipbx' database")
-        connection.close()
-
-        merge_config_file(Wdc['agid_config_tpl_file'],
-                          Wdc['agid_config_custom_tpl_file'],
-                          Wdc['agid_config_file'],
-                          {'db':
-                                {'db_uri':  args['ipbx']}})
-
-        merge_config_file(Wdc['webinterface_xivo_tpl_file'],
-                          Wdc['webinterface_xivo_custom_tpl_file'],
-                          Wdc['webinterface_xivo_file'],
-                          {'general':
-                                {'datastorage': '"%s"' % args['xivo']}})
-
-        merge_config_file(Wdc['webinterface_cti_tpl_file'],
-                          Wdc['webinterface_cti_custom_tpl_file'],
-                          Wdc['webinterface_cti_file'],
-                          {'general':
-                                {'datastorage': '"%s"' % args['xivo']},
-                           'queuelogger':
-                                {'datastorage': '"%s"' % args['ipbx']},
-                          })
-
-        merge_config_file("%s.%s" % (Wdc['webinterface_ipbx_tpl_file'], args['ipbxengine']),
-                          "%s.%s" % (Wdc['webinterface_ipbx_custom_tpl_file'], args['ipbxengine']),
-                          Wdc['webinterface_ipbx_file'],
-                          {'general':
-                                {'datastorage': '"%s"' % args['ipbx']}})
-
-        if args['ipbxengine'] == 'asterisk':
-            asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
+        asterisk_configuration(ipbxdburi, ipbxdbinfo[ipbxdburi[0]], ipbxdbparams)
     finally:
         WIZARDLOCK.release()
 
@@ -425,24 +372,6 @@ def safe_init(options):
 
     Wdc['lock_timeout'] = float(Wdc['lock_timeout'])
 
-    if Wdc['agid_config_path'] is None:
-        Wdc['agid_config_path'] = Wdc['xivo_config_path']
-
-    if Wdc['webinterface_config_path'] is None:
-        Wdc['webinterface_config_path'] = os.path.join(Wdc['xivo_config_path'], "web-interface")
-
-    for x in ('agid',):
-        Wdc["%s_config_file" % x] = os.path.join(Wdc["%s_config_path" % x],
-                                                 Wdc["%s_config_filename" % x])
-
-        Wdc["%s_config_tpl_file" % x] = os.path.join(Wdc['templates_path'],
-                                                     Wdc["%s_tpl_directory" % x],
-                                                     Wdc["%s_config_filename" % x])
-
-        Wdc["%s_config_custom_tpl_file" % x] = os.path.join(Wdc['custom_templates_path'],
-                                                            Wdc["%s_tpl_directory" % x],
-                                                            Wdc["%s_config_filename" % x])
-
     for x in ('modules', 'extconfig', 'res_pgsql'):
         Wdc["asterisk_%s_file" % x] = os.path.join(Wdc['asterisk_config_path'],
                                                    Wdc["asterisk_%s_config_filename" % x])
@@ -455,17 +384,5 @@ def safe_init(options):
                                                               Wdc['asterisk_tpl_directory'],
                                                               Wdc["asterisk_%s_config_filename" % x])
 
-    for x in ('xivo', 'ipbx', 'cti'):
-        Wdc["webinterface_%s_file" % x] = os.path.join(Wdc['webinterface_config_path'],
-                                                       Wdc["webinterface_%s_config_filename" % x])
 
-        Wdc["webinterface_%s_tpl_file" % x] = os.path.join(Wdc['templates_path'],
-                                                           Wdc['webinterface_tpl_directory'],
-                                                           Wdc["webinterface_%s_config_filename" % x])
-
-        Wdc["webinterface_%s_custom_tpl_file" % x] = os.path.join(Wdc['custom_templates_path'],
-                                                                  Wdc['webinterface_tpl_directory'],
-                                                                  Wdc["webinterface_%s_config_filename" % x])
-
-
-http_json_server.register(set_db_backends, CMD_RW, safe_init=safe_init)
+http_json_server.register(set_ast_conf, CMD_R, safe_init=safe_init)
