@@ -165,7 +165,7 @@ class RequestHandlersProxy(object):
         self._request_handlers.read_config()
 
     def _new_request_handlers(self):
-        agent_client = AgentClient()
+        agent_client = AgentClient(fetch_response=False)
         agent_client.connect()
         agent_bus_handler = AgentBusHandler(agent_client)
         return RequestHandlers(agent_bus_handler)

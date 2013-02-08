@@ -63,7 +63,7 @@ class TestRequestHandlersProxy(unittest.TestCase):
         proxy.handle_request(args, options)
         proxy.handle_request(args, options)
 
-        AgentClientMock.assert_called_once_with()
+        AgentClientMock.assert_called_once_with(fetch_response=False)
         agent_client.connect.assert_called_once_with()
         AgentBusHandlerMock.assert_called_once_with(agent_client)
         RequestHandlersMock.assert_called_once_with(agent_bus_handler)
