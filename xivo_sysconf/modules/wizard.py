@@ -39,7 +39,6 @@ Wdc = {
     'templates_path': os.path.join(os.path.sep, 'usr', 'share', 'xivo-config', 'templates'),
     'custom_templates_path': os.path.join(os.path.sep, 'etc', 'pf-xivo', 'custom-templates'),
     'lock_timeout': 60,
-    'agid_config_path': None,
     'asterisk_modules_config_filename': "modules.conf",
     'asterisk_extconfig_config_filename': "extconfig.conf",
     'asterisk_res_pgsql_config_filename': "res_pgsql.conf",
