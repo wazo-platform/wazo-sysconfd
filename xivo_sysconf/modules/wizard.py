@@ -16,12 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import os
-import subprocess
 import logging
 import re
-import apt
 
-from xivo_dao.alchemy import dbconnection
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_R

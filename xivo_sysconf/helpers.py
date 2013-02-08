@@ -57,55 +57,7 @@ def extract_scalar(var):
     else:
         return
 
-def extract_exists_in_list(var, xlist):
-    """ Test if all elements in a variable exists in a list """
-    if not isinstance(xlist, (tuple, list)):
-        return False
-
-    if is_scalar(var):
-        if var in xlist:
-            return (var,)
-        else:
-            return
-    elif isinstance(var, dict):
-        var = var.keys()
-    elif not isinstance(var, (tuple, list)):
-        return False
-
-    return tuple(set(x for x in var if x in xlist)) or None
-
-def exists_in_list(var, xlist):
-    """ Test if all elements in a variable exists in a list """
-    if not isinstance(xlist, (tuple, list)):
-        return False
-
-    if is_scalar(var):
-        return var in xlist
-    elif isinstance(var, dict):
-        var = var.keys()
-    elif not isinstance(var, (tuple, list)):
-        return False
-
-    for x in var:
-        if x not in xlist:
-            return False
-
-    return True
-
 def unique_case_tuple(sequence):
     """ Build an ordered case-insensitive collection """
     xlist = dict(zip(map(str.lower, sequence), sequence)).values()
     return tuple([x for x in sequence if x in xlist])
-
-def combine_dict(dict1, dict2):
-    """ Creates a dict by using one array for keys and another for its values """
-    if not isinstance(dict1, dict) or not isinstance(dict2, dict):
-        return False
-
-    ret = {}
-
-    for key, value in dict1.iteritems():
-        if dict2.has_key(key):
-            ret[value] = dict2[key]
-
-    return ret
