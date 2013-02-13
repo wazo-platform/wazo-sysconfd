@@ -20,6 +20,7 @@ import logging, subprocess
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
+from xivo_sysconf.modules.services import services
 
 logger = logging.getLogger('xivo_sysconf.modules.xivoctl')
 
@@ -28,6 +29,8 @@ def xivoctl(args, options):
     for service, act in args.iteritems():
         if service == 'xivo-service':
             try:
+                if act == 'start':
+                    services({'asterisk': 'stop'}, {})
                 p = subprocess.Popen(["%s" % service, act],
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.STDOUT,
