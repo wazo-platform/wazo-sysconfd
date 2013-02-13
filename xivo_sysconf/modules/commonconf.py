@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-__author__ = "Guillaume Bour <gbour@proformatique.com>"
 
 import logging, subprocess, traceback
 
@@ -26,6 +25,57 @@ from xivo_sysconf import jsoncore
 
 
 class CommonConf(jsoncore.JsonCore):
+    SECTIONS = {
+        '1. VoIP': [
+            'xivo.voip.ifaces'
+        ],
+        '2. Network': [
+            'xivo.hostname',
+            'xivo.domain',
+            'xivo.net4.ip',
+            'xivo.net4.netmask',
+            'xivo.net4.subnet',
+            'xivo.extra.dns.search',
+            'xivo.nameservers'
+         ],
+        '3. DHCP': [
+            'xivo.dhcp.active',
+            'xivo.dhcp.pool',
+            'xivo.dhcp.extra_ifaces'
+         ],
+        '4. Mail': [
+            'xivo.smtp.mydomain',
+            'xivo.smtp.origin',
+            'xivo.smtp.relayhost',
+            'xivo.smtp.fallback_relayhost',
+            'xivo.smtp.canonical'
+         ],
+        '5. Provd': [
+            'xivo.provd.net4_ip',
+            'xivo.provd.http_port',
+            'xivo.provd.dhcp_integration',
+            'xivo.provd.rest_net4_ip',
+            'xivo.provd.rest_port',
+            'xivo.provd.rest_authentication',
+            'xivo.provd.rest_ssl',
+            'xivo.provd.username',
+            'xivo.provd.password'
+         ],
+        '6. Maintenance': [
+            'xivo.maintenance'
+        ],
+        '7. Alerts': [
+            'alert_emails',
+            'dahdi_monitor_ports',
+            'max_call_duration'
+        ],
+        '8. Databases': [
+            'xivo.xivodb' ,
+            'xivo.astdb'
+        ]
+    }
+    KEYSELECT = ''
+
     def __init__(self):
         super(CommonConf, self).__init__()
         self.log = logging.getLogger('xivo_sysconf.modules.commonconf')
@@ -68,58 +118,24 @@ class CommonConf(jsoncore.JsonCore):
         self.monit_checks_dir = options.configuration.get('monit', 'monit_checks_dir')
         self.monit_conf_dir = options.configuration.get('monit', 'monit_conf_dir')
 
-    SECTIONS = {
-        '1. VoIP'       : ['xivo.voip.ifaces'],
-        '2. Network'    : [
-            'xivo.hostname', 'xivo.domain', 'xivo.net4.ip',
-            'xivo.net4.netmask', 'xivo.net4.broadcast', 'xivo.net4.subnet',
-            'xivo.extra.dns.search', 'xivo.nameservers'
-         ],
-        '3. DHCP'       : [
-            'xivo.dhcp.active', 'xivo.dhcp.pool', 'xivo.dhcp.extra_ifaces'
-         ],
-        '4. Mail'       : [
-            'xivo.smtp.mydomain', 'xivo.smtp.origin', 'xivo.smtp.relayhost',
-            'xivo.smtp.fallback_relayhost', 'xivo.smtp.canonical'
-         ],
-        '5. Provd'      : [
-            'xivo.provd.net4_ip',
-            'xivo.provd.http_port',
-            'xivo.provd.dhcp_integration',
-            'xivo.provd.rest_net4_ip',
-            'xivo.provd.rest_port',
-            'xivo.provd.rest_authentication',
-            'xivo.provd.rest_ssl',
-            'xivo.provd.username',
-            'xivo.provd.password'
-         ],
-        '6. Maintenance': ['xivo.maintenance'],
-        '7. Alerts'     : ['alert_emails', 'dahdi_monitor_ports', 'max_call_duration'],
-        '8. Databases'  : ['xivo.xivodb' , 'xivo.astdb']
-    }
-    KEYSELECT = ''
-
-    ## overriden generators
-    def _gen_bool(self, f, key, value):
-        value = 1 if value else 0
-        f.write("%s=%d\n" % (key, value))
-    ## /
-
     def apply(self, args, options):
-        ret = -1
+        output = ''
         try:
             p = subprocess.Popen([self.cmd],
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
             ret = p.wait()
-            output = p.stdout.read()
+            output += p.stdout.read()
             self.log.debug("commonconf apply: %d" % ret)
 
             if ret != 0:
                 raise HttpReqError(500, output)
+        except OSError:
+            traceback.print_exc()
+            raise HttpReqError(500, "can't apply commonconf changes")
 
-            # monit configuration also need to be updated (if emails changed)
+        try:
             p = subprocess.Popen([self.monit],
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
@@ -132,7 +148,7 @@ class CommonConf(jsoncore.JsonCore):
                 raise HttpReqError(500, output)
         except OSError:
             traceback.print_exc()
-            raise HttpReqError(500, "can't apply ha changes")
+            raise HttpReqError(500, "can't apply monit changes")
 
         return output
 
