@@ -49,6 +49,10 @@ AST_CMDS = [
     'sccp show config',
     'sccp update config',
     ]
+AST_ARG_CMDS = [
+    'sip show peer',
+    'sccp resync',
+    ]
 
 
 class RequestHandlers(object):
@@ -73,7 +77,7 @@ class RequestHandlers(object):
         logger.debug(cmds)
         ret = []
         for cmd in cmds:
-            if cmd in AST_CMDS or cmd.startswith('sip show peer'):
+            if self._is_ast_cmd(cmd):
                 try:
                     p = subprocess.Popen(['asterisk', '-rx', cmd],
                                         stdout=subprocess.PIPE,
@@ -92,6 +96,15 @@ class RequestHandlers(object):
             else:
                 logger.error("cmd %s not authorized on", cmd)
         return ret
+
+    def _is_ast_cmd(self, cmd):
+        if cmd in AST_CMDS:
+            return True
+        else:
+            for ast_arg_cmd in AST_ARG_CMDS:
+                if cmd.startswith(ast_arg_cmd):
+                    return True
+        return False
 
     @debug.trace_duration
     def _exec_ctibus_cmd(self, cmds):
