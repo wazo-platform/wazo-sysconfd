@@ -27,16 +27,16 @@ import logging
 import os
 
 
-SYSLOG_NAME = "sysconfd"
+SYSLOG_NAME = "xivo-sysconfd"
 
-log = logging.getLogger('sysconfd')
+log = logging.getLogger('xivo-sysconfd')
 
 SysconfDefaultsConf = StringIO("""
 [general]
 xivo_config_path        = /etc/pf-xivo
-templates_path          = /usr/share/pf-xivo-sysconfd/templates
+templates_path          = /usr/share/xivo-sysconfd/templates
 custom_templates_path   = /etc/pf-xivo/sysconfd/custom-templates
-backup_path             = /var/backups/pf-xivo-sysconfd
+backup_path             = /var/backups/xivo-sysconfd
 """)
 
 def get_log_level_by_name(loglevel_name):
