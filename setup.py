@@ -12,5 +12,5 @@ setup(
     url='http://xivo.fr/',
     packages=['xivo_sysconf',
               'xivo_sysconf.modules'],
-    scripts=['bin/sysconfd']
+    scripts=['bin/xivo-sysconfd']
 )
