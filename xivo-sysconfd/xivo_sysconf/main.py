@@ -39,20 +39,21 @@ custom_templates_path   = /etc/pf-xivo/sysconfd/custom-templates
 backup_path             = /var/backups/xivo-sysconfd
 """)
 
+
 def get_log_level_by_name(loglevel_name):
     levels = {
         'CRITICAL': logging.CRITICAL,
-        'ERROR':    logging.ERROR,
-        'WARNING':  logging.WARNING,
-        'WARN':     logging.WARN,
-        'INFO':     logging.INFO,
-        'DEBUG':    logging.DEBUG,
+        'ERROR': logging.ERROR,
+        'WARNING': logging.WARNING,
+        'WARN': logging.WARN,
+        'INFO': logging.INFO,
+        'DEBUG': logging.DEBUG,
     }
     loglevel_name = loglevel_name.upper()
     if loglevel_name in levels:
         return levels[loglevel_name]
     else:
-        raise ValueError, "Unknown log level %r" % loglevel_name
+        raise ValueError("Unknown log level %r" % loglevel_name)
 
 
 def argv_parse_check():
@@ -60,8 +61,8 @@ def argv_parse_check():
     parser.add_option("-l",
                       dest='loglevel',
                       default='info',
-                      help="Emit traces with LOGLEVEL details, must be one of:\n" \
-                                  "critical, error, warning, info, debug")
+                      help="Emit traces with LOGLEVEL details, must be one of:\n"
+                           "critical, error, warning, info, debug")
     parser.add_option("-f",
                       action='store_true',
                       dest='foreground',
