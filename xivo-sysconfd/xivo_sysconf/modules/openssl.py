@@ -20,47 +20,48 @@ import time
 import random
 import shutil
 import magic
-from M2Crypto import RSA, X509, SSL, m2, EVP, ASN1
+from M2Crypto import RSA, X509, m2, EVP, ASN1
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW, CMD_R
 
 CIPHERS = {
-    'aes' : 'aes_128_cbc',
-    'des' : 'des_ede_cbc',
-    'des3' : 'des_ede3_cbc',
-    'idea' : 'idea_cbc'
+    'aes': 'aes_128_cbc',
+    'des': 'des_ede_cbc',
+    'des3': 'des_ede3_cbc',
+    'idea': 'idea_cbc'
 }
 
 DEFAULT_CIPHER = CIPHERS['aes']
 
 # certificates/keys magic headers
 MAGIC = {
-    '-----BEGIN CERTIFICATE-----\n' : 'certificate',
-    '-----BEGIN RSA PRIVATE KEY-----\n' : 'privkey',
-    '-----BEGIN DSA PRIVATE KEY-----\n' : 'privkey',
-    '-----BEGIN PUBLIC KEY-----\n' : 'pubkey',
-    '-----BEGIN CERTIFICATE REQUEST-----\n' : 'request',
+    '-----BEGIN CERTIFICATE-----\n': 'certificate',
+    '-----BEGIN RSA PRIVATE KEY-----\n': 'privkey',
+    '-----BEGIN DSA PRIVATE KEY-----\n': 'privkey',
+    '-----BEGIN PUBLIC KEY-----\n': 'pubkey',
+    '-----BEGIN CERTIFICATE REQUEST-----\n': 'request',
 }
+
 
 class OpenSSL(object):
     def __init__(self):
         super(OpenSSL, self).__init__()
         http_json_server.register(self.listCertificates, CMD_R,
-                        name='openssl_listcertificates', safe_init=self.safe_init)
+                                  name='openssl_listcertificates', safe_init=self.safe_init)
         http_json_server.register(self.getCertificateInfos, CMD_R,
-                        name='openssl_certificateinfos')
+                                  name='openssl_certificateinfos')
         http_json_server.register(self.getPubKey, CMD_R,
-                        name='openssl_exportpubkey')
+                                  name='openssl_exportpubkey')
         http_json_server.register(self.export, CMD_R,
-                        name='openssl_export')
+                                  name='openssl_export')
         http_json_server.register(self.createSSLCACertificate, CMD_RW,
-                        name='openssl_createcacertificate')
+                                  name='openssl_createcacertificate')
         http_json_server.register(self.createSSLCertificate, CMD_RW,
-                        name='openssl_createcertificate')
+                                  name='openssl_createcertificate')
         http_json_server.register(self.deleteCertificate, CMD_R, name='openssl_deletecertificate')
         http_json_server.register(self._import, CMD_RW,
-                        name='openssl_import')
+                                  name='openssl_import')
 
     def safe_init(self, options):
         self.certsdir = options.configuration.get('openssl', 'certsdir')
@@ -102,10 +103,10 @@ class OpenSSL(object):
 
         for fname in os.listdir(self.certsdir):
             cert = {
-                    'name'      : fname.split('.', 2)[0],
-                    'types'     : [],
-                    'filename'  : fname,
-                    'path'      : os.path.join(self.certsdir, fname)
+                'name': fname.split('.', 2)[0],
+                'types': [],
+                'filename': fname,
+                'path': os.path.join(self.certsdir, fname)
             }
 
             # guess what filetype is it, reading content,
@@ -121,11 +122,11 @@ class OpenSSL(object):
                     x509 = X509.load_cert(os.path.join(self.certsdir, fname))
 
                     cert.update({
-                        'CA'             : x509.check_ca() == 1,
-                        'autosigned'     : str(x509.get_subject()) == str(x509.get_issuer()),
-                        'length'         : len(x509.get_pubkey().get_rsa()),
-                        'fingerprint'    : 'md5:' + x509.get_fingerprint(),
-                        'validity-end'   : x509.get_not_after().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
+                        'CA': x509.check_ca() == 1,
+                        'autosigned': str(x509.get_subject()) == str(x509.get_issuer()),
+                        'length': len(x509.get_pubkey().get_rsa()),
+                        'fingerprint': 'md5:' + x509.get_fingerprint(),
+                        'validity-end': x509.get_not_after().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
                     })
 
             certs.append(cert)
@@ -175,20 +176,20 @@ class OpenSSL(object):
 
         cert = X509.load_cert(os.path.join(self.certsdir, options['name']))
         infos = {
-                        'sn'             : cert.get_serial_number(),
-                        'CA'             : cert.check_ca() == 1,
-                        'autosigned'     : str(cert.get_subject()) == str(cert.get_issuer()),
-                        'length'         : len(cert.get_pubkey().get_rsa()),
-                        'fingerprint'    : 'md5:' + cert.get_fingerprint(),
-                        'validity-start' : cert.get_not_before().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
-                        'validity-end'   : cert.get_not_after().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
-                        'path'           : self._pemfile(options['name'])
-                    }
+            'sn': cert.get_serial_number(),
+            'CA': cert.check_ca() == 1,
+            'autosigned': str(cert.get_subject()) == str(cert.get_issuer()),
+            'length': len(cert.get_pubkey().get_rsa()),
+            'fingerprint': 'md5:' + cert.get_fingerprint(),
+            'validity-start': cert.get_not_before().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
+            'validity-end': cert.get_not_after().get_datetime().strftime("%Y/%m/%d %H:%M:%S %Z"),
+            'path': self._pemfile(options['name'])
+        }
 
         infos['subject'] = dict([(k, v) for (k, v) in [nid.split('=') for nid in
-                    str(cert.get_subject()).split('/') if len(nid) > 0]])
+                                                       str(cert.get_subject()).split('/') if len(nid) > 0]])
         infos['issuer'] = dict([(k, v) for (k, v) in [nid.split('=') for nid in
-                    str(cert.get_issuer()).split('/') if len(nid) > 0]])
+                                                      str(cert.get_issuer()).split('/') if len(nid) > 0]])
 
         exts = {}
         for i in xrange(cert.get_ext_count()):
@@ -263,8 +264,8 @@ class OpenSSL(object):
             return password
         # NOTE: when empty password, need not to use a cipher, or generated key file is empty
         rsa.save_key(self._keyfile(name),
-            cipher=cipher if len(password) > 0 else None,
-                        callback=_getpwd)
+                     cipher=cipher if len(password) > 0 else None,
+                     callback=_getpwd)
 
         rsa.save_pub_key(self._pubfile(name))
 
@@ -297,10 +298,10 @@ class OpenSSL(object):
         name = X509.X509_Name()
         name.CN = subject.get('CN', '*')
         name.OU = subject.get('OU', 'R&D Department')
-        name.O = subject.get('O' , 'Proformatique')
-        name.L = subject.get('L' , 'Puteaux')
+        name.O = subject.get('O', 'Proformatique')
+        name.L = subject.get('L', 'Puteaux')
         name.ST = subject.get('ST', 'France')
-        name.C = subject.get('C' , 'FR')
+        name.C = subject.get('C', 'FR')
         name.emailAddress = subject.get('emailAddress', 'xivo-users@lists.proformatique.com')
 
         req.set_subject_name(name)
@@ -477,12 +478,13 @@ class OpenSSL(object):
         # NOTE: RSA fail to read password (with "bad password read message") if we
             # make "args.get()" IN _getpass()
             pwd = args.get('ca_password', '')
+
             def _getpass(*args, **kwargs):
                 return pwd
 
             try:
                 _cakey = RSA.load_key(os.path.join(self.certsdir, args['ca'] + '.key'), _getpass)
-            except RSA.RSAError, e:
+            except RSA.RSAError:
                 raise HttpReqError(403, "invalid CA password", json=True)
             cakey = EVP.PKey()
             cakey.assign_rsa(_cakey)
@@ -493,13 +495,14 @@ class OpenSSL(object):
 
         # Create private key
         pkey = self._makekey(args['name'], args.get('password', ''),
-                        int(args.get('length', 1024)), cipher)
+                             int(args.get('length', 1024)), cipher)
 
         # Create request
         # pubkey != req.get_pubkey() !!!
         req, pubkey = self._makerequest(args['name'], pkey, args)
         if autosigned == 1:
-            cacert = req; cakey = pubkey
+            cacert = req
+            cakey = pubkey
 
         # Create x509 certificate / signed with CA key
         cert = self._makecert(req, (cacert, cakey), int(args.get('validity', 365)))
