@@ -36,14 +36,14 @@ log = logging.getLogger('xivo_sysconf.modules.resolvconf')
 
 RESOLVCONFLOCK = RWLock()
 
-Rcc = {'hostname_file':       os.path.join(os.path.sep, 'etc', 'hostname'),
-         'hostname_tpl_file':   os.path.join('resolvconf', 'hostname'),
-         'hostname_update_cmd': "/etc/init.d/hostname.sh start",
-         'hosts_file':          os.path.join(os.path.sep, 'etc', 'hosts'),
-         'hosts_tpl_file':      os.path.join('resolvconf', 'hosts'),
-         'resolvconf_file':     os.path.join(os.path.sep, 'etc', 'resolv.conf'),
-         'resolvconf_tpl_file': os.path.join('resolvconf', 'resolv.conf'),
-         'lock_timeout':        60}
+Rcc = {'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
+       'hostname_tpl_file': os.path.join('resolvconf', 'hostname'),
+       'hostname_update_cmd': "/etc/init.d/hostname.sh start",
+       'hosts_file': os.path.join(os.path.sep, 'etc', 'hosts'),
+       'hosts_tpl_file': os.path.join('resolvconf', 'hosts'),
+       'resolvconf_file': os.path.join(os.path.sep, 'etc', 'resolv.conf'),
+       'resolvconf_tpl_file': os.path.join('resolvconf', 'resolv.conf'),
+       'lock_timeout': 60}
 
 
 def _write_config_file(optname, xvars):
@@ -80,6 +80,7 @@ hostname:   !~domain_label
 domain:     !~search_domain
 """)
 
+
 def Hosts(args, options):
     """
     POST /hosts
@@ -109,8 +110,8 @@ def Hosts(args, options):
                                                  {'_XIVO_HOSTNAME': args['hostname']})
 
             hostsbakfile = _write_config_file('hosts',
-                                                 {'_XIVO_HOSTNAME': args['hostname'],
-                                                  '_XIVO_DOMAIN':   args['domain']})
+                                              {'_XIVO_HOSTNAME': args['hostname'],
+                                               '_XIVO_DOMAIN': args['domain']})
 
             if Rcc['hostname_update_cmd']:
                 subprocess.call(Rcc['hostname_update_cmd'].strip().split())
@@ -131,17 +132,19 @@ nameservers:    !~~seqlen(1,3) [ !~ipv4_address_or_domain 192.168.0.254 ]
 search?:        !~~seqlen(1,6) [ !~search_domain example.com ]
 """)
 
+
 def _resolv_conf_variables(args):
     xvars = {}
-    xvars['_XIVO_NAMESERVER_LIST'] = os.linesep.join(["nameserver %s"] * len(args['nameservers'])) \
-                                     % tuple(args['nameservers'])
+    xvars['_XIVO_NAMESERVER_LIST'] = \
+        os.linesep.join(["nameserver %s"] * len(args['nameservers'])) % tuple(args['nameservers'])
 
-    if args.has_key('search'):
+    if 'search' in args:
         xvars['_XIVO_DNS_SEARCH'] = "search %s" % " ".join(args['search'])
     else:
         xvars['_XIVO_DNS_SEARCH'] = ""
 
     return xvars
+
 
 def ResolvConf(args, options):
     """
@@ -196,6 +199,7 @@ def ResolvConf(args, options):
             raise e.__class__(str(e))
     finally:
         RESOLVCONFLOCK.release()
+
 
 def safe_init(options):
     """Load parameters, etc"""
