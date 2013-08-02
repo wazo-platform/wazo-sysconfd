@@ -39,9 +39,8 @@ class Asterisk(object):
         context = options.get('context', 'default')
 
         vmpath = os.path.join(self._base_vmail_path, context, options['name'])
-        if not os.path.exists(vmpath):
-            raise HttpReqError(404, "voicemail spool dir not found", json=True)
-        shutil.rmtree(vmpath)
+        if os.path.exists(vmpath):
+            shutil.rmtree(vmpath)
 
         return True
 
