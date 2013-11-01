@@ -23,7 +23,7 @@ import socket
 from xivo import debug
 from xivo.http_json_server import register, HttpReqError, CMD_RW
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
-from xivo_agent.ctl.client import AgentClient
+from xivo_bus.resources.agent.client import AgentClient
 
 logger = logging.getLogger(__name__)
 
