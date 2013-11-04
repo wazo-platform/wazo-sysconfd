@@ -18,7 +18,7 @@
 import unittest
 
 from mock import Mock, call, patch
-from xivo_agent.ctl.client import AgentClient
+from xivo_bus.resources.agent.client import AgentClient
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
 from xivo_sysconf.modules.request_handlers import RequestHandlers, \
     RequestHandlersProxy
