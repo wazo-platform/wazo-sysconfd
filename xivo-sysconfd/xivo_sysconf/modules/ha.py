@@ -99,7 +99,7 @@ class HAConfigManager(object):
 
 
 class _PostgresConfigUpdater(object):
-    DEFAULT_CONFIG_DIR = '/etc/postgresql/9.0/main'
+    DEFAULT_CONFIG_DIR = '/etc/postgresql/9.1/main'
     PG_HBA_FILE = 'pg_hba.conf'
     POSTGRESQL_FILE = 'postgresql.conf'
 
