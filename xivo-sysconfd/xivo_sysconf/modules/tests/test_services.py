@@ -24,8 +24,8 @@ from .. import services
 
 class TestServices(TestCase):
     def setUp(self):
-        services = ['service%s' % i for i in range(1, 10)]
-        self.patcher = patch('os.listdir', return_value=services)
+        services_on_disk = ['service%s' % i for i in range(1, 10)]
+        self.patcher = patch('os.listdir', return_value=services_on_disk)
         self.patcher.start()
 
     def tearDown(self):
