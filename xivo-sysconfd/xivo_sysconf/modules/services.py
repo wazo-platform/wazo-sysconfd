@@ -15,13 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import logging, subprocess
+import logging
+import os
+import subprocess
 
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 
 logger = logging.getLogger('xivo_sysconf.modules.services')
+SERVICE_DIR = '/etc/init.d'
+
+
+def _is_valid_service(service_name):
+    all_service_names = os.listdir(SERVICE_DIR)
+    return service_name in all_service_names
 
 
 def services(args, options):
@@ -30,17 +38,24 @@ def services(args, options):
 
     >>> services({'networking': 'restart'})
     """
+    output = ''
     for svc, act in args.iteritems():
         if act not in ['stop', 'start', 'restart']:
             logger.error("action %s not authorized on %s service", act, svc)
+            continue
+
+        if not _is_valid_service(svc):
+            logger.error("service %s is not valid", svc)
+            continue
 
         try:
-            p = subprocess.Popen(["/etc/init.d/%s" % svc, act],
+            command = ["%s/%s" % (SERVICE_DIR, svc), act]
+            p = subprocess.Popen(command,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
-            output = p.communicate()[0]
-            logger.debug("/etc/init.d/%s %s : %d", svc, act, p.returncode)
+            output += p.communicate()[0]
+            logger.debug("%s : return code %d", ' '.join(command), p.returncode)
 
             if p.returncode != 0:
                 raise HttpReqError(500, output)
