@@ -27,7 +27,7 @@ from xivo_bus.resources.agent.client import AgentClient
 
 logger = logging.getLogger(__name__)
 
-SOCKET_CONFFILE = '/etc/pf-xivo/sysconfd/socket.conf'
+SOCKET_CONFFILE = '/etc/xivo/sysconfd/socket.conf'
 AST_CMDS = [
     'core reload',
     'core restart now',
