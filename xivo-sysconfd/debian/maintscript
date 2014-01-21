@@ -1,0 +1,5 @@
+# see: dh_installdeb(1)
+
+mv_conffile /etc/pf-xivo/sysconfd.conf /etc/xivo/sysconfd.conf 1:14.02
+mv_conffile /etc/pf-xivo/datastorage.conf /etc/xivo/datastorage.conf 1:14.02
+mv_conffile /etc/pf-xivo/sysconfd/socket.conf /etc/xivo/sysconfd/socket.conf 1:14.02

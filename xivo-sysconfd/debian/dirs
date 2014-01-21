@@ -1,0 +1,4 @@
+etc/xivo/custom-templates
+etc/xivo/sysconfd/custom-templates
+usr/share/xivo-sysconfd/templates
+var/backups/xivo-sysconfd

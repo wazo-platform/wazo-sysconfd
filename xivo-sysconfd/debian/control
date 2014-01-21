@@ -1,0 +1,30 @@
+Source: xivo-sysconfd
+Section: python
+Priority: extra
+Maintainer: XiVO Dev Team <dev@avencall.com>
+Uploaders: XiVO Builder Team <release@xivo.fr>
+Build-Depends: debhelper (>= 8), dh-python, python-all (>= 2.7), python-setuptools
+Standards-Version: 3.9.4
+X-Python-Version: >= 2.7
+Homepage: http://xivo.fr/
+
+Package: xivo-sysconfd
+Architecture: all
+Depends: ${python:Depends},
+         ${misc:Depends},
+         xivo-bus,
+         xivo-lib-python,
+         python-dumbnet,
+         python-magic,
+         python-m2crypto,
+         python-netifaces,
+         sudo
+Provides: pf-xivo-sysconfd
+Conflicts: pf-xivo-sysconfd
+Replaces: pf-xivo-sysconfd
+Description: XIVO sysconf daemon
+ XIVO is a system based on a powerful IPBX, to bring an easy to
+ install solution for telephony and related services.
+ .
+ This is the sysconf daemon
+ .
