@@ -33,9 +33,9 @@ log = logging.getLogger('xivo-sysconfd')
 
 SysconfDefaultsConf = StringIO("""
 [general]
-xivo_config_path        = /etc/pf-xivo
+xivo_config_path        = /etc/xivo
 templates_path          = /usr/share/xivo-sysconfd/templates
-custom_templates_path   = /etc/pf-xivo/sysconfd/custom-templates
+custom_templates_path   = /etc/xivo/sysconfd/custom-templates
 backup_path             = /var/backups/xivo-sysconfd
 """)
 
@@ -70,7 +70,7 @@ def argv_parse_check():
                       help="Foreground, don't daemonize")
     parser.add_option("-c",
                       dest='conffile',
-                      default="/etc/pf-xivo/sysconfd.conf",
+                      default="/etc/xivo/sysconfd.conf",
                       help="Use configuration file <conffile> instead of %default")
     parser.add_option("-p",
                       dest='pidfile',

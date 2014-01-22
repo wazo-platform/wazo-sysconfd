@@ -24,7 +24,7 @@ from xivo.http_json_server import CMD_R, CMD_RW
 
 
 class HAConfigManager(object):
-    DEFAULT_HA_CONF_FILE = '/etc/pf-xivo/ha.conf'
+    DEFAULT_HA_CONF_FILE = '/etc/xivo/ha.conf'
     DEFAULT_HA_CONFIG = {
         'node_type': 'disabled',
         'remote_address': ''
