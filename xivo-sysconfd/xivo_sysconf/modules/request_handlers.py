@@ -34,7 +34,6 @@ AST_CMDS = [
     'core show version',
     'core show channels',
     'dialplan reload',
-    'sccp reload',
     'sip reload',
     'moh reload',
     'iax2 reload',
@@ -47,12 +46,11 @@ AST_CMDS = [
     'sccp show version',
     'sccp show devices',
     'sccp show config',
-    'sccp update config',
-    ]
+]
 AST_ARG_CMDS = [
     'sip show peer',
-    'sccp resync',
-    ]
+    'sccp reset',
+]
 
 
 class RequestHandlers(object):
