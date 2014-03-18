@@ -2,5 +2,5 @@ nose
 mock
 pyhamcrest
 pika
-svn+https://github.com/xivo-pbx/xivo-lib-python/trunk/xivo-lib-python
-svn+https://github.com/xivo-pbx/xivo-bus/trunk/xivo-bus
+git+https://github.com/xivo-pbx/xivo-lib-python.git
+git+https://github.com/xivo-pbx/xivo-bus.git
