@@ -18,16 +18,16 @@
 
 from ConfigParser import ConfigParser
 from StringIO import StringIO
-from logging.handlers import SysLogHandler
 from optparse import OptionParser
 from xivo import daemonize, http_json_server
 from xivo.http_json_server import CMD_R
+from xivo.xivo_logging import setup_logging
 from xivo_sysconf.modules import *
 import logging
 import os
 
 
-SYSLOG_NAME = "xivo-sysconfd"
+LOG_FILE_NAME = "/var/log/xivo-sysconfd.log"
 
 log = logging.getLogger('xivo-sysconfd')
 
@@ -109,11 +109,7 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    logging.basicConfig(level=logging.DEBUG)
-    sysloghandler = SysLogHandler("/dev/log", SysLogHandler.LOG_DAEMON)
-    sysloghandler.setFormatter(logging.Formatter("%s[%%(process)d]: %%(message)s" % SYSLOG_NAME))
-    root_logger = logging.getLogger('')
-    root_logger.addHandler(sysloghandler)
+    setup_logging(LOG_FILE_NAME, options.foreground, debug=(options.loglevel == 'debug'))
 
     cp = ConfigParser()
     cp.readfp(SysconfDefaultsConf)
@@ -132,7 +128,6 @@ def main():
     try:
         try:
             log.info("pidfile ok")
-            root_logger.setLevel(options.loglevel)
             os.umask(022)
             http_json_server.run(options)
         except SystemExit:
