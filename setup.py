@@ -9,7 +9,7 @@ setup(
     description='XIVO sysconf daemon',
     author='Proformatique',
     author_email='technique@proformatique.com',
-    url='http://xivo.fr/',
+    url='http://xivo.io/',
     packages=['xivo_sysconf',
               'xivo_sysconf.modules'],
     scripts=['bin/xivo-sysconfd']

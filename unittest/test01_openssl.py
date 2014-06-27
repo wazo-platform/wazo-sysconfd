@@ -116,7 +116,7 @@ class TestOpenSSL(unittest.TestCase):
 				{
 					'name'        : 'usercert5',
 					'autosigned'  : 1,
-					'CN'          : 'blog.xivo.fr',
+					'CN'          : 'blog.xivo.io',
 					'password'    : 'plop',
 				})
 		self.assertEqual(resp.status, 200)
