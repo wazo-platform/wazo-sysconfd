@@ -120,13 +120,8 @@ def main():
 
     http_json_server.init(options)
 
-    if not options.foreground:
-        log.info("Transforming into a daemon from hell")
-
-    log.info("locking PID")
     with pidfile_context(options.pidfile, options.foreground):
         try:
-            log.info("pidfile ok")
             os.umask(022)
             http_json_server.run(options)
         except SystemExit:
