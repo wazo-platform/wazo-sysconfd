@@ -19,7 +19,8 @@
 from ConfigParser import ConfigParser
 from StringIO import StringIO
 from optparse import OptionParser
-from xivo import daemonize, http_json_server
+from xivo import http_json_server
+from xivo.daemonize import pidfile_context
 from xivo.http_json_server import CMD_R
 from xivo.xivo_logging import setup_logging
 from xivo_sysconf.modules import *
@@ -121,11 +122,9 @@ def main():
 
     if not options.foreground:
         log.info("Transforming into a daemon from hell")
-        daemonize.daemonize()
 
     log.info("locking PID")
-    daemonize.lock_pidfile_or_die(options.pidfile)
-    try:
+    with pidfile_context(options.pidfile, options.foreground):
         try:
             log.info("pidfile ok")
             os.umask(022)
@@ -134,8 +133,6 @@ def main():
             raise
         except Exception:
             log.exception("bad things happen")
-    finally:
-        daemonize.unlock_pidfile(options.pidfile)
 
 
 if __name__ == '__main__':
