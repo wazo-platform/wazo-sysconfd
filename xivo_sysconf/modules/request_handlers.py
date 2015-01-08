@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2013 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import socket
 from xivo import debug
 from xivo.http_json_server import register, HttpReqError, CMD_RW
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
+from xivo_bus.ctl.config import BusConfig
 from xivo_bus.resources.agent.client import AgentClient
 
 logger = logging.getLogger(__name__)
@@ -176,11 +177,24 @@ class RequestHandlersProxy(object):
         self._request_handlers.read_config()
 
     def _new_request_handlers(self):
-        agent_client = AgentClient(fetch_response=False)
+        agent_client = AgentClient(fetch_response=False, config=self.bus_config)
         agent_client.connect()
         agent_bus_handler = AgentBusHandler(agent_client)
         return RequestHandlers(agent_bus_handler)
 
 
+def safe_init(options):
+    cfg = options.configuration
+    RequestHandlersProxy.bus_config = BusConfig(
+        username=cfg.get('bus', 'username'),
+        password=cfg.get('bus', 'password'),
+        host=cfg.get('bus', 'host'),
+        port=int(cfg.get('bus', 'port')),
+        exchange_name=cfg.get('bus', 'exchange_name'),
+        exchange_type=cfg.get('bus', 'exchange_type'),
+        exchange_durable=cfg.get('bus', 'exchange_durable') in ['true', 'True'],
+    )
+
+
 request_handlers_proxy = RequestHandlersProxy()
-register(request_handlers_proxy.handle_request, CMD_RW, name='exec_request_handlers')
+register(request_handlers_proxy.handle_request, CMD_RW, safe_init=safe_init, name='exec_request_handlers')
