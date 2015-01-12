@@ -189,10 +189,10 @@ def safe_init(options):
         username=cfg.get('bus', 'username'),
         password=cfg.get('bus', 'password'),
         host=cfg.get('bus', 'host'),
-        port=int(cfg.get('bus', 'port')),
+        port=cfg.getint('bus', 'port'),
         exchange_name=cfg.get('bus', 'exchange_name'),
         exchange_type=cfg.get('bus', 'exchange_type'),
-        exchange_durable=cfg.get('bus', 'exchange_durable') in ['true', 'True'],
+        exchange_durable=cfg.getboolean('bus', 'exchange_durable'),
     )
 
 
