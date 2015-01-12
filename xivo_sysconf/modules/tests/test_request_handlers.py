@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,12 +58,13 @@ class TestRequestHandlersProxy(unittest.TestCase):
         RequestHandlersMock.return_value = request_handlers
         args = Mock()
         options = Mock()
+        bus_config = RequestHandlersProxy.bus_config = Mock()
         proxy = RequestHandlersProxy()
 
         proxy.handle_request(args, options)
         proxy.handle_request(args, options)
 
-        AgentClientMock.assert_called_once_with(fetch_response=False)
+        AgentClientMock.assert_called_once_with(fetch_response=False, config=bus_config)
         agent_client.connect.assert_called_once_with()
         AgentBusHandlerMock.assert_called_once_with(agent_client)
         RequestHandlersMock.assert_called_once_with(agent_bus_handler)
