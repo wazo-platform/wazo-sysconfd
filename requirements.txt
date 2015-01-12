@@ -1,5 +1,3 @@
-mock
-pyhamcrest
 pika
 git+https://github.com/xivo-pbx/xivo-lib-python.git
 git+https://github.com/xivo-pbx/xivo-bus.git
