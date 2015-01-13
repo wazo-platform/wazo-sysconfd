@@ -79,9 +79,9 @@ class RequestHandlers(object):
             if self._is_ast_cmd(cmd):
                 try:
                     p = subprocess.Popen(['asterisk', '-rx', cmd],
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.STDOUT,
-                                        close_fds=True)
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT,
+                                         close_fds=True)
                     output = p.communicate()[0]
 
                     if p.returncode != 0:
