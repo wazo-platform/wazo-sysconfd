@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import logging, subprocess
+import logging
+import subprocess
 
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
@@ -41,7 +42,7 @@ def xivoctl(args, options):
                 if p.returncode != 0:
                     raise HttpReqError(500, output)
             except OSError:
-                logger.exception("Error while executing %s script", service, act)
+                logger.exception("Error while executing %s script", service)
                 raise HttpReqError(500, "can't manage xivoctl")
         else:
             logger.error("service not exist: %s", service)

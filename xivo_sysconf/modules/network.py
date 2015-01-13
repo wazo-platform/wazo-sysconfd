@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2013 Avencall
+# Copyright (C) 2008-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ from xivo import json_ops
 from xivo import network
 
 
-NET_LOCK_TIMEOUT = 60 # XXX
+NET_LOCK_TIMEOUT = 60  # XXX
 NETLOCK = RWLock()
 
 
@@ -49,6 +49,7 @@ REN_ETH_SCHEMA = xys.load("""
 old_name: !~~prefixedDec eth
 new_name: !~~prefixedDec eth
 """)
+
 
 def rename_ethernet_interface(args):
     """
@@ -73,6 +74,7 @@ SWAP_ETH_SCHEMA = xys.load("""
 name1: !~~prefixedDec eth
 name2: !~~prefixedDec eth
 """)
+
 
 def swap_ethernet_interfaces(args):
     """
@@ -128,6 +130,7 @@ def modify_network_config(args):
     finally:
         NETLOCK.release()
 
+
 def routes(args, options):
     ret = True
     """
@@ -154,7 +157,7 @@ def routes(args, options):
             (eid, output) = network.route_set(route['destination'], route['netmask'], route['gateway'], iface)
             if eid != 0 and route['current']:
                 ret = False
-        except Exception, e:
+        except Exception:
             raise HttpReqError(500, 'Cannot apply route')
 
     network.route_flush_cache()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,30 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-__license__ = '''
-    Copyright (C) 2013  Avencall
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA..
-'''
-
 import re
 
 from collections import namedtuple
 
 
 AgentBusCommand = namedtuple('AgentBusCommand', ['module', 'action', 'id'])
+
 
 class AgentBusHandler(object):
 
@@ -57,9 +40,9 @@ class AgentBusHandler(object):
         if not match:
             return None
 
-        module, action, id = match.groups()
+        module, action, id_ = match.groups()
 
-        return AgentBusCommand(module, action, id)
+        return AgentBusCommand(module, action, id_)
 
     def _execute_bus_command(self, bus_command):
         client_action = (bus_command.module, bus_command.action)

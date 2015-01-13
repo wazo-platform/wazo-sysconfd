@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2013 Avencall
+# Copyright (C) 2010-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -793,9 +793,9 @@ class DNETIntf:
             if 'vlanid' in self.args:
                 del self.args['vlanid']
         elif network.is_vlan_if(self.args['ifname']):
-            if not 'vlanrawdevice' in self.args:
+            if 'vlanrawdevice' not in self.args:
                 raise HttpReqError(415, "invalid arguments for command, missing vlanrawdevice")
-            if not 'vlanid' in self.args:
+            if 'vlanid' not in self.args:
                 raise HttpReqError(415, "invalid arguments for command, missing vlanid")
 
             phyifname = self.args['vlanrawdevice']

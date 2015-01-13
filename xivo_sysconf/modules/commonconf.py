@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2013 Avencall
+# Copyright (C) 2010-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-
-import json
 import logging
 import subprocess
 import traceback
@@ -40,9 +38,9 @@ XIVO_{{ key }}="{{ value }}"
 class CommonConf(object):
 
     def __init__(self):
-        http_json_server.register(self.generate , CMD_RW,
-            safe_init=self.safe_init,
-            name='commonconf_generate')
+        http_json_server.register(self.generate, CMD_RW,
+                                  safe_init=self.safe_init,
+                                  name='commonconf_generate')
         http_json_server.register(self.apply, CMD_R, name='commonconf_apply')
 
     def safe_init(self, options):
@@ -56,9 +54,9 @@ class CommonConf(object):
         if 'dhcp_active' in args:
             if args['dhcp_active']:
                 cmd = ['ln',
-                      '-s',
-                      '%s/isc-dhcp-server' % self.monit_checks_dir,
-                      '%s/isc-dhcp-server' % self.monit_conf_dir]
+                       '-s',
+                       '%s/isc-dhcp-server' % self.monit_checks_dir,
+                       '%s/isc-dhcp-server' % self.monit_conf_dir]
             else:
                 cmd = ['rm', '-f', '%s/isc-dhcp-server' % self.monit_conf_dir]
             try:
@@ -76,7 +74,7 @@ class CommonConf(object):
         self.enable_disable_dhcpd(args)
         conf_dict = {}
         for k, v in args.items():
-             conf_dict[k.upper()] = v
+            conf_dict[k.upper()] = v
         with open(self.file, 'w') as f:
             f.write(XivoCommonTpl.render(conf=conf_dict))
 
