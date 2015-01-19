@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from setuptools import setup
-from setuptools import find_packages
+from distutils.core import setup
 
 setup(
     name='xivo_sysconfd',
@@ -11,6 +10,7 @@ setup(
     author='Proformatique',
     author_email='technique@proformatique.com',
     url='http://xivo.io/',
-    packages=find_packages(),
+    packages=['xivo_sysconf',
+              'xivo_sysconf.modules'],
     scripts=['bin/xivo-sysconfd']
 )
