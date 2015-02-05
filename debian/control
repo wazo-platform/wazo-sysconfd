@@ -12,7 +12,7 @@ Package: xivo-sysconfd
 Architecture: all
 Depends: ${python:Depends},
          ${misc:Depends},
-         xivo-bus,
+         xivo-agent,
          xivo-lib-python,
          python-dumbnet,
          python-magic,
