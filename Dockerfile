@@ -10,14 +10,15 @@ ENV HOME /root
 RUN apt-get -qq update
 RUN apt-get -qq -y install \
     wget \
+    git \
     apt-utils \
     python-pip \
     python-dev \
-    libyaml-dev \
     python-dumbnet \
     python-netifaces \
     python-magic \
     python-m2crypto \
+    libyaml-dev \
     ifupdown \
     sudo \
     curl \
@@ -25,7 +26,7 @@ RUN apt-get -qq -y install \
 
 # Install xivo-sysconfd
 WORKDIR /usr/src
-RUN . /usr/src/sysconfd
+ADD . /usr/src/sysconfd
 WORKDIR sysconfd
 RUN pip install -r requirements.txt
 RUN python setup.py install
@@ -33,9 +34,9 @@ RUN python setup.py install
 # Configure environment
 RUN touch /etc/network/interfaces
 RUN touch /var/log/xivo-sysconfd.log
-RUN mkdir -p /etc/xivo/xivo-sysconfd
+RUN mkdir /etc/xivo/
 RUN mkdir /var/run/xivo-sysconfd
-RUN cp -a etc/xivo/xivo-sysconfd/xivo-sysconfd.yml /etc/xivo/xivo-sysconfd/
+RUN cp -a etc/xivo/* /etc/xivo/
 WORKDIR /root
 
 # Clean
