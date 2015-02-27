@@ -41,7 +41,7 @@ WORKDIR /root
 
 # Clean
 RUN apt-get clean
-RUN rm -rf /usrc/src/*
+RUN rm -rf /usr/src/*
 
 EXPOSE 8668
 
