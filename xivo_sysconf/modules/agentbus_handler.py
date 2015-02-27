@@ -25,7 +25,7 @@ AgentBusCommand = namedtuple('AgentBusCommand', ['module', 'action', 'id'])
 
 class AgentBusHandler(object):
 
-    _COMMAND_REGEX = re.compile(r'^(\w+).(\w+).(\w+)$')
+    _COMMAND_REGEX = re.compile(r'^(\w+)\.(\w+)\.(\d+)$')
 
     def __init__(self, agent_client):
         self._agent_client = agent_client
