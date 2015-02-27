@@ -22,6 +22,7 @@ import socket
 
 from xivo import debug
 from xivo.http_json_server import register, HttpReqError, CMD_RW
+from xivo.moresynchro import Once
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
 from xivo_agent.ctl.config import BusConfig
 from xivo_agent.ctl.client import AgentClient
@@ -163,12 +164,10 @@ class RequestHandlers(object):
 class RequestHandlersProxy(object):
 
     def __init__(self):
-        self._initialized = False
+        self._once = Once()
 
     def handle_request(self, args, options):
-        if not self._initialized:
-            self._initialize()
-            self._initialized = True
+        self._once.once(self._initialize)
         return self._request_handlers.process(args, options)
 
     def _initialize(self):
