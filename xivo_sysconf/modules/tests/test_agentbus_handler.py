@@ -17,90 +17,74 @@
 
 import unittest
 
-from mock import Mock
+from mock import Mock, sentinel
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler, AgentBusCommand
+from xivo_bus.resources.agent.event import DeleteAgentEvent, EditAgentEvent
+from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent,\
+    DeleteQueueEvent
 
 
 class TestAgentBusHandler(unittest.TestCase):
 
+    def setUp(self):
+        self.bus_publisher = Mock()
+        self.handler = AgentBusHandler(self.bus_publisher)
+
     def test_parse_empty_command(self):
-        handler = AgentBusHandler(Mock())
         command = ''
 
         expected = None
-        result = handler._parse_command(command)
+        result = self.handler._parse_command(command)
 
         self.assertEquals(expected, result)
 
     def test_parse_incomplete_command(self):
-        handler = AgentBusHandler(Mock())
         command = 'agent.delete.'
 
         expected = None
-        result = handler._parse_command(command)
+        result = self.handler._parse_command(command)
 
         self.assertEquals(expected, result)
 
     def test_parse_agentbus_command(self):
-        handler = AgentBusHandler(Mock())
         command = 'agent.delete.10'
 
         expected = AgentBusCommand('agent', 'delete', '10')
-        result = handler._parse_command(command)
+        result = self.handler._parse_command(command)
 
         self.assertEquals(expected, result)
 
     def test_agent_delete_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
         command = 'agent.delete.1'
-        agent_id = '1'
 
-        handler.handle_command(command)
+        self.handler.handle_command(command)
 
-        agent_client.on_agent_deleted.assert_called_once_with(agent_id)
+        self.bus_publisher.publish.assert_called_once_with(DeleteAgentEvent(1))
 
     def test_agent_edit_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
         command = 'agent.edit.1'
-        agent_id = '1'
 
-        handler.handle_command(command)
+        self.handler.handle_command(command)
 
-        agent_client.on_agent_updated.assert_called_once_with(agent_id)
+        self.bus_publisher.publish.assert_called_once_with(EditAgentEvent(1))
 
     def test_queue_add_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
         command = 'queue.add.1'
-        queue_id = '1'
 
-        handler.handle_command(command)
+        self.handler.handle_command(command)
 
-        agent_client.on_queue_added.assert_called_once_with(queue_id)
+        self.bus_publisher.publish.assert_called_once_with(CreateQueueEvent(1))
 
     def test_queue_edit_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
         command = 'queue.edit.1'
-        queue_id = '1'
 
-        handler.handle_command(command)
+        self.handler.handle_command(command)
 
-        agent_client.on_queue_updated.assert_called_once_with(queue_id)
+        self.bus_publisher.publish.assert_called_once_with(EditQueueEvent(1))
 
     def test_queue_delete_command(self):
-        agent_client = Mock()
-        handler = AgentBusHandler(agent_client)
-
         command = 'queue.delete.1'
-        queue_id = '1'
 
-        handler.handle_command(command)
+        self.handler.handle_command(command)
 
-        agent_client.on_queue_deleted.assert_called_once_with(queue_id)
+        self.bus_publisher.publish.assert_called_once_with(DeleteQueueEvent(1))

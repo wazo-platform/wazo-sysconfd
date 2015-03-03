@@ -18,7 +18,6 @@
 import unittest
 
 from mock import Mock, call, patch
-from xivo_agent.ctl.client import AgentClient
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
 from xivo_sysconf.modules.request_handlers import RequestHandlers, \
     RequestHandlersProxy
@@ -46,27 +45,26 @@ class TestRequestHandlers(unittest.TestCase):
 
 class TestRequestHandlersProxy(unittest.TestCase):
 
-    @patch('xivo_sysconf.modules.request_handlers.AgentClient')
+    def setUp(self):
+        self.proxy = RequestHandlersProxy()
+        self.proxy._bus_connection = Mock()
+        self.proxy._bus_exchange = Mock()
+        self.proxy._uuid = '111-2222'
+
     @patch('xivo_sysconf.modules.request_handlers.AgentBusHandler')
     @patch('xivo_sysconf.modules.request_handlers.RequestHandlers')
-    def test_handle_request(self, RequestHandlersMock, AgentBusHandlerMock, AgentClientMock):
-        agent_client = Mock(AgentClient)
-        AgentClientMock.return_value = agent_client
+    @patch('xivo_sysconf.modules.request_handlers.Producer')
+    def test_handle_request(self, ProducerMock, RequestHandlersMock, AgentBusHandlerMock):
         agent_bus_handler = Mock(AgentBusHandler)
         AgentBusHandlerMock.return_value = agent_bus_handler
         request_handlers = Mock(RequestHandlers)
         RequestHandlersMock.return_value = request_handlers
         args = Mock()
         options = Mock()
-        bus_config = RequestHandlersProxy.bus_config = Mock()
-        proxy = RequestHandlersProxy()
 
-        proxy.handle_request(args, options)
-        proxy.handle_request(args, options)
+        self.proxy.handle_request(args, options)
+        self.proxy.handle_request(args, options)
 
-        AgentClientMock.assert_called_once_with(fetch_response=False, config=bus_config)
-        agent_client.connect.assert_called_once_with()
-        AgentBusHandlerMock.assert_called_once_with(agent_client)
         RequestHandlersMock.assert_called_once_with(agent_bus_handler)
         request_handlers.read_config.assert_called_once_with()
         self.assertEqual(request_handlers.process.mock_calls,

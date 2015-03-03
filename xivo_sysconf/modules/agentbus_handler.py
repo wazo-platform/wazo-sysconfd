@@ -15,10 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import logging
 import re
+import threading
 
 from collections import namedtuple
+from xivo_bus.resources.agent.event import DeleteAgentEvent, EditAgentEvent
+from xivo_bus.resources.queue.event import CreateQueueEvent, DeleteQueueEvent, EditQueueEvent
 
+logger = logging.getLogger(__name__)
 
 AgentBusCommand = namedtuple('AgentBusCommand', ['module', 'action', 'id'])
 
@@ -27,8 +32,9 @@ class AgentBusHandler(object):
 
     _COMMAND_REGEX = re.compile(r'^(\w+)\.(\w+)\.(\d+)$')
 
-    def __init__(self, agent_client):
-        self._agent_client = agent_client
+    def __init__(self, bus_publisher):
+        self._bus_publisher = bus_publisher
+        self._lock = threading.Lock()
 
     def handle_command(self, command):
         bus_command = self._parse_command(command)
@@ -48,12 +54,18 @@ class AgentBusHandler(object):
         client_action = (bus_command.module, bus_command.action)
 
         if client_action == ('agent', 'edit'):
-            self._agent_client.on_agent_updated(bus_command.id)
+            event = EditAgentEvent(bus_command.id)
         elif client_action == ('agent', 'delete'):
-            self._agent_client.on_agent_deleted(bus_command.id)
+            event = DeleteAgentEvent(bus_command.id)
         elif client_action == ('queue', 'add'):
-            self._agent_client.on_queue_added(bus_command.id)
+            event = CreateQueueEvent(bus_command.id)
         elif client_action == ('queue', 'edit'):
-            self._agent_client.on_queue_updated(bus_command.id)
+            event = EditQueueEvent(bus_command.id)
         elif client_action == ('queue', 'delete'):
-            self._agent_client.on_queue_deleted(bus_command.id)
+            event = DeleteQueueEvent(bus_command.id)
+        else:
+            logger.warning('Unknown agent bus client action %s', client_action)
+            return
+
+        with self._lock:
+            self._bus_publisher.publish(event)

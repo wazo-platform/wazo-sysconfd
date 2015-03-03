@@ -20,12 +20,13 @@ import logging
 import subprocess
 import socket
 
+from kombu import Connection, Exchange, Producer
 from xivo import debug
 from xivo.http_json_server import register, HttpReqError, CMD_RW
 from xivo.moresynchro import Once
+from xivo_bus.marshaler import Marshaler
+from xivo_bus.publisher import Publisher
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler
-from xivo_agent.ctl.config import BusConfig
-from xivo_agent.ctl.client import AgentClient
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,25 @@ class RequestHandlersProxy(object):
     def __init__(self):
         self._once = Once()
 
+    def configure(self, options):
+        config = options.configuration
+        username = config.get('bus', 'username')
+        password = config.get('bus', 'password')
+        host = config.get('bus', 'host')
+        port = config.getint('bus', 'port')
+        exchange_name = config.get('bus', 'exchange_name')
+        exchange_type = config.get('bus', 'exchange_type')
+        exchange_durable = config.getboolean('bus', 'exchange_durable')
+        # XXX should fetch the uuid from the config
+        uuid = None
+        url = 'amqp://{username}:{password}@{host}:{port}//'.format(username=username,
+                                                                    password=password,
+                                                                    host=host,
+                                                                    port=port)
+        self._bus_connection = Connection(url)
+        self._bus_exchange = Exchange(exchange_name, exchange_type, durable=exchange_durable)
+        self._uuid = uuid
+
     def handle_request(self, args, options):
         self._once.once(self._initialize)
         return self._request_handlers.process(args, options)
@@ -176,24 +196,12 @@ class RequestHandlersProxy(object):
         self._request_handlers.read_config()
 
     def _new_request_handlers(self):
-        agent_client = AgentClient(fetch_response=False, config=self.bus_config)
-        agent_client.connect()
-        agent_bus_handler = AgentBusHandler(agent_client)
+        bus_producer = Producer(self._bus_connection, self._bus_exchange, auto_declare=True)
+        bus_publisher = Publisher(bus_producer, Marshaler(self._uuid))
+        agent_bus_handler = AgentBusHandler(bus_publisher)
         return RequestHandlers(agent_bus_handler)
 
 
-def safe_init(options):
-    cfg = options.configuration
-    RequestHandlersProxy.bus_config = BusConfig(
-        username=cfg.get('bus', 'username'),
-        password=cfg.get('bus', 'password'),
-        host=cfg.get('bus', 'host'),
-        port=cfg.getint('bus', 'port'),
-        exchange_name=cfg.get('bus', 'exchange_name'),
-        exchange_type=cfg.get('bus', 'exchange_type'),
-        exchange_durable=cfg.getboolean('bus', 'exchange_durable'),
-    )
-
-
 request_handlers_proxy = RequestHandlersProxy()
-register(request_handlers_proxy.handle_request, CMD_RW, safe_init=safe_init, name='exec_request_handlers')
+register(request_handlers_proxy.handle_request, CMD_RW, safe_init=request_handlers_proxy.configure,
+         name='exec_request_handlers')
