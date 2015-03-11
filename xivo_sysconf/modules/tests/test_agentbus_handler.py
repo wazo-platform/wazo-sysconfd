@@ -17,7 +17,7 @@
 
 import unittest
 
-from mock import Mock, sentinel
+from mock import Mock
 from xivo_sysconf.modules.agentbus_handler import AgentBusHandler, AgentBusCommand
 from xivo_bus.resources.agent.event import DeleteAgentEvent, EditAgentEvent
 from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent,\
@@ -88,3 +88,10 @@ class TestAgentBusHandler(unittest.TestCase):
         self.handler.handle_command(command)
 
         self.bus_publisher.publish.assert_called_once_with(DeleteQueueEvent(1))
+
+    def test_unknown_command(self):
+        command = 'foo.bar.1'
+
+        self.handler.handle_command(command)
+
+        self.assertFalse(self.bus_publisher.publish.called)
