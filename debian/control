@@ -12,7 +12,7 @@ Package: xivo-sysconfd
 Architecture: all
 Depends: ${python:Depends},
          ${misc:Depends},
-         xivo-bus,
+         xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
          xivo-lib-python,
          python-dumbnet,
          python-kombu,
