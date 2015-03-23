@@ -40,15 +40,11 @@ AST_CMDS = [
     'sip reload',
     'moh reload',
     'iax2 reload',
-    'module reload',
     'module reload app_queue.so',
     'module reload app_meetme.so',
     'features reload',
     'voicemail reload',
     'module reload chan_sccp.so',
-    'sccp show version',
-    'sccp show devices',
-    'sccp show config',
 ]
 AST_ARG_CMDS = [
     'sip show peer',
