@@ -23,16 +23,21 @@ logger = logging.getLogger(__name__)
 class Command(object):
 
     def __init__(self, value, executor, data):
-        self._value = value
-        self._executor = executor
+        self.value = value
+        self.executor = executor
         self._data = data
+        self.optimized = False
 
     def execute(self):
-        logger.info('Executing %s command %s...', self._executor.name, self._value)
+        if self.optimized:
+            logger.debug('Not executing command %s since it has been optimized out', self.value)
+            return
+
+        logger.info('Executing %s command %s...', self.executor.name, self.value)
         try:
-            self._executor.execute(self._data)
+            self.executor.execute(self._data)
         except Exception:
-            logger.exception('Error while executing %s command %s', self._executor.name, self._value)
+            logger.exception('Error while executing %s command %s', self.executor.name, self.value)
 
 
 class SimpleCommandFactory(object):

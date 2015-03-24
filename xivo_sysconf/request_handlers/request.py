@@ -15,22 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import collections
 import logging
 import threading
 import ConfigParser
-from Queue import Queue
 
 from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import Publisher
-from xivo_sysconf.request_handlers.agent import AgentCommandExecutor,\
+from xivo_sysconf.request_handlers.agent import AgentCommandExecutor, \
     AgentCommandFactory
-from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor,\
+from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
     AsteriskCommandFactory
-from xivo_sysconf.request_handlers.ctid import CTICommandExecutor,\
+from xivo_sysconf.request_handlers.ctid import CTICommandExecutor, \
     CTICommandFactory
-from xivo_sysconf.request_handlers.dird import DirdCommandExecutor,\
+from xivo_sysconf.request_handlers.dird import DirdCommandExecutor, \
     DirdCommandFactory
 
 logger = logging.getLogger(__name__)
@@ -39,10 +39,10 @@ logger = logging.getLogger(__name__)
 class Request(object):
 
     def __init__(self, commands):
-        self._commands = commands
+        self.commands = commands
 
     def execute(self):
-        for command in self._commands:
+        for command in self.commands:
             command.execute()
 
 
@@ -89,6 +89,51 @@ class RequestFactory(object):
                 logger.exception('Error while creating "%s" command %r', key, value)
             else:
                 commands.append(command)
+
+
+class DuplicateRequestOptimizer(object):
+
+    def __init__(self, executor_name):
+        self._executor_name = executor_name
+        self._cache = set()
+
+    def on_request_put(self, request):
+        for command in request.commands:
+            if command.executor.name != self._executor_name:
+                continue
+            if command.value in self._cache:
+                command.optimized = True
+            else:
+                self._cache.add(command.value)
+
+    def on_request_get(self, request):
+        for command in request.commands:
+            if command.executor.name != self._executor_name or command.optimized:
+                continue
+            self._cache.remove(command.value)
+
+
+class RequestQueue(object):
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._condition = threading.Condition(self._lock)
+        self._queue = collections.deque()
+        self._asterisk_optimizer = DuplicateRequestOptimizer(AsteriskCommandExecutor.name)
+
+    def put(self, request):
+        with self._lock:
+            self._queue.append(request)
+            self._asterisk_optimizer.on_request_put(request)
+            self._condition.notify()
+
+    def get(self):
+        with self._lock:
+            while not self._queue:
+                self._condition.wait()
+            request = self._queue.popleft()
+            self._asterisk_optimizer.on_request_get(request)
+        return request
 
 
 class RequestProcessor(object):
@@ -174,7 +219,7 @@ class RequestHandlersProxy(object):
 
         # instantiate other stuff
         request_factory = RequestFactory(asterisk_command_factory, cti_command_factory, dird_command_factory, agent_command_factory)
-        request_queue = Queue()
+        request_queue = RequestQueue()
         request_handlers = RequestHandlers(request_factory, request_queue)
         request_processor = RequestProcessor(request_queue)
 
