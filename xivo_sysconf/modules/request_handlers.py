@@ -195,40 +195,6 @@ class RequestHandlersProxy(object):
         return RequestHandlers(agent_bus_handler)
 
 
-def core_show_version(args, options):
-    command = 'core show version'
-    return _exec_asterisk_command(command)
-
-
-def core_show_channels(args, options):
-    command = 'core show channels'
-    return _exec_asterisk_command(command)
-
-
-def sip_show_peer(args, options):
-    peer = options.get('peer')
-    if not peer:
-        raise HttpReqError(400, 'missing peer')
-
-    command = 'sip show peer {}'.format(peer)
-    return _exec_asterisk_command(command)
-
-
-def _exec_asterisk_command(command):
-    p = subprocess.Popen(['asterisk', '-rx', command],
-                 stdout=subprocess.PIPE,
-                 stderr=subprocess.STDOUT,
-                 close_fds=True)
-    output = p.communicate()[0]
-
-    if p.returncode != 0:
-        raise HttpReqError(500, output)
-    return output
-
-
 request_handlers_proxy = RequestHandlersProxy()
 register(request_handlers_proxy.handle_request, CMD_RW, safe_init=request_handlers_proxy.configure,
          name='exec_request_handlers')
-register(core_show_version, CMD_R, name='core_show_version')
-register(core_show_channels, CMD_R, name='core_show_channels')
-register(sip_show_peer, CMD_R, name='sip_show_peer')
