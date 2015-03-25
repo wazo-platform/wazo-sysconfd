@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2013,2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
 import re as _re
 import os as _os
 
+
 def _package_path():
     return _os.path.dirname(_os.path.abspath(__file__))
+
 
 def _is_package_child(path, name):
     full = _os.path.join(path, name)
@@ -33,6 +35,7 @@ def _is_package_child(path, name):
         return _re.search(r"\.py[a-z]*$", name) \
                and '__init__' not in name
 
+
 # Python doesn't really want us to do that because of
 # compatibility with stupid operating systems, but thanks
 # to this function we can do it anyway... :)
@@ -40,5 +43,6 @@ def _get_module_list(path):
     return list(set([_re.sub(r"\.py[a-z]?$", "", name)
                      for name in _os.listdir(path)
                      if _is_package_child(path, name)]))
+
 
 __all__ = _get_module_list(_package_path())

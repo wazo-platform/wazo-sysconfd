@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2013 Avencall
+# Copyright (C) 2011-2013,2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,16 +53,16 @@ class Asterisk(object):
         return True
 
 
-def _remove_directory( path):
+def _remove_directory(path):
     if os.path.exists(path):
         shutil.rmtree(path)
 
 
 def _is_valid_path_component(path_component):
-    return bool(path_component
-                and path_component != os.curdir
-                and path_component != os.pardir
-                and os.sep not in path_component)
+    return bool(path_component and
+                path_component != os.curdir and
+                path_component != os.pardir and
+                os.sep not in path_component)
 
 
 asterisk = Asterisk()
