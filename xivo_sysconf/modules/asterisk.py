@@ -24,8 +24,11 @@ from xivo.http_json_server import CMD_R
 
 
 class Asterisk(object):
+
     def __init__(self, base_vmail_path='/var/spool/asterisk/voicemail'):
         self._base_vmail_path = base_vmail_path
+        self.remove_directory = _remove_directory
+        self.is_valid_path_component = _is_valid_path_component
 
     def delete_voicemail(self, args, options):
         """Delete spool dir associated with voicemail
@@ -37,12 +40,29 @@ class Asterisk(object):
         if 'name' not in options:
             raise HttpReqError(400, "missing 'name' arg", json=True)
         context = options.get('context', 'default')
+        name = options['name']
 
-        vmpath = os.path.join(self._base_vmail_path, context, options['name'])
-        if os.path.exists(vmpath):
-            shutil.rmtree(vmpath)
+        if not self.is_valid_path_component(context):
+            raise HttpReqError(400, 'invalid context')
+        if not self.is_valid_path_component(name):
+            raise HttpReqError(400, 'invalid name')
+
+        vmpath = os.path.join(self._base_vmail_path, context, name)
+        self.remove_directory(vmpath)
 
         return True
+
+
+def _remove_directory( path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+
+def _is_valid_path_component(path_component):
+    return bool(path_component
+                and path_component != os.curdir
+                and path_component != os.pardir
+                and os.sep not in path_component)
 
 
 asterisk = Asterisk()
