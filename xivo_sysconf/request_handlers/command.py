@@ -25,7 +25,7 @@ class Command(object):
     def __init__(self, value, executor, data):
         self.value = value
         self.executor = executor
-        self._data = data
+        self.data = data
         self.optimized = False
 
     def execute(self):
@@ -35,7 +35,7 @@ class Command(object):
 
         logger.info('Executing %s command %s...', self.executor.name, self.value)
         try:
-            self.executor.execute(self._data)
+            self.executor.execute(self.data)
         except Exception:
             logger.exception('Error while executing %s command %s', self.executor.name, self.value)
 

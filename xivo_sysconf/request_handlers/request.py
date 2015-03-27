@@ -56,7 +56,7 @@ class RequestFactory(object):
 
     def new_request(self, args):
         commands = []
-        # asterisk commands must be the executed first
+        # asterisk commands must be executed first
         self._append_asterisk_commands(args, commands)
         self._append_cti_commands(args, commands)
         self._append_dird_commands(args, commands)
@@ -108,23 +108,24 @@ class DuplicateRequestOptimizer(object):
 
     def on_request_get(self, request):
         for command in request.commands:
-            if command.executor.name != self._executor_name or command.optimized:
+            if command.executor.name != self._executor_name:
                 continue
-            self._cache.remove(command.value)
+            if not command.optimized:
+                self._cache.remove(command.value)
 
 
 class RequestQueue(object):
 
-    def __init__(self):
+    def __init__(self, optimizer):
         self._lock = threading.Lock()
         self._condition = threading.Condition(self._lock)
         self._queue = collections.deque()
-        self._asterisk_optimizer = DuplicateRequestOptimizer(AsteriskCommandExecutor.name)
+        self._optimizer = optimizer
 
     def put(self, request):
         with self._lock:
             self._queue.append(request)
-            self._asterisk_optimizer.on_request_put(request)
+            self._optimizer.on_request_put(request)
             self._condition.notify()
 
     def get(self):
@@ -132,7 +133,7 @@ class RequestQueue(object):
             while not self._queue:
                 self._condition.wait()
             request = self._queue.popleft()
-            self._asterisk_optimizer.on_request_get(request)
+            self._optimizer.on_request_get(request)
         return request
 
 
@@ -219,7 +220,8 @@ class RequestHandlersProxy(object):
 
         # instantiate other stuff
         request_factory = RequestFactory(asterisk_command_factory, cti_command_factory, dird_command_factory, agent_command_factory)
-        request_queue = RequestQueue()
+        request_optimizer = DuplicateRequestOptimizer(AsteriskCommandExecutor.name)
+        request_queue = RequestQueue(request_optimizer)
         request_handlers = RequestHandlers(request_factory, request_queue)
         request_processor = RequestProcessor(request_queue)
 
