@@ -110,7 +110,7 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, options.foreground, debug=(options.loglevel == 'debug'))
+    setup_logging(LOG_FILE_NAME, options.foreground, debug=(options.loglevel == logging.DEBUG))
 
     cp = ConfigParser()
     cp.readfp(SysconfDefaultsConf)
