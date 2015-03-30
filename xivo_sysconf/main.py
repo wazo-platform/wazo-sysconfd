@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,15 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-
 from ConfigParser import ConfigParser
 from StringIO import StringIO
-from optparse import OptionParser
 from xivo import http_json_server
 from xivo.daemonize import pidfile_context
 from xivo.http_json_server import CMD_R
 from xivo.xivo_logging import setup_logging
 from xivo_sysconf.modules import *
+import argparse
 import logging
 import os
 
@@ -58,47 +57,41 @@ def get_log_level_by_name(loglevel_name):
 
 
 def argv_parse_check():
-    parser = OptionParser(usage="usage: %prog [options]")
-    parser.add_option("-l",
-                      dest='loglevel',
-                      default='info',
-                      help="Emit traces with LOGLEVEL details, must be one of:\n"
-                           "critical, error, warning, info, debug")
-    parser.add_option("-f",
-                      action='store_true',
-                      dest='foreground',
-                      default=False,
-                      help="Foreground, don't daemonize")
-    parser.add_option("-c",
-                      dest='conffile',
-                      default="/etc/xivo/sysconfd.conf",
-                      help="Use configuration file <conffile> instead of %default")
-    parser.add_option("-p",
-                      dest='pidfile',
-                      default="/var/run/xivo-sysconfd.pid",
-                      help="Use PID file <pidfile> instead of %default")
-    parser.add_option("--listen-addr",
-                      dest='listen_addr',
-                      default='127.0.0.1',
-                      help="Listen on address <listen_addr> instead of %default")
-    parser.add_option("--listen-port",
-                      dest='listen_port',
-                      type='int',
-                      default=8668,
-                      help="Listen on port <listen_port> instead of %default")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l',
+                        '--loglevel',
+                        default='info',
+                        help="Emit traces with LOGLEVEL details, must be one of:\n"
+                             "critical, error, warning, info, debug")
+    parser.add_argument('-f',
+                        '--foreground',
+                        action='store_true',
+                        help="Foreground, don't daemonize")
+    parser.add_argument('-c',
+                        '--conffile',
+                        default="/etc/xivo/sysconfd.conf",
+                        help="Use configuration file <conffile> instead of %(default)s")
+    parser.add_argument('-p',
+                        '--pidfile',
+                        default="/var/run/xivo-sysconfd.pid",
+                        help="Use PID file <pidfile> instead of %(default)s")
+    parser.add_argument('--listen-addr',
+                        default='127.0.0.1',
+                        help="Listen on address <listen_addr> instead of %(default)s")
+    parser.add_argument('--listen-port',
+                        type=int,
+                        default=8668,
+                        help="Listen on port <listen_port> instead of %(default)s")
 
-    options, args = parser.parse_args()
-
-    if args:
-        parser.error("no argument is allowed - use option --help to get an help screen")
+    parsed_args = parser.parse_args()
 
     try:
-        num_loglevel = get_log_level_by_name(options.loglevel)
+        num_loglevel = get_log_level_by_name(parsed_args.loglevel)
     except ValueError:
-        parser.error("incorrect log level %r" % options.loglevel)
-    options.loglevel = num_loglevel
+        parser.error("incorrect log level %r" % parsed_args.loglevel)
+    parsed_args.loglevel = num_loglevel
 
-    return options
+    return parsed_args
 
 
 def status_check(args, options):
