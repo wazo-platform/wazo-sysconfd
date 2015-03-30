@@ -20,7 +20,7 @@ from StringIO import StringIO
 from xivo import http_json_server
 from xivo.daemonize import pidfile_context
 from xivo.http_json_server import CMD_R
-from xivo.xivo_logging import setup_logging
+from xivo.xivo_logging import setup_logging, get_log_level_by_name
 from xivo_sysconf.modules import *
 import argparse
 import logging
@@ -40,26 +40,11 @@ backup_path             = /var/backups/xivo-sysconfd
 """)
 
 
-def get_log_level_by_name(loglevel_name):
-    levels = {
-        'CRITICAL': logging.CRITICAL,
-        'ERROR': logging.ERROR,
-        'WARNING': logging.WARNING,
-        'WARN': logging.WARN,
-        'INFO': logging.INFO,
-        'DEBUG': logging.DEBUG,
-    }
-    loglevel_name = loglevel_name.upper()
-    if loglevel_name in levels:
-        return levels[loglevel_name]
-    else:
-        raise ValueError("Unknown log level %r" % loglevel_name)
-
-
 def argv_parse_check():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l',
                         '--loglevel',
+                        type=get_log_level_by_name,
                         default='info',
                         help="Emit traces with LOGLEVEL details, must be one of:\n"
                              "critical, error, warning, info, debug")
@@ -83,15 +68,7 @@ def argv_parse_check():
                         default=8668,
                         help="Listen on port <listen_port> instead of %(default)s")
 
-    parsed_args = parser.parse_args()
-
-    try:
-        num_loglevel = get_log_level_by_name(parsed_args.loglevel)
-    except ValueError:
-        parser.error("incorrect log level %r" % parsed_args.loglevel)
-    parsed_args.loglevel = num_loglevel
-
-    return parsed_args
+    return parser.parse_args()
 
 
 def status_check(args, options):
@@ -103,7 +80,7 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, options.foreground, debug=(options.loglevel == logging.DEBUG))
+    setup_logging(LOG_FILE_NAME, options.foreground, log_level=options.loglevel)
 
     cp = ConfigParser()
     cp.readfp(SysconfDefaultsConf)
