@@ -22,7 +22,7 @@ from xivo_bus.resources.queue.event import CreateQueueEvent, DeleteQueueEvent, E
 from xivo_sysconf.request_handlers.command import Command
 
 
-class AgentCommandFactory(object):
+class AgentdCommandFactory(object):
 
     _REGEX = re.compile(r'^(\w+\.\w+)\.(\d+)$')
     _ACTION_MAP = {
@@ -56,7 +56,7 @@ class AgentCommandFactory(object):
         return event_class(id_)
 
 
-class AgentCommandExecutor(object):
+class AgentdCommandExecutor(object):
 
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher

@@ -20,15 +20,15 @@ import unittest
 from mock import Mock, sentinel
 from xivo_bus import Publisher
 from xivo_bus.resources.agent.event import EditAgentEvent
-from xivo_sysconf.request_handlers.agent import AgentCommandFactory, \
-    AgentCommandExecutor
+from xivo_sysconf.request_handlers.agentd import AgentdCommandFactory, \
+    AgentdCommandExecutor
 
 
-class TestAgentCommandFactory(unittest.TestCase):
+class TestAgentdCommandFactory(unittest.TestCase):
 
     def setUp(self):
         self.executor = Mock()
-        self.factory = AgentCommandFactory(self.executor)
+        self.factory = AgentdCommandFactory(self.executor)
 
     def test_new_command(self):
         value = 'agent.edit.44'
@@ -50,11 +50,11 @@ class TestAgentCommandFactory(unittest.TestCase):
         self.assertRaises(ValueError, self.factory.new_command, value)
 
 
-class TestAgentCommandExecutor(unittest.TestCase):
+class TestAgentdCommandExecutor(unittest.TestCase):
 
     def setUp(self):
         self.bus_publisher = Mock(Publisher)
-        self.executor = AgentCommandExecutor(self.bus_publisher)
+        self.executor = AgentdCommandExecutor(self.bus_publisher)
 
     def test_execute(self):
         self.executor.execute(sentinel.event)

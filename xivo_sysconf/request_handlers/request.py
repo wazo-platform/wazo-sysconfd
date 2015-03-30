@@ -24,8 +24,8 @@ from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import Publisher
-from xivo_sysconf.request_handlers.agent import AgentCommandExecutor, \
-    AgentCommandFactory
+from xivo_sysconf.request_handlers.agentd import AgentdCommandExecutor, \
+    AgentdCommandFactory
 from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
     AsteriskCommandFactory
 from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
@@ -48,11 +48,11 @@ class Request(object):
 
 class RequestFactory(object):
 
-    def __init__(self, asterisk_command_factory, ctid_command_factory, dird_command_factory, agent_command_factory):
+    def __init__(self, asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory):
         self._asterisk_command_factory = asterisk_command_factory
         self._ctid_command_factory = ctid_command_factory
         self._dird_command_factory = dird_command_factory
-        self._agent_command_factory = agent_command_factory
+        self._agentd_command_factory = agentd_command_factory
 
     def new_request(self, args):
         commands = []
@@ -60,7 +60,7 @@ class RequestFactory(object):
         self._append_asterisk_commands(args, commands)
         self._append_ctid_commands(args, commands)
         self._append_dird_commands(args, commands)
-        self._append_agent_commands(args, commands)
+        self._append_agentd_commands(args, commands)
         return Request(commands)
 
     def _append_asterisk_commands(self, args, commands):
@@ -72,8 +72,8 @@ class RequestFactory(object):
     def _append_dird_commands(self, args, commands):
         self._append_commands('dird', self._dird_command_factory, args, commands)
 
-    def _append_agent_commands(self, args, commands):
-        self._append_commands('agentbus', self._agent_command_factory, args, commands)
+    def _append_agentd_commands(self, args, commands):
+        self._append_commands('agentbus', self._agentd_command_factory, args, commands)
 
     def _append_commands(self, key, factory, args, commands):
         values = args.get(key)
@@ -207,19 +207,19 @@ class RequestHandlersProxy(object):
         bus_publisher = Publisher(bus_producer, Marshaler(uuid))
 
         # instantiate executors
-        agent_command_executor = AgentCommandExecutor(bus_publisher)
+        agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
         dird_command_executor = DirdCommandExecutor(dirdbus_host, dirdbus_port)
 
         # instantiate factories
-        agent_command_factory = AgentCommandFactory(agent_command_executor)
+        agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
         ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
         dird_command_factory = DirdCommandFactory(dird_command_executor)
 
         # instantiate other stuff
-        request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agent_command_factory)
+        request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         request_handlers = RequestHandlers(request_factory, request_queue)
