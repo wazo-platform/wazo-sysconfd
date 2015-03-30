@@ -58,8 +58,6 @@ class AgentCommandFactory(object):
 
 class AgentCommandExecutor(object):
 
-    name = 'agentbus'
-
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
 

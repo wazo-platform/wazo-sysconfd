@@ -93,13 +93,13 @@ class RequestFactory(object):
 
 class DuplicateRequestOptimizer(object):
 
-    def __init__(self, executor_name):
-        self._executor_name = executor_name
+    def __init__(self, executor):
+        self._executor = executor
         self._cache = set()
 
     def on_request_put(self, request):
         for command in request.commands:
-            if command.executor.name != self._executor_name:
+            if command.executor != self._executor:
                 continue
             if command.value in self._cache:
                 command.optimized = True
@@ -108,7 +108,7 @@ class DuplicateRequestOptimizer(object):
 
     def on_request_get(self, request):
         for command in request.commands:
-            if command.executor.name != self._executor_name:
+            if command.executor != self._executor:
                 continue
             if not command.optimized:
                 self._cache.remove(command.value)
@@ -220,7 +220,7 @@ class RequestHandlersProxy(object):
 
         # instantiate other stuff
         request_factory = RequestFactory(asterisk_command_factory, cti_command_factory, dird_command_factory, agent_command_factory)
-        request_optimizer = DuplicateRequestOptimizer(AsteriskCommandExecutor.name)
+        request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         request_handlers = RequestHandlers(request_factory, request_queue)
         request_processor = RequestProcessor(request_queue)

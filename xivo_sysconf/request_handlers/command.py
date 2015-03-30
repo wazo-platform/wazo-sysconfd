@@ -30,14 +30,14 @@ class Command(object):
 
     def execute(self):
         if self.optimized:
-            logger.debug('Not executing command %s since it has been optimized out', self.value)
+            logger.debug('Not executing command "%s" since it has been optimized out', self.value)
             return
 
-        logger.info('Executing %s command %s...', self.executor.name, self.value)
+        logger.info('Executing command "%s"', self.value)
         try:
             self.executor.execute(self.data)
         except Exception:
-            logger.exception('Error while executing %s command %s', self.executor.name, self.value)
+            logger.exception('Error while executing command "%s" with %s', self.value, self.executor)
 
 
 class SimpleCommandFactory(object):

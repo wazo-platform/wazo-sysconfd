@@ -112,10 +112,8 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
 
     def setUp(self):
         self.executor = Mock()
-        self.executor.name = 'foo'
         self.other_executor = Mock()
-        self.other_executor.name = 'bar'
-        self.optimizer = DuplicateRequestOptimizer(self.executor.name)
+        self.optimizer = DuplicateRequestOptimizer(self.executor)
 
     def test_on_request_put_same_commands(self):
         cmd1 = self._new_command('a')

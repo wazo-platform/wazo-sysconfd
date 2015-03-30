@@ -24,8 +24,6 @@ CTICommandFactory = SimpleCommandFactory
 
 class CTICommandExecutor(object):
 
-    name = 'ctibus'
-
     def __init__(self, host, port):
         self._addr = (host, port)
 

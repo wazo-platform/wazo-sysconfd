@@ -61,8 +61,6 @@ class AsteriskCommandFactory(object):
 
 class AsteriskCommandExecutor(object):
 
-    name = 'ipbx'
-
     def __init__(self):
         self._null = open(os.devnull)
 

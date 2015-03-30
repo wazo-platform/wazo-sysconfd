@@ -24,8 +24,6 @@ DirdCommandFactory = SimpleCommandFactory
 
 class DirdCommandExecutor(object):
 
-    name = 'dird'
-
     def __init__(self, host, port):
         self._addr = (host, port)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
