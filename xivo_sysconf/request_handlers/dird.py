@@ -24,6 +24,8 @@ DirdCommandFactory = SimpleCommandFactory
 
 class DirdCommandExecutor(object):
 
+    # This currently notify xivo-agid, not xivo-dird.
+
     def __init__(self, host, port):
         self._addr = (host, port)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
