@@ -19,15 +19,15 @@ import socket
 import unittest
 
 from mock import Mock, patch, sentinel
-from xivo_sysconf.request_handlers.ctid import CTICommandExecutor
+from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor
 
 
-class TestCTICommandExecutor(unittest.TestCase):
+class TestCTIdCommandExecutor(unittest.TestCase):
 
     def setUp(self):
         self.host = '169.254.1.1'
         self.port = 2222
-        self.executor = CTICommandExecutor(self.host, self.port)
+        self.executor = CTIdCommandExecutor(self.host, self.port)
 
     @patch('socket.socket')
     def test_execute(self, mock_socket):

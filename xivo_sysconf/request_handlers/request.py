@@ -28,8 +28,8 @@ from xivo_sysconf.request_handlers.agent import AgentCommandExecutor, \
     AgentCommandFactory
 from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
     AsteriskCommandFactory
-from xivo_sysconf.request_handlers.ctid import CTICommandExecutor, \
-    CTICommandFactory
+from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
+    CTIdCommandFactory
 from xivo_sysconf.request_handlers.dird import DirdCommandExecutor, \
     DirdCommandFactory
 
@@ -48,9 +48,9 @@ class Request(object):
 
 class RequestFactory(object):
 
-    def __init__(self, asterisk_command_factory, cti_command_factory, dird_command_factory, agent_command_factory):
+    def __init__(self, asterisk_command_factory, ctid_command_factory, dird_command_factory, agent_command_factory):
         self._asterisk_command_factory = asterisk_command_factory
-        self._cti_command_factory = cti_command_factory
+        self._ctid_command_factory = ctid_command_factory
         self._dird_command_factory = dird_command_factory
         self._agent_command_factory = agent_command_factory
 
@@ -58,7 +58,7 @@ class RequestFactory(object):
         commands = []
         # asterisk commands must be executed first
         self._append_asterisk_commands(args, commands)
-        self._append_cti_commands(args, commands)
+        self._append_ctid_commands(args, commands)
         self._append_dird_commands(args, commands)
         self._append_agent_commands(args, commands)
         return Request(commands)
@@ -66,8 +66,8 @@ class RequestFactory(object):
     def _append_asterisk_commands(self, args, commands):
         self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
 
-    def _append_cti_commands(self, args, commands):
-        self._append_commands('ctibus', self._cti_command_factory, args, commands)
+    def _append_ctid_commands(self, args, commands):
+        self._append_commands('ctibus', self._ctid_command_factory, args, commands)
 
     def _append_dird_commands(self, args, commands):
         self._append_commands('dird', self._dird_command_factory, args, commands)
@@ -209,17 +209,17 @@ class RequestHandlersProxy(object):
         # instantiate executors
         agent_command_executor = AgentCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor()
-        cti_command_executor = CTICommandExecutor(ctibus_host, ctibus_port)
+        ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
         dird_command_executor = DirdCommandExecutor(dirdbus_host, dirdbus_port)
 
         # instantiate factories
         agent_command_factory = AgentCommandFactory(agent_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
-        cti_command_factory = CTICommandFactory(cti_command_executor)
+        ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
         dird_command_factory = DirdCommandFactory(dird_command_executor)
 
         # instantiate other stuff
-        request_factory = RequestFactory(asterisk_command_factory, cti_command_factory, dird_command_factory, agent_command_factory)
+        request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agent_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         request_handlers = RequestHandlers(request_factory, request_queue)

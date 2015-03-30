@@ -19,10 +19,10 @@ import socket
 
 from xivo_sysconf.request_handlers.command import SimpleCommandFactory
 
-CTICommandFactory = SimpleCommandFactory
+CTIdCommandFactory = SimpleCommandFactory
 
 
-class CTICommandExecutor(object):
+class CTIdCommandExecutor(object):
 
     def __init__(self, host, port):
         self._addr = (host, port)
