@@ -173,8 +173,9 @@ class RequestHandlersProxy(object):
 
     def __init__(self):
         self._request_handlers = None
+        self._request_processor = None
 
-    def configure(self, options):
+    def safe_init(self, options):
         # read config from socket.conf
         conf_obj = ConfigParser.RawConfigParser()
         with open(self._SOCKET_CONFFILE) as fobj:
@@ -222,15 +223,13 @@ class RequestHandlersProxy(object):
         request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
-        request_handlers = RequestHandlers(request_factory, request_queue)
-        request_processor = RequestProcessor(request_queue)
+        self._request_handlers = RequestHandlers(request_factory, request_queue)
+        self._request_processor = RequestProcessor(request_queue)
 
-        # start the request processor thread
-        t = threading.Thread(target=request_processor.run)
+    def at_start(self, options):
+        t = threading.Thread(target=self._request_processor.run)
         t.daemon = True
         t.start()
-
-        self._request_handlers = request_handlers
 
     def handle_request(self, args, options):
         return self._request_handlers.handle_request(args, options)

@@ -20,5 +20,5 @@ from xivo_sysconf.request_handlers.request import RequestHandlersProxy
 
 
 proxy = RequestHandlersProxy()
-register(proxy.handle_request, CMD_RW, safe_init=proxy.configure,
+register(proxy.handle_request, CMD_RW, safe_init=proxy.safe_init, at_start=proxy.at_start,
          name='exec_request_handlers')
