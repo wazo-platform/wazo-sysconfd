@@ -40,10 +40,13 @@ class Request(object):
 
     def __init__(self, commands):
         self.commands = commands
+        self.observer = None
 
     def execute(self):
         for command in self.commands:
             command.execute()
+        if self.observer is not None:
+            self.observer.on_request_executed()
 
 
 class RequestFactory(object):
@@ -152,7 +155,32 @@ class RequestHandlers(object):
             logger.exception('Error while creating new request %s', args)
             raise HttpReqError(400)
         else:
-            self._request_queue.put(request)
+            self._queue_request(request)
+
+    def _queue_request(self, request):
+        self._request_queue.put(request)
+
+
+class SyncRequestObserver(object):
+
+    def __init__(self, timeout=30):
+        self._event = threading.Event()
+        self._timeout = timeout
+
+    def on_request_executed(self):
+        self._event.set()
+
+    def wait(self):
+        return self._event.wait(self._timeout)
+
+
+class SyncRequestHandlers(RequestHandlers):
+
+    def _queue_request(self, request):
+        request.observer = SyncRequestObserver()
+        super(SyncRequestHandlers, self)._queue_request(request)
+        if not request.observer.wait():
+            logger.warning('timeout reached on synchronous request')
 
 
 class RequestHandlersProxy(object):
@@ -175,6 +203,7 @@ class RequestHandlersProxy(object):
 
         # read config from main configuration file
         config = options.configuration
+        synchronous = config.getboolean('request_handlers', 'synchronous')
         username = config.get('bus', 'username')
         password = config.get('bus', 'password')
         host = config.get('bus', 'host')
@@ -211,7 +240,10 @@ class RequestHandlersProxy(object):
         request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
-        self._request_handlers = RequestHandlers(request_factory, request_queue)
+        if synchronous:
+            self._request_handlers = SyncRequestHandlers(request_factory, request_queue)
+        else:
+            self._request_handlers = RequestHandlers(request_factory, request_queue)
         self._request_processor = RequestProcessor(request_queue)
 
     def at_start(self, options):

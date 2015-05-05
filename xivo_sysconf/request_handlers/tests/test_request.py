@@ -20,7 +20,8 @@ import unittest
 from mock import Mock, sentinel
 from xivo_sysconf.request_handlers.command import Command
 from xivo_sysconf.request_handlers.request import Request, RequestFactory, \
-    DuplicateRequestOptimizer, RequestQueue, RequestProcessor, RequestHandlers
+    DuplicateRequestOptimizer, RequestQueue, RequestProcessor, RequestHandlers,\
+    SyncRequestHandlers, SyncRequestObserver
 from xivo.http_json_server import HttpReqError
 
 
@@ -36,6 +37,14 @@ class TestRequest(unittest.TestCase):
 
         command1.execute.assert_called_once_with()
         command2.execute.assert_called_once_with()
+
+    def test_execute_with_observer(self):
+        request = Request([])
+        request.observer = Mock()
+
+        request.execute()
+
+        request.observer.on_request_executed()
 
 
 class TestRequestFactory(unittest.TestCase):
@@ -222,3 +231,32 @@ class TestRequestHandlers(unittest.TestCase):
         self.request_factory.new_request.side_effect = Exception()
 
         self.assertRaises(HttpReqError, self.request_handlers.handle_request, sentinel.args, None)
+
+
+class TestSyncRequestObserver(unittest.TestCase):
+
+    def test_without_timeout(self):
+        observer = SyncRequestObserver()
+        observer.on_request_executed()
+        self.assertTrue(observer.wait())
+
+    def test_with_timeout(self):
+        observer = SyncRequestObserver(0.1)
+        self.assertFalse(observer.wait())
+
+
+class TestSyncRequestHandlers(unittest.TestCase):
+
+    def setUp(self):
+        self.request_factory = Mock()
+        self.request_queue = Mock()
+        self.request_queue.put.side_effect = self._request_queue_put
+        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue)
+
+    def _request_queue_put(self, request):
+        request.observer.on_request_executed()
+
+    def test_handle_request(self):
+        self.request_handlers.handle_request(sentinel.args, None)
+
+        self.request_queue.put.assert_called_once_with(self.request_factory.new_request.return_value)
