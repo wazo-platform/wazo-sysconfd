@@ -87,9 +87,9 @@ def sip_show_peer(args, options):
 
 def _exec_asterisk_command(command):
     p = subprocess.Popen(['asterisk', '-rx', command],
-                 stdout=subprocess.PIPE,
-                 stderr=subprocess.STDOUT,
-                 close_fds=True)
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT,
+                         close_fds=True)
     output = p.communicate()[0]
 
     if p.returncode != 0:

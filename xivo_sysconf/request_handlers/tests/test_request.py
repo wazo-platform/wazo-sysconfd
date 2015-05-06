@@ -104,6 +104,7 @@ class TestRequestFactory(unittest.TestCase):
         args = {
             'ipbx': ['1', '2'],
         }
+
         def side_effect(*args):
             result = returns.pop(0)
             if isinstance(result, Exception):

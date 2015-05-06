@@ -32,8 +32,8 @@ def _is_package_child(path, name):
         else:
             return False
     else:
-        return _re.search(r"\.py[a-z]*$", name) \
-               and '__init__' not in name
+        return (_re.search(r"\.py[a-z]*$", name) and
+                '__init__' not in name)
 
 
 # Python doesn't really want us to do that because of
