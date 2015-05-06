@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2015 Avencall
+# Copyright (C) 2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,10 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo.http_json_server import register, CMD_RW
-from xivo_sysconf.request_handlers.request import RequestHandlersProxy
+import socket
+
+from xivo_sysconf.request_handlers.command import SimpleCommandFactory
+
+CTIdCommandFactory = SimpleCommandFactory
 
 
-proxy = RequestHandlersProxy()
-register(proxy.handle_request, CMD_RW, safe_init=proxy.safe_init, at_start=proxy.at_start,
-         name='exec_request_handlers')
+class CTIdCommandExecutor(object):
+
+    def __init__(self, host, port):
+        self._addr = (host, port)
+
+    def execute(self, data):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(self._addr)
+        sock.send(data)
+        sock.close()
