@@ -25,7 +25,7 @@ test -x $DAEMON || exit 0
 case "$1" in
   start)
     log_daemon_msg "Starting" "$DAEMONNAME"
-    if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON 2>/dev/null;
+    if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON;
     then
         log_end_msg 0
     else
