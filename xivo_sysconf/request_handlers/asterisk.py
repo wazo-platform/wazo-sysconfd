@@ -35,7 +35,8 @@ class AsteriskCommandFactory(object):
         'iax2 reload',
         'module reload app_queue.so',
         'module reload app_meetme.so',
-        'features reload',
+        'module reload features',
+        'module reload res_parking.so',
         'voicemail reload',
         'module reload chan_sccp.so',
     ]
