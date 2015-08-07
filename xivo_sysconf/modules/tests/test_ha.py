@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import json
 import mock
 import os.path
 import shutil
@@ -95,7 +96,7 @@ class TestHA(unittest.TestCase):
         self._ha_config_mgr._write_ha_config_to_fobj(ha_config, fobj)
 
         content = fobj.getvalue()
-        self.assertEqual(expected_content, content)
+        self.assertEqual(json.loads(expected_content), json.loads(content))
 
     def test_get_ha_config_no_file(self):
         expected_ha_config = new_disabled_ha_config()
