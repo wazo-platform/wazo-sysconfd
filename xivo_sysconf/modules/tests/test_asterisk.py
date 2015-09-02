@@ -99,10 +99,11 @@ class TestRemoveDirectory(unittest.TestCase):
         self.assertFalse(os.path.exists(self.path))
 
 
+@patch('os.path.exists')
 @patch('subprocess.check_call')
 class TestMoveDirectory(unittest.TestCase):
 
-    def test_move(self, check_call):
+    def test_move(self, check_call, path_exists):
         old_path = "/var/spool/asterisk/default/1000"
         new_path = "/var/spool/asterisk/newctx/2000"
         _move_directory(old_path, new_path)
@@ -114,6 +115,15 @@ class TestMoveDirectory(unittest.TestCase):
                           call(["mv", old_path, new_path])]
 
         self.assertEqual(check_call.call_args_list, expected_calls)
+
+    def test_given_path_does_not_exist_when_moving_then_does_nothing(self, check_call, path_exists):
+        old_path = "/var/spool/asterisk/default/1000"
+        new_path = "/var/spool/asterisk/newctx/2000"
+        path_exists.return_value = False
+
+        _move_directory(old_path, new_path)
+
+        self.assertEqual(check_call.called, False)
 
 
 class TestPathComponentValidator(unittest.TestCase):

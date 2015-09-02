@@ -82,6 +82,9 @@ def _remove_directory(path):
 
 
 def _move_directory(old_path, new_path):
+    if not os.path.exists(old_path):
+        return
+
     dirname = os.path.dirname(new_path)
     commands = [
         ["rm", "-rf", new_path],
