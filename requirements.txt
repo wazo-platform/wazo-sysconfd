@@ -3,4 +3,3 @@ git+https://github.com/xivo-pbx/xivo-lib-python.git
 kombu==2.1.8
 pyyaml==3.10
 requests==2.0.0
-stevedore
