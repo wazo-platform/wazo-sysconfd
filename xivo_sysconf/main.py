@@ -15,16 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import argparse
+import logging
+import os
 from ConfigParser import ConfigParser
 from StringIO import StringIO
+
 from xivo import http_json_server
 from xivo.daemonize import pidfile_context
 from xivo.http_json_server import CMD_R
 from xivo.xivo_logging import setup_logging, get_log_level_by_name
+
 from xivo_sysconf.modules import *
-import argparse
-import logging
-import os
 
 
 LOG_FILE_NAME = "/var/log/xivo-sysconfd.log"

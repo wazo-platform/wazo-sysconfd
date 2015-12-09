@@ -15,15 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import functools
 import json
-import mock
 import os.path
 import shutil
+import subprocess
 import tempfile
 import unittest
 from StringIO import StringIO
-import subprocess
-import functools
+
+import mock
+
 from xivo_sysconf.modules.ha import HAConfigManager, _PostgresConfigUpdater, \
     _CronFileInstaller
 
