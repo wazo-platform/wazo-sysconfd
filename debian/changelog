@@ -1,4 +1,4 @@
-xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3-wheezy-5) xivo-dev; urgency=low
+xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3) xivo-dev; urgency=low
 
   * add missing conffile in maintscript
 
