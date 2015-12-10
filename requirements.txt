@@ -1,5 +1,5 @@
 git+https://github.com/xivo-pbx/xivo-bus.git
 git+https://github.com/xivo-pbx/xivo-lib-python.git
-kombu==2.1.8
-pyyaml==3.10
-requests==2.0.0
+kombu==3.0.26
+pyyaml==3.11
+requests==2.4.3
