@@ -183,6 +183,24 @@ class SyncRequestHandlers(RequestHandlers):
             logger.warning('timeout reached on synchronous request')
 
 
+class LazyBusPublisher(object):
+
+    def __init__(self, bus_connection, bus_exchange, marshaler):
+        self._bus_connection = bus_connection
+        self._bus_exchange = bus_exchange
+        self._marshaler = marshaler
+        self._publisher = None
+
+    def publish(self, event):
+        if self._publisher is None:
+            self._publisher = self._new_publisher()
+        return self._publisher.publish(event)
+
+    def _new_publisher(self):
+        bus_producer = Producer(self._bus_connection, self._bus_exchange, auto_declare=True)
+        return Publisher(bus_producer, self._marshaler)
+
+
 class RequestHandlersProxy(object):
 
     _SOCKET_CONFFILE = '/etc/xivo/sysconfd/socket.conf'
@@ -221,8 +239,7 @@ class RequestHandlersProxy(object):
                                                                     port=port)
         bus_connection = Connection(url)
         bus_exchange = Exchange(exchange_name, exchange_type, durable=exchange_durable)
-        bus_producer = Producer(bus_connection, bus_exchange, auto_declare=True)
-        bus_publisher = Publisher(bus_producer, Marshaler(uuid))
+        bus_publisher = LazyBusPublisher(bus_connection, bus_exchange, Marshaler(uuid))
 
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
