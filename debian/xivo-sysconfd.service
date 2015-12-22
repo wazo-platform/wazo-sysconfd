@@ -1,0 +1,11 @@
+[Unit]
+Description=xivo-sysconfd server
+After=network.target rabbitmq-server.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/xivo-sysconfd
+PIDFile=/var/run/xivo-sysconfd.pid
+
+[Install]
+WantedBy=multi-user.target
