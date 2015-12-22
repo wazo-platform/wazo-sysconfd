@@ -47,8 +47,8 @@ class TestServices(TestCase):
         services.services({service1: action1,
                            service2: action2}, sentinel.options)
 
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service1", action1], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service2", action2], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action2, "service2.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
 
     @patch('subprocess.Popen')
     def test_services_should_not_call_service_action_for_invalid_actions_service(self, mock_popen_constructor):
@@ -67,26 +67,7 @@ class TestServices(TestCase):
                            service5: action5},
                           sentinel.options)
 
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service1", action1], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service3", action3], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service5", action5], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action3, "service3.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action5, "service5.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
         assert_that(mock_popen_constructor.call_count, equal_to(3))
-
-    @patch('subprocess.Popen')
-    def test_services_should_not_call_service_action_for_invalid_service_names(self, mock_popen_constructor):
-        mock_popen = mock_popen_constructor.return_value = Mock(returncode=0)
-        mock_popen.communicate.return_value = ('', '')
-        service1, action1 = "service1", "start"
-        service2, action2 = "invalid", "start"
-        service3, action3 = "service2", "start"
-        service4, action4 = "../../tmp/user-program-run-by-root", "start"
-
-        services.services({service1: action1,
-                           service2: action2,
-                           service3: action3,
-                           service4: action4},
-                          sentinel.options)
-
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service1", action1], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/etc/init.d/service2", action3], stdout=ANY, stderr=ANY, close_fds=ANY)
-        assert_that(mock_popen_constructor.call_count, equal_to(2))
