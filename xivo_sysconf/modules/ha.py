@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2013 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ class HAConfigManager(object):
 
 
 class _PostgresConfigUpdater(object):
-    DEFAULT_CONFIG_DIR = '/etc/postgresql/9.1/main'
+    DEFAULT_CONFIG_DIR = '/etc/postgresql/9.4/main'
     PG_HBA_FILE = 'pg_hba.conf'
     POSTGRESQL_FILE = 'postgresql.conf'
 
