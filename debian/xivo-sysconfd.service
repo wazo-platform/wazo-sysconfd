@@ -1,6 +1,7 @@
 [Unit]
 Description=xivo-sysconfd server
 After=network.target rabbitmq-server.service
+Wants=rabbitmq-server.service
 
 [Service]
 Type=forking
