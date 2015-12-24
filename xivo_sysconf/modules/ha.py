@@ -139,7 +139,7 @@ class _PostgresConfigUpdater(object):
             fobj.write(listen_addresses_line)
 
     def restart_postgres(self):
-        command_args = ['/etc/init.d/postgresql', 'restart']
+        command_args = ['/bin/systemctl', 'restart', 'postgresql.service']
         subprocess.check_call(command_args, close_fds=True)
 
 

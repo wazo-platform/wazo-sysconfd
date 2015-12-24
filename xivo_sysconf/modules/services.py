@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2013 Avencall
+# Copyright (C) 2010-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-import os
 import subprocess
 
 from xivo import http_json_server
@@ -24,7 +23,6 @@ from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 
 logger = logging.getLogger('xivo_sysconf.modules.services')
-SERVICE_DIR = '/etc/init.d'
 
 
 class InvalidActionException(ValueError):
@@ -57,7 +55,6 @@ def _run_action_for_service(service, action):
     output = ''
     try:
         _validate_action(service, action)
-        _validate_service(service)
         output = _run_action_for_service_validated(service, action)
     except InvalidActionException as e:
         logger.error("action %s not authorized on %s service", e.action, e.service_name)
@@ -71,16 +68,10 @@ def _validate_action(service_name, action):
         raise InvalidActionException(service_name, action)
 
 
-def _validate_service(service_name):
-    all_service_names = os.listdir(SERVICE_DIR)
-    if service_name not in all_service_names:
-        raise InvalidServiceException(service_name)
-
-
 def _run_action_for_service_validated(service, action):
     output = ''
     try:
-        command = ["%s/%s" % (SERVICE_DIR, service), action]
+        command = ['/bin/systemctl', action, '{}.service'.format(service)]
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
@@ -91,7 +82,7 @@ def _run_action_for_service_validated(service, action):
         if p.returncode != 0:
             raise HttpReqError(500, output)
     except OSError:
-        logger.exception("Error while executing /etc/init.d script")
+        logger.exception("Error while executing action")
         raise HttpReqError(500, "can't manage services")
 
     return output
