@@ -1,6 +1,7 @@
 [Unit]
 Description=xivo-sysconfd server
 After=network.target rabbitmq-server.service
+Before=monit.service
 Wants=rabbitmq-server.service
 
 [Service]
