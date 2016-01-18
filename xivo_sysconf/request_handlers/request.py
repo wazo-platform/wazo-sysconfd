@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2015-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
     CTIdCommandFactory
 from xivo_sysconf.request_handlers.dird import DirdCommandExecutor, \
     DirdCommandFactory
+from xivo_sysconf.request_handlers.auth_keys import AuthKeysCommandExecutor, \
+    AuthKeysCommandFactory
 
 logger = logging.getLogger(__name__)
 
@@ -51,19 +53,26 @@ class Request(object):
 
 class RequestFactory(object):
 
-    def __init__(self, asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory):
+    def __init__(self,
+                 agentd_command_factory,
+                 asterisk_command_factory,
+                 auth_keys_command_factory,
+                 ctid_command_factory,
+                 dird_command_factory):
+        self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
+        self._auth_keys_command_factory = auth_keys_command_factory
         self._ctid_command_factory = ctid_command_factory
         self._dird_command_factory = dird_command_factory
-        self._agentd_command_factory = agentd_command_factory
 
     def new_request(self, args):
         commands = []
         # asterisk commands must be executed first
-        self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
+        self._append_commands('agentbus', self._agentd_command_factory, args, commands)
         self._append_commands('ctibus', self._ctid_command_factory, args, commands)
         self._append_commands('dird', self._dird_command_factory, args, commands)
-        self._append_commands('agentbus', self._agentd_command_factory, args, commands)
+        self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
+        self._append_commands('update_keys', self._auth_keys_command_factory, args, commands)
         return Request(commands)
 
     def _append_commands(self, key, factory, args, commands):
@@ -244,17 +253,23 @@ class RequestHandlersProxy(object):
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor()
+        auth_keys_command_executor = AuthKeysCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
         dird_command_executor = DirdCommandExecutor(dirdbus_host, dirdbus_port)
 
         # instantiate factories
         agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
+        auth_keys_command_factory = AuthKeysCommandFactory(auth_keys_command_executor)
         ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
         dird_command_factory = DirdCommandFactory(dird_command_executor)
 
         # instantiate other stuff
-        request_factory = RequestFactory(asterisk_command_factory, ctid_command_factory, dird_command_factory, agentd_command_factory)
+        request_factory = RequestFactory(agentd_command_factory,
+                                         asterisk_command_factory,
+                                         auth_keys_command_factory,
+                                         ctid_command_factory,
+                                         dird_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         if synchronous:
