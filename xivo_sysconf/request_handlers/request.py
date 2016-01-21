@@ -68,10 +68,10 @@ class RequestFactory(object):
     def new_request(self, args):
         commands = []
         # asterisk commands must be executed first
+        self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('agentbus', self._agentd_command_factory, args, commands)
         self._append_commands('ctibus', self._ctid_command_factory, args, commands)
         self._append_commands('dird', self._dird_command_factory, args, commands)
-        self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('update_keys', self._auth_keys_command_factory, args, commands)
         return Request(commands)
 
