@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from subprocess import call
+import logging
+import subprocess
 
 from xivo_sysconf.request_handlers.command import SimpleCommandFactory
+
+logger = logging.getLogger(__name__)
 
 AuthKeysCommandFactory = SimpleCommandFactory
 
@@ -25,4 +28,6 @@ AuthKeysCommandFactory = SimpleCommandFactory
 class AuthKeysCommandExecutor(object):
 
     def execute(self, data):
-        call(['xivo-update-keys'])
+        exit_code = subprocess.call(['xivo-update-keys'])
+        if exit_code:
+            logger.error('xivo-update-keys returned non-zero status code %s', exit_code)
