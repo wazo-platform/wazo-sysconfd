@@ -24,5 +24,5 @@ AuthKeysCommandFactory = SimpleCommandFactory
 
 class AuthKeysCommandExecutor(object):
 
-    def execute(self):
+    def execute(self, data):
         call(['xivo-update-keys'])
