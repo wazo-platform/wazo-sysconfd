@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2013 Avencall
+# Copyright (C) 2010-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -517,8 +517,6 @@ class OpenSSL(object):
         return True
 
     def deleteCertificate(self, args, options):
-        """
-        """
         if 'name' not in options:
             raise HttpReqError(400, "missing 'name' option", json=True)
         elif not os.path.exists(os.path.join(self.certsdir, options['name'])):
@@ -555,7 +553,7 @@ class OpenSSL(object):
 
         # symlinks for IAX keys
         if len(types) == 1:
-            if   types[0] == 'pubkey':
+            if types[0] == 'pubkey':
                 os.symlink(os.path.join(self.certsdir, args['name']), os.path.join('/var/lib/asterisk/keys', args['name'] + ('' if args['name'].endswith('.pub') else '.pub')))
             elif types[0] == 'privkey':
                 os.symlink(os.path.join(self.certsdir, args['name']), os.path.join('/var/lib/asterisk/keys', args['name'] + ('' if args['name'].endswith('.key') else '.key')))
