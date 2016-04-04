@@ -55,12 +55,10 @@ class TestRequestFactory(unittest.TestCase):
         self.asterisk_command_factory = Mock()
         self.auth_keys_command_factory = Mock()
         self.cti_command_factory = Mock()
-        self.dird_command_factory = Mock()
         self.request_factory = RequestFactory(self.agent_command_factory,
                                               self.asterisk_command_factory,
                                               self.auth_keys_command_factory,
-                                              self.cti_command_factory,
-                                              self.dird_command_factory)
+                                              self.cti_command_factory)
 
     def test_new_request_ipbx(self):
         args = {
@@ -81,16 +79,6 @@ class TestRequestFactory(unittest.TestCase):
 
         self.cti_command_factory.new_command.assert_called_once_with('foo')
         self.assertEqual(request.commands, [self.cti_command_factory.new_command.return_value])
-
-    def test_new_request_dird(self):
-        args = {
-            'dird': ['foo'],
-        }
-
-        request = self.request_factory.new_request(args)
-
-        self.dird_command_factory.new_command.assert_called_once_with('foo')
-        self.assertEqual(request.commands, [self.dird_command_factory.new_command.return_value])
 
     def test_new_request_agentbus(self):
         args = {

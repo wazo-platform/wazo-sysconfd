@@ -30,8 +30,6 @@ from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
     AsteriskCommandFactory
 from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
     CTIdCommandFactory
-from xivo_sysconf.request_handlers.dird import DirdCommandExecutor, \
-    DirdCommandFactory
 from xivo_sysconf.request_handlers.auth_keys import AuthKeysCommandExecutor, \
     AuthKeysCommandFactory
 
@@ -57,13 +55,11 @@ class RequestFactory(object):
                  agentd_command_factory,
                  asterisk_command_factory,
                  auth_keys_command_factory,
-                 ctid_command_factory,
-                 dird_command_factory):
+                 ctid_command_factory):
         self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
         self._auth_keys_command_factory = auth_keys_command_factory
         self._ctid_command_factory = ctid_command_factory
-        self._dird_command_factory = dird_command_factory
 
     def new_request(self, args):
         commands = []
@@ -71,7 +67,6 @@ class RequestFactory(object):
         self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('agentbus', self._agentd_command_factory, args, commands)
         self._append_commands('ctibus', self._ctid_command_factory, args, commands)
-        self._append_commands('dird', self._dird_command_factory, args, commands)
         self._append_commands('update_keys', self._auth_keys_command_factory, args, commands)
         return Request(commands)
 
@@ -225,8 +220,6 @@ class RequestHandlersProxy(object):
             conf_obj.readfp(fobj)
         ctibus_host = conf_obj.get('ctibus', 'bindaddr')
         ctibus_port = conf_obj.getint('ctibus', 'port')
-        dirdbus_host = conf_obj.get('dirdbus', 'bindaddr')
-        dirdbus_port = conf_obj.getint('dirdbus', 'port')
 
         # read config from main configuration file
         config = options.configuration
@@ -255,21 +248,18 @@ class RequestHandlersProxy(object):
         asterisk_command_executor = AsteriskCommandExecutor()
         auth_keys_command_executor = AuthKeysCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
-        dird_command_executor = DirdCommandExecutor(dirdbus_host, dirdbus_port)
 
         # instantiate factories
         agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
         auth_keys_command_factory = AuthKeysCommandFactory(auth_keys_command_executor)
         ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
-        dird_command_factory = DirdCommandFactory(dird_command_executor)
 
         # instantiate other stuff
         request_factory = RequestFactory(agentd_command_factory,
                                          asterisk_command_factory,
                                          auth_keys_command_factory,
-                                         ctid_command_factory,
-                                         dird_command_factory)
+                                         ctid_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         if synchronous:
