@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2015 Avencall
+# Copyright (C) 2010-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -503,11 +503,12 @@ class DNETIntf:
 
         self.CONFIG['lock_timeout'] = float(self.CONFIG['lock_timeout'])
 
+        relative_interfaces_tpl_file = self.CONFIG['interfaces_tpl_file']
         self.CONFIG['interfaces_tpl_file'] = os.path.join(tpl_path,
-                                                          self.CONFIG['interfaces_tpl_file'])
+                                                          relative_interfaces_tpl_file)
 
         self.CONFIG['interfaces_custom_tpl_file'] = os.path.join(custom_tpl_path,
-                                                                 self.CONFIG['interfaces_tpl_file'])
+                                                                 relative_interfaces_tpl_file)
 
         self.CONFIG['interfaces_path'] = os.path.dirname(self.CONFIG['interfaces_file'])
         self.CONFIG['interfaces_backup_file'] = os.path.join(backup_path,
