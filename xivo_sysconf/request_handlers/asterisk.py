@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2016 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ class AsteriskCommandFactory(object):
         'module reload res_parking.so',
         'voicemail reload',
         'module reload chan_sccp.so',
+        'module reload app_confbridge.so',
     ]
     _ARG_COMMANDS = [
         'sccp reset'
