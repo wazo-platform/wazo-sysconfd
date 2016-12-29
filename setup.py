@@ -9,9 +9,9 @@ setup(
     name='xivo_sysconfd',
     version='1.2',
     description='XIVO sysconf daemon',
-    author='Proformatique',
-    author_email='technique@proformatique.com',
-    url='http://xivo.io/',
+    author='Wazo Authors',
+    author_email='dev.wazo@gmail.com',
+    url='http://wazo.community',
     packages=find_packages(),
     scripts=['bin/xivo-sysconfd']
 )

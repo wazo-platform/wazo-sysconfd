@@ -2,7 +2,7 @@ xivo-sysconfd
 =========
 [![Build Status](https://travis-ci.org/wazo-pbx/xivo-sysconfd.png?branch=master)](https://travis-ci.org/wazo-pbx/xivo-sysconfd)
 
-xivo-sysconfd is a daemon for configuring system parameters on a XiVO server
+xivo-sysconfd is a daemon for configuring system parameters on a Wazo server
 
 
 Running unit tests
