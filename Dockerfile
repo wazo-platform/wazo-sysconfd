@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER XiVO Team "dev@avencall.com"
+MAINTAINER Wazo Maintainers <dev@wazo.community>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
