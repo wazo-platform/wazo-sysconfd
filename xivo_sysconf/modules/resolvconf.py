@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2013 Avencall
+# Copyright 2010-2018 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ RESOLVCONFLOCK = RWLock()
 
 Rcc = {'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
        'hostname_tpl_file': os.path.join('resolvconf', 'hostname'),
-       'hostname_update_cmd': "/etc/init.d/hostname.sh start",
        'hosts_file': os.path.join(os.path.sep, 'etc', 'hosts'),
        'hosts_tpl_file': os.path.join('resolvconf', 'hosts'),
        'resolvconf_file': os.path.join(os.path.sep, 'etc', 'resolv.conf'),
@@ -113,8 +112,7 @@ def Hosts(args, options):
                                               {'_XIVO_HOSTNAME': args['hostname'],
                                                '_XIVO_DOMAIN': args['domain']})
 
-            if Rcc['hostname_update_cmd']:
-                subprocess.call(Rcc['hostname_update_cmd'].strip().split())
+            subprocess.call(['hostname', '-F', Rcc['hostname_file']])
 
             return True
         except Exception, e:
