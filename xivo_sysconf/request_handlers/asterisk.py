@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2016 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
 import os
 import subprocess
+import uuid
 
 from xivo_sysconf.request_handlers.command import Command
+from xivo_bus.resources.asterisk.event import AsteriskReloadProgressEvent
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +52,20 @@ class AsteriskCommandFactory(object):
 
 class AsteriskCommandExecutor(object):
 
-    def __init__(self):
+    def __init__(self, bus_publisher):
+        self._bus_publisher = bus_publisher
         self._null = open(os.devnull)
 
     def execute(self, data):
+        task_uuid = str(uuid.uuid4())
+        self._bus_publisher.publish(
+            AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=data)
+        )
+
         exit_code = subprocess.call(['asterisk', '-rx', data], stdout=self._null, close_fds=True)
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
+
+        self._bus_publisher.publish(
+            AsteriskReloadProgressEvent(uuid=task_uuid, status='completed', command=data)
+        )

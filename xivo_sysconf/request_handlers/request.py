@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015-2016 Avencall
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import collections
@@ -232,7 +232,7 @@ class RequestHandlersProxy(object):
 
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
-        asterisk_command_executor = AsteriskCommandExecutor()
+        asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
         auth_keys_command_executor = AuthKeysCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
 
