@@ -2,23 +2,32 @@
 # Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
+import ConfigParser
 import collections
 import logging
 import threading
-import ConfigParser
 
 from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import Publisher
-from xivo_sysconf.request_handlers.agentd import AgentdCommandExecutor, \
-    AgentdCommandFactory
-from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
-    AsteriskCommandFactory
-from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
-    CTIdCommandFactory
-from xivo_sysconf.request_handlers.auth_keys import AuthKeysCommandExecutor, \
-    AuthKeysCommandFactory
+
+from .agentd import (
+    AgentdCommandExecutor,
+    AgentdCommandFactory,
+)
+from .auth_keys import (
+    AuthKeysCommandExecutor,
+    AuthKeysCommandFactory,
+)
+from .asterisk import (
+    AsteriskCommandExecutor,
+    AsteriskCommandFactory,
+)
+from .ctid import (
+    CTIdCommandExecutor,
+    CTIdCommandFactory,
+)
 
 logger = logging.getLogger(__name__)
 

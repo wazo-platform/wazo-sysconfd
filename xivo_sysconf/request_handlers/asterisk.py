@@ -7,8 +7,9 @@ import os
 import subprocess
 import uuid
 
-from xivo_sysconf.request_handlers.command import Command
 from xivo_bus.resources.asterisk.event import AsteriskReloadProgressEvent
+
+from .command import Command
 
 logger = logging.getLogger(__name__)
 
