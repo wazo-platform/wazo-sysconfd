@@ -1,37 +1,33 @@
 # -*- coding: utf-8 -*-
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
-# Copyright (C) 2015-2016 Avencall
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
-
+import ConfigParser
 import collections
 import logging
 import threading
-import ConfigParser
 
 from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import Publisher
-from xivo_sysconf.request_handlers.agentd import AgentdCommandExecutor, \
-    AgentdCommandFactory
-from xivo_sysconf.request_handlers.asterisk import AsteriskCommandExecutor, \
-    AsteriskCommandFactory
-from xivo_sysconf.request_handlers.ctid import CTIdCommandExecutor, \
-    CTIdCommandFactory
-from xivo_sysconf.request_handlers.auth_keys import AuthKeysCommandExecutor, \
-    AuthKeysCommandFactory
+
+from .agentd import (
+    AgentdCommandExecutor,
+    AgentdCommandFactory,
+)
+from .auth_keys import (
+    AuthKeysCommandExecutor,
+    AuthKeysCommandFactory,
+)
+from .asterisk import (
+    AsteriskCommandExecutor,
+    AsteriskCommandFactory,
+)
+from .ctid import (
+    CTIdCommandExecutor,
+    CTIdCommandFactory,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -245,7 +241,7 @@ class RequestHandlersProxy(object):
 
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
-        asterisk_command_executor = AsteriskCommandExecutor()
+        asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
         auth_keys_command_executor = AuthKeysCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
 
