@@ -30,6 +30,7 @@ class AsteriskCommandFactory(object):
         'voicemail reload',
         'module reload chan_sccp.so',
         'module reload app_confbridge.so',
+        'module reload res_rtp_asterisk.so',
     ]
     _ARG_COMMANDS = [
         'sccp reset'
