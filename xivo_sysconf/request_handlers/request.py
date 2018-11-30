@@ -16,10 +16,6 @@ from .agentd import (
     AgentdCommandExecutor,
     AgentdCommandFactory,
 )
-from .auth_keys import (
-    AuthKeysCommandExecutor,
-    AuthKeysCommandFactory,
-)
 from .asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
@@ -50,11 +46,9 @@ class RequestFactory(object):
     def __init__(self,
                  agentd_command_factory,
                  asterisk_command_factory,
-                 auth_keys_command_factory,
                  ctid_command_factory):
         self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
-        self._auth_keys_command_factory = auth_keys_command_factory
         self._ctid_command_factory = ctid_command_factory
 
     def new_request(self, args):
@@ -63,7 +57,6 @@ class RequestFactory(object):
         self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('agentbus', self._agentd_command_factory, args, commands)
         self._append_commands('ctibus', self._ctid_command_factory, args, commands)
-        self._append_commands('update_keys', self._auth_keys_command_factory, args, commands)
         return Request(commands)
 
     def _append_commands(self, key, factory, args, commands):
@@ -242,19 +235,16 @@ class RequestHandlersProxy(object):
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
-        auth_keys_command_executor = AuthKeysCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
 
         # instantiate factories
         agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
-        auth_keys_command_factory = AuthKeysCommandFactory(auth_keys_command_executor)
         ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
 
         # instantiate other stuff
         request_factory = RequestFactory(agentd_command_factory,
                                          asterisk_command_factory,
-                                         auth_keys_command_factory,
                                          ctid_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
