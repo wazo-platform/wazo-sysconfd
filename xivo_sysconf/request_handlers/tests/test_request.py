@@ -40,9 +40,11 @@ class TestRequestFactory(unittest.TestCase):
     def setUp(self):
         self.agent_command_factory = Mock()
         self.asterisk_command_factory = Mock()
+        self.chown_autoprov_config_command_factory = Mock()
         self.cti_command_factory = Mock()
         self.request_factory = RequestFactory(self.agent_command_factory,
                                               self.asterisk_command_factory,
+                                              self.chown_autoprov_config_command_factory,
                                               self.cti_command_factory)
 
     def test_new_request_ipbx(self):
@@ -54,6 +56,18 @@ class TestRequestFactory(unittest.TestCase):
 
         self.asterisk_command_factory.new_command.assert_called_once_with('foo')
         self.assertEqual(request.commands, [self.asterisk_command_factory.new_command.return_value])
+
+    def test_new_request_chown_autoprov(self):
+        args = {
+            'chown_autoprov_config': ['foo'],
+        }
+
+        request = self.request_factory.new_request(args)
+        self.chown_autoprov_config_command_factory.new_command.assert_called_once_with('foo')
+        self.assertEqual(
+            request.commands,
+            [self.chown_autoprov_config_command_factory.new_command.return_value],
+        )
 
     def test_new_request_ctibus(self):
         args = {

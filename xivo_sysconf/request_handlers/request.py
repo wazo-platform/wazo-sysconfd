@@ -20,6 +20,10 @@ from .asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
 )
+from .chown_autoprov_config import (
+    ChownAutoprovCommandExecutor,
+    ChownAutoprovCommandFactory,
+)
 from .ctid import (
     CTIdCommandExecutor,
     CTIdCommandFactory,
@@ -46,9 +50,11 @@ class RequestFactory(object):
     def __init__(self,
                  agentd_command_factory,
                  asterisk_command_factory,
+                 chown_autoprov_command_factory,
                  ctid_command_factory):
         self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
+        self._chown_autoprov_command_factory = chown_autoprov_command_factory
         self._ctid_command_factory = ctid_command_factory
 
     def new_request(self, args):
@@ -57,6 +63,7 @@ class RequestFactory(object):
         self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('agentbus', self._agentd_command_factory, args, commands)
         self._append_commands('ctibus', self._ctid_command_factory, args, commands)
+        self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, commands)
         return Request(commands)
 
     def _append_commands(self, key, factory, args, commands):
@@ -235,16 +242,19 @@ class RequestHandlersProxy(object):
         # instantiate executors
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
+        chown_autoprov_command_executor = ChownAutoprovCommandExecutor()
         ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
 
         # instantiate factories
         agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
+        chown_autoprov_command_factory = ChownAutoprovCommandFactory(chown_autoprov_command_executor)
         ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
 
         # instantiate other stuff
         request_factory = RequestFactory(agentd_command_factory,
                                          asterisk_command_factory,
+                                         chown_autoprov_command_factory,
                                          ctid_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
