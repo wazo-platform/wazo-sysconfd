@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015-2016 Avencall
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -40,11 +40,9 @@ class TestRequestFactory(unittest.TestCase):
     def setUp(self):
         self.agent_command_factory = Mock()
         self.asterisk_command_factory = Mock()
-        self.auth_keys_command_factory = Mock()
         self.cti_command_factory = Mock()
         self.request_factory = RequestFactory(self.agent_command_factory,
                                               self.asterisk_command_factory,
-                                              self.auth_keys_command_factory,
                                               self.cti_command_factory)
 
     def test_new_request_ipbx(self):
@@ -76,16 +74,6 @@ class TestRequestFactory(unittest.TestCase):
 
         self.agent_command_factory.new_command.assert_called_once_with('foo')
         self.assertEqual(request.commands, [self.agent_command_factory.new_command.return_value])
-
-    def test_new_request_update_keys(self):
-        args = {
-            'update_keys': ['foo'],
-        }
-
-        request = self.request_factory.new_request(args)
-
-        self.auth_keys_command_factory.new_command.assert_called_once_with('foo')
-        self.assertEqual(request.commands, [self.auth_keys_command_factory.new_command.return_value])
 
     def test_new_request_invalid_command(self):
         returns = [ValueError(), sentinel.command]
