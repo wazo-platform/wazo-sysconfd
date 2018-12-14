@@ -64,6 +64,10 @@ class AsteriskCommandExecutor(object):
             AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=data)
         )
 
+        if data == 'module reload res_pjsip.so':
+            cmd = ['xivo-confgen', 'asterisk/pjsip.conf', '--invalidate']
+            subprocess.call(cmd, stdout=self._null, close_fds=True)
+
         exit_code = subprocess.call(['asterisk', '-rx', data], stdout=self._null, close_fds=True)
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
