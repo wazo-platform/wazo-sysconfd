@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import ConfigParser
 import collections
 import logging
 import threading
@@ -23,10 +22,6 @@ from .asterisk import (
 from .chown_autoprov_config import (
     ChownAutoprovCommandExecutor,
     ChownAutoprovCommandFactory,
-)
-from .ctid import (
-    CTIdCommandExecutor,
-    CTIdCommandFactory,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,19 +45,16 @@ class RequestFactory(object):
     def __init__(self,
                  agentd_command_factory,
                  asterisk_command_factory,
-                 chown_autoprov_command_factory,
-                 ctid_command_factory):
+                 chown_autoprov_command_factory):
         self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
         self._chown_autoprov_command_factory = chown_autoprov_command_factory
-        self._ctid_command_factory = ctid_command_factory
 
     def new_request(self, args):
         commands = []
         # asterisk commands must be executed first
         self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
         self._append_commands('agentbus', self._agentd_command_factory, args, commands)
-        self._append_commands('ctibus', self._ctid_command_factory, args, commands)
         self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, commands)
         return Request(commands)
 
@@ -203,20 +195,11 @@ class LazyBusPublisher(object):
 
 class RequestHandlersProxy(object):
 
-    _SOCKET_CONFFILE = '/etc/xivo/sysconfd/socket.conf'
-
     def __init__(self):
         self._request_handlers = None
         self._request_processor = None
 
     def safe_init(self, options):
-        # read config from socket.conf
-        conf_obj = ConfigParser.RawConfigParser()
-        with open(self._SOCKET_CONFFILE) as fobj:
-            conf_obj.readfp(fobj)
-        ctibus_host = conf_obj.get('ctibus', 'bindaddr')
-        ctibus_port = conf_obj.getint('ctibus', 'port')
-
         # read config from main configuration file
         config = options.configuration
         synchronous = config.getboolean('request_handlers', 'synchronous')
@@ -243,19 +226,16 @@ class RequestHandlersProxy(object):
         agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
         chown_autoprov_command_executor = ChownAutoprovCommandExecutor()
-        ctid_command_executor = CTIdCommandExecutor(ctibus_host, ctibus_port)
 
         # instantiate factories
         agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
         chown_autoprov_command_factory = ChownAutoprovCommandFactory(chown_autoprov_command_executor)
-        ctid_command_factory = CTIdCommandFactory(ctid_command_executor)
 
         # instantiate other stuff
         request_factory = RequestFactory(agentd_command_factory,
                                          asterisk_command_factory,
-                                         chown_autoprov_command_factory,
-                                         ctid_command_factory)
+                                         chown_autoprov_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         if synchronous:
