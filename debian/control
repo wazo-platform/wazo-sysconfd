@@ -14,8 +14,6 @@ Depends: ${python:Depends},
          xivo-lib-python,
          python-dumbnet,
          python-kombu,
-         python-magic,
-         python-m2crypto,
          python-netifaces,
          sudo
 Provides: pf-xivo-sysconfd

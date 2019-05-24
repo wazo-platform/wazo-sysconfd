@@ -14,8 +14,6 @@ RUN apt-get -qq -y install \
     python-dev \
     python-dumbnet \
     python-netifaces \
-    python-magic \
-    python-m2crypto \
     libyaml-dev \
     ifupdown \
     sudo \
