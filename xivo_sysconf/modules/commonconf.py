@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010-2015 Avencall
+# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -27,28 +27,7 @@ class CommonConf(object):
         self.monit_checks_dir = options.configuration.get('monit', 'monit_checks_dir')
         self.monit_conf_dir = options.configuration.get('monit', 'monit_conf_dir')
 
-    def enable_disable_dhcpd(self, args):
-        if 'dhcp_active' in args:
-            if args['dhcp_active']:
-                cmd = ['ln',
-                       '-s',
-                       '%s/isc-dhcp-server' % self.monit_checks_dir,
-                       '%s/isc-dhcp-server' % self.monit_conf_dir]
-            else:
-                cmd = ['rm', '-f', '%s/isc-dhcp-server' % self.monit_conf_dir]
-            try:
-                p = subprocess.Popen(cmd,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT,
-                                     close_fds=True)
-                p.wait()
-                p.stdout.read()
-            except OSError:
-                traceback.print_exc()
-                raise HttpReqError(500, "can't apply ha changes")
-
     def generate(self, args, options):
-        self.enable_disable_dhcpd(args)
         try:
             p = subprocess.Popen([self.generate_cmd],
                                  stdout=subprocess.PIPE,
@@ -99,5 +78,6 @@ class CommonConf(object):
             raise HttpReqError(500, "can't apply monit changes")
 
         return output
+
 
 commonconf = CommonConf()
