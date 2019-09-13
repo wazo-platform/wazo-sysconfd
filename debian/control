@@ -8,6 +8,7 @@ X-Python-Version: >= 2.7
 
 Package: xivo-sysconfd
 Architecture: all
+# TODO Remove python-vine when python-kombu will depends on amqp >= 2.1.4
 Depends: ${python:Depends},
          ${misc:Depends},
          xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
@@ -15,6 +16,7 @@ Depends: ${python:Depends},
          python-dumbnet,
          python-kombu,
          python-netifaces,
+         python-vine,
          sudo
 Provides: pf-xivo-sysconfd
 Conflicts: pf-xivo-sysconfd
