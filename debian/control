@@ -14,7 +14,7 @@ Depends: ${python:Depends},
          xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
          xivo-lib-python,
          python-dumbnet,
-         python-kombu,
+         python-kombu (>= 4.2.1-3),
          python-netifaces,
          python-vine,
          sudo
