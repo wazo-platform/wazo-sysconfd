@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -66,7 +66,7 @@ class AsteriskCommandExecutor(object):
         )
 
         if data == 'module reload res_pjsip.so':
-            cmd = ['xivo-confgen', 'asterisk/pjsip.conf', '--invalidate']
+            cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
             subprocess.call(cmd, stdout=self._null, close_fds=True)
 
         exit_code = subprocess.call(['asterisk', '-rx', data], stdout=self._null, close_fds=True)
