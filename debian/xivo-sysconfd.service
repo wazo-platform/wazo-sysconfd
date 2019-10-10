@@ -6,7 +6,7 @@ Before=monit.service
 [Service]
 Type=forking
 ExecStart=/usr/bin/xivo-sysconfd
-PIDFile=/var/run/xivo-sysconfd.pid
+PIDFile=/run/xivo-sysconfd.pid
 
 [Install]
 WantedBy=multi-user.target
