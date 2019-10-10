@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -47,7 +47,7 @@ def argv_parse_check():
                         help="Use configuration file <conffile> instead of %(default)s")
     parser.add_argument('-p',
                         '--pidfile',
-                        default="/var/run/xivo-sysconfd.pid",
+                        default="/run/xivo-sysconfd.pid",
                         help="Use PID file <pidfile> instead of %(default)s")
     parser.add_argument('--listen-addr',
                         default='127.0.0.1',
