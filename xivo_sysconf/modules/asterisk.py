@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2015 Avencall
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
@@ -100,15 +100,6 @@ def core_show_channels(args, options):
     return _exec_asterisk_command(command)
 
 
-def sip_show_peer(args, options):
-    peer = options.get('peer')
-    if not peer:
-        raise HttpReqError(400, 'missing peer')
-
-    command = 'sip show peer {}'.format(peer)
-    return _exec_asterisk_command(command)
-
-
 def _exec_asterisk_command(command):
     p = subprocess.Popen(['asterisk', '-rx', command],
                          stdout=subprocess.PIPE,
@@ -130,5 +121,3 @@ http_json_server.register(core_show_version, CMD_R,
                           name='core_show_version')
 http_json_server.register(core_show_channels, CMD_R,
                           name='core_show_channels')
-http_json_server.register(sip_show_peer, CMD_R,
-                          name='sip_show_peer')

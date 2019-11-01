@@ -1,6 +1,12 @@
 Changelog
 =========
 
+19.16
+-----
+
+* The Asterisk command `sip show peer <peer>` has been removed since it does not work with PJSIP and is not used
+
+
 18.14
 -----
 
