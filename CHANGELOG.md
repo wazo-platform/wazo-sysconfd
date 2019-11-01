@@ -7,6 +7,7 @@ Changelog
 * The Asterisk command `sip show peer <peer>` has been removed since it does not work with PJSIP and is not used
 * The Asterisk command `core show version` has been removed since it is not used anymore
 * The Asterisk command `core show channels` has been removed since it is not used anymore
+* The munin module has been removed
 
 
 18.14
