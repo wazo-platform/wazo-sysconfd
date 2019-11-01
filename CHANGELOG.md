@@ -9,6 +9,7 @@ Changelog
 * The Asterisk command `core show channels` has been removed since it is not used anymore
 * The munin module has been removed
 * The `/routes` resource has been removed
+* The `/swap_ethernet_interfaces` resource has been removed
 
 
 18.14
