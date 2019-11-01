@@ -10,6 +10,7 @@ Changelog
 * The munin module has been removed
 * The `/routes` resource has been removed
 * The `/swap_ethernet_interfaces` resource has been removed
+* The `/rename_ethernet_interfaces` resource has been removed
 
 
 18.14

@@ -4,11 +4,10 @@
 
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_R, CMD_RW
+from xivo.http_json_server import CMD_R
 from xivo.moresynchro import RWLock
 from xivo import xivo_config
 from xivo import yaml_json
-from xivo import xys
 from xivo import json_ops
 
 
@@ -27,31 +26,6 @@ def network_config(args):
     try:
         netconf = xivo_config.load_current_configuration()
         return yaml_json.stringify_keys(netconf)
-    finally:
-        NETLOCK.release()
-
-
-REN_ETH_SCHEMA = xys.load("""
-old_name: !~~prefixedDec eth
-new_name: !~~prefixedDec eth
-""")
-
-
-def rename_ethernet_interface(args):
-    """
-    POST /rename_ethernet_interface
-
-    args ex:
-    {'old_name': "eth42",
-     'new_name': "eth1"}
-    """
-    if not xys.validate(args, REN_ETH_SCHEMA):
-        raise HttpReqError(415, "invalid arguments for command")
-    if not NETLOCK.acquire_write(NET_LOCK_TIMEOUT):
-        raise HttpReqError(503, "unable to take NETLOCK for writing after %s seconds" % NET_LOCK_TIMEOUT)
-    try:
-        xivo_config.rename_ethernet_interface(args['old_name'], args['new_name'])
-        return True
     finally:
         NETLOCK.release()
 
@@ -93,4 +67,3 @@ def modify_network_config(args):
 
 
 http_json_server.register(network_config, CMD_R)
-http_json_server.register(rename_ethernet_interface, CMD_RW)
