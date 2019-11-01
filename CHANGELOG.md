@@ -8,6 +8,7 @@ Changelog
 * The Asterisk command `core show version` has been removed since it is not used anymore
 * The Asterisk command `core show channels` has been removed since it is not used anymore
 * The munin module has been removed
+* The `/routes` resource has been removed
 
 
 18.14

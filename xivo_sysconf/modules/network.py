@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008-2015 Avencall
+# Copyright 2008-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo import http_json_server
@@ -10,7 +10,6 @@ from xivo import xivo_config
 from xivo import yaml_json
 from xivo import xys
 from xivo import json_ops
-from xivo import network
 
 
 NET_LOCK_TIMEOUT = 60  # XXX
@@ -118,40 +117,6 @@ def modify_network_config(args):
         NETLOCK.release()
 
 
-def routes(args, options):
-    ret = True
-    """
-        auto eth0
-        iface eth0 inet static
-            address 192.168.32.242
-            netmask 255.255.255.0
-            gateway 192.168.32.254
-            up ip route add 192.168.30.0/24 via 192.168.32.124 || true
-    """
-    args.sort(lambda x, y: cmp(x['iface'], y['iface']))
-    iface = None
-
-    network.route_flush()
-
-    for route in args:
-        if route['disable']:
-            continue
-
-        if route['iface'] != iface:
-            iface = route['iface']
-
-        try:
-            (eid, output) = network.route_set(route['destination'], route['netmask'], route['gateway'], iface)
-            if eid != 0 and route['current']:
-                ret = False
-        except Exception:
-            raise HttpReqError(500, 'Cannot apply route')
-
-    network.route_flush_cache()
-    return ret
-
-
 http_json_server.register(network_config, CMD_R)
 http_json_server.register(rename_ethernet_interface, CMD_RW)
 http_json_server.register(swap_ethernet_interfaces, CMD_RW)
-http_json_server.register(routes, CMD_RW)
