@@ -8,7 +8,6 @@ from xivo.http_json_server import CMD_R
 from xivo.moresynchro import RWLock
 from xivo import xivo_config
 from xivo import yaml_json
-from xivo import json_ops
 
 
 NET_LOCK_TIMEOUT = 60  # XXX
@@ -26,42 +25,6 @@ def network_config(args):
     try:
         netconf = xivo_config.load_current_configuration()
         return yaml_json.stringify_keys(netconf)
-    finally:
-        NETLOCK.release()
-
-
-def _val_modify_network_config(args):
-    """
-    ad hoc validation function for modify_network_config command
-    """
-    if set(args) != set(['rel', 'old', 'chg']):
-        return False
-    if not isinstance(args['rel'], list):
-        return False
-    for elt in args['rel']:
-        if not isinstance(elt, basestring):
-            return False
-    return True
-
-
-def modify_network_config(args):
-    """
-    POST /modify_network_config
-    """
-    if not _val_modify_network_config(args):
-        raise HttpReqError(415, "invalid arguments for command")
-    try:
-        check_conf = json_ops.compile_conj(args['rel'])
-    except ValueError:
-        raise HttpReqError(415, "invalid relation")
-
-    if not NETLOCK.acquire_write(NET_LOCK_TIMEOUT):
-        raise HttpReqError(503, "unable to take NETLOCK for writing after %s seconds" % NET_LOCK_TIMEOUT)
-    try:
-        current_config = xivo_config.load_current_configuration()
-        if not check_conf(args['old'], current_config):
-            raise HttpReqError(409, "Conflict between state wanted by client and current state")
-
     finally:
         NETLOCK.release()
 
