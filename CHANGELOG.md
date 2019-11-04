@@ -18,7 +18,8 @@ Changelog
 * The `/replace_virtual_eth_ipv4` resource has been removed
 * The `/modify_eth_ipv4` resource has been removed
 * The `/delete_eth_ipv4` resource has been removed
-* The `/change_state_eth_ipv4` resource has been removed
+* the `/change_state_eth_ipv4` resource has been removed
+* the `/discover_netifaces` resource has been removed
 
 
 18.14

@@ -458,9 +458,6 @@ class DNETIntf:
                                                              self.CONFIG['interfaces_path'].lstrip(os.path.sep))
 
     def discover_netifaces(self, args, options):
-        """
-        GET /discover_netifaces
-        """
         self.args = args
         self.options = options
 
@@ -536,5 +533,4 @@ class DNETIntf:
 
 dnetintf = DNETIntf()
 
-http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
