@@ -643,71 +643,9 @@ class DNETIntf:
         finally:
             self.LOCK.release()
 
-    def delete_eth_ipv4(self, args, options):
-        """
-        GET /delete_eth_ipv4
-
-        >>> delete_eth_ipv4({},
-                            {'ifname':  'eth0'})
-        """
-        self.args = args
-        self.options = options
-
-        eth = None
-
-        try:
-            eth = self._get_valid_eth_ipv4()
-        except HttpReqError, e:
-            if e.code == 404:
-                pass
-
-        if not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        conf = {'netIfaces': {}}
-
-        ret = False
-        netifacesbakfile = None
-        ifname = self.options['ifname']
-
-        try:
-            for iface in netifaces.interfaces():
-                conf['netIfaces'][iface] = 'reserved'
-
-            conf['netIfaces'][ifname] = 'removed'
-
-            if self.CONFIG['netiface_ip_delete_cmd'] \
-                    and subprocess.call(self.CONFIG['netiface_ip_delete_cmd'].strip().split() + [ifname]) == 0:
-                ret = True
-
-            filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
-
-            try:
-                system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
-
-                if ret:
-                    return True
-                elif not eth:
-                    raise HttpReqError(404, "interface not found")
-
-                eth['flags'] &= ~dumbnet.INTF_FLAG_UP
-                if 'gateway' in eth:
-                    del eth['gateway']
-                self.netcfg.set(eth)
-            except HttpReqError, e:
-                raise e.__class__(e.code, e.text)
-            except Exception, e:
-                if netifacesbakfile:
-                    copy2(netifacesbakfile, self.CONFIG['interfaces_file'])
-                raise e.__class__(str(e))
-            return True
-        finally:
-            self.LOCK.release()
-
 
 dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
 http_json_server.register(dnetintf.change_state_eth_ipv4, CMD_RW)
-http_json_server.register(dnetintf.delete_eth_ipv4, CMD_R)

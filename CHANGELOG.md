@@ -17,6 +17,7 @@ Changelog
 * The `/modify_physical_eth_ipv4` resource has been removed
 * The `/replace_virtual_eth_ipv4` resource has been removed
 * The `/modify_eth_ipv4` resource has been removed
+* The `/delete_eth_ipv4` resource has been removed
 
 
 18.14
