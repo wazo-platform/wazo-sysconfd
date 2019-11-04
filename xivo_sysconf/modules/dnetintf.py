@@ -7,20 +7,14 @@ import logging
 import re
 import dumbnet
 import netifaces
-import subprocess
-
-from time import time
-from shutil import copy2
 
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_R, CMD_RW
+from xivo.http_json_server import CMD_R
 from xivo.moresynchro import RWLock
-from xivo import xys
 from xivo import network
 from xivo import interfaces
 from xivo import xivo_config
-from xivo import system
 
 from xivo_sysconf import helpers
 
@@ -539,113 +533,8 @@ class DNETIntf:
 
         return eth
 
-    def get_interface_filecontent(self, conf):
-        backupfilepath = None
-
-        if not os.path.isdir(self.CONFIG['interfaces_backup_path']):
-            os.makedirs(self.CONFIG['interfaces_backup_path'])
-
-        if os.access(self.CONFIG['interfaces_file'], os.R_OK):
-            backupfilepath = "%s.%d" % (self.CONFIG['interfaces_backup_file'], time())
-            copy2(self.CONFIG['interfaces_file'], backupfilepath)
-            old_lines = file(self.CONFIG['interfaces_file'])
-        else:
-            old_lines = ()
-
-        if os.access(self.CONFIG['interfaces_custom_tpl_file'], (os.F_OK | os.R_OK)):
-            filename = self.CONFIG['interfaces_custom_tpl_file']
-        else:
-            filename = self.CONFIG['interfaces_tpl_file']
-
-        template_file = open(filename)
-        template_lines = template_file.readlines()
-        template_file.close()
-
-        filecontent = xivo_config.txtsubst(
-            template_lines,
-            {
-                '_XIVO_NETWORK_INTERFACES': ''.join(xivo_config.generate_interfaces(old_lines, conf))
-            },
-            self.CONFIG['interfaces_file'],
-            'utf8')
-
-        if old_lines:
-            old_lines.close()
-
-        return (filecontent, backupfilepath)
-
-    CHANGE_STATE_ETH_SCHEMA = xys.load("""
-    state:  !!bool True
-    """)
-
-    def change_state_eth_ipv4(self, args, options):
-        """
-        POST /change_state_eth_ipv4
-
-        >>> change_state_eth_ipv4({'state': True},
-                                  {'ifname':    'eth0'})
-        """
-        self.args = args
-        self.options = options
-
-        eth = self._get_valid_eth_ipv4()
-
-        if not xys.validate(self.args, self.CHANGE_STATE_ETH_SCHEMA):
-            raise HttpReqError(415, "invalid arguments for command")
-        elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        conf = {'netIfaces': {},
-                'vlans': {},
-                'customipConfs': {}}
-
-        ret = False
-        netifacesbakfile = None
-
-        try:
-            for iface in netifaces.interfaces():
-                conf['netIfaces'][iface] = 'reserved'
-
-            if self.args['state']:
-                eth['auto'] = True
-                eth['flags'] |= dumbnet.INTF_FLAG_UP
-
-                if self.CONFIG['netiface_up_cmd'] \
-                        and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
-                    ret = True
-            else:
-                eth['auto'] = False
-                eth['flags'] &= ~dumbnet.INTF_FLAG_UP
-
-                if self.CONFIG['netiface_down_cmd'] \
-                        and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0:
-                    ret = True
-
-            eth['ifname'] = eth['name']
-            conf['netIfaces'][eth['name']] = eth['name']
-            conf['vlans'][eth['name']] = {eth.get('vlan-id', 0): eth['name']}
-            conf['customipConfs'][eth['name']] = eth
-
-            filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
-
-            try:
-                system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
-
-                if not ret:
-                    if not self.args['state'] and 'gateway' in eth:
-                        del eth['gateway']
-                    self.netcfg.set(eth)
-            except Exception, e:
-                if netifacesbakfile:
-                    copy2(netifacesbakfile, self.CONFIG['interfaces_file'])
-                raise e.__class__(str(e))
-            return True
-        finally:
-            self.LOCK.release()
-
 
 dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.change_state_eth_ipv4, CMD_RW)
