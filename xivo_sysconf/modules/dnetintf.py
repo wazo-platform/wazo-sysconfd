@@ -586,81 +586,6 @@ class DNETIntf:
 
         return (filecontent, backupfilepath)
 
-    MODIFY_PHYSICAL_ETH_IPV4_SCHEMA = xys.load("""
-    method:     !~~enum(static,dhcp)
-    address?:   !~ipv4_address 192.168.0.1
-    netmask?:   !~netmask 255.255.255.0
-    broadcast?: !~ipv4_address 192.168.0.255
-    gateway?:   !~ipv4_address 192.168.0.254
-    mtu?:       !~~between(68,1500) 1500
-    auto?:      !!bool True
-    up?:        !!bool True
-    options?:   !~~seqlen(0,64) [ !~~seqlen(2,2) ['dns-search', 'toto.tld tutu.tld'],
-                                  !~~seqlen(2,2) ['dns-nameservers', '127.0.0.1 192.168.0.254'] ]
-    """)
-
-    def modify_physical_eth_ipv4(self, args, options):
-        """
-        POST /modify_physical_eth_ipv4
-
-        >>> modify_physical_eth_ipv4({'method': 'dhcp',
-                                      'auto':   True},
-                                     {'ifname': 'eth0'})
-        """
-        self.args = args
-        self.options = options
-
-        if not xys.validate(self.args, self.MODIFY_PHYSICAL_ETH_IPV4_SCHEMA):
-            raise HttpReqError(415, "invalid arguments for command")
-
-        eth = self._get_valid_eth_ipv4()
-
-        # allow dummy interfaces
-        if not (eth['physicalif'] or eth['dummyif']):
-            raise HttpReqError(415, "invalid interface, it is not a physical interface")
-
-        self.normalize_inet_options()
-
-        if not os.access(self.CONFIG['interfaces_path'], (os.X_OK | os.W_OK)):
-            raise HttpReqError(415, "path not found or not writable or not executable: %r" % self.CONFIG['interfaces_path'])
-        elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        self.args['auto'] = self.args.get('auto', True)
-        self.args['family'] = 'inet'
-
-        conf = {'netIfaces': {},
-                'vlans': {},
-                'customipConfs': {}}
-
-        netifacesbakfile = None
-
-        try:
-            if self.CONFIG['netiface_down_cmd']:
-                subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']])
-
-            for iface in netifaces.interfaces():
-                conf['netIfaces'][iface] = 'reserved'
-
-            conf['netIfaces'][eth['name']] = eth['name']
-            conf['vlans'][eth['name']] = {0: eth['name']}
-            conf['customipConfs'][eth['name']] = self.args
-
-            filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
-
-            try:
-                system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
-
-                if self.args.get('up', True) and self.CONFIG['netiface_up_cmd']:
-                    subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']])
-            except Exception, e:
-                if netifacesbakfile:
-                    copy2(netifacesbakfile, self.CONFIG['interfaces_file'])
-                raise e.__class__(str(e))
-            return True
-        finally:
-            self.LOCK.release()
-
     REPLACE_VIRTUAL_ETH_IPV4_SCHEMA = xys.load("""
     ifname:         !!str vlan42
     method:         !~~enum(static,dhcp,manual)
@@ -1027,7 +952,6 @@ dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.modify_physical_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.replace_virtual_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.modify_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.change_state_eth_ipv4, CMD_RW)
