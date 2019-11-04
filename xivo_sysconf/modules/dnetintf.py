@@ -226,13 +226,6 @@ class NetworkConfig(dumbnet.intf):
         """
         return self._intf_repr(dumbnet.intf.get(self, name))
 
-    def get_src(self, src):
-        """
-        Return the configuration for the interface whose primary address
-        matches the specified source address.
-        """
-        return self._intf_repr(dumbnet.intf.get_src(self, src))
-
     def set(self, d, name=None):
         """
         Set the configuration for an interface from a dict like interfaces(5).
@@ -338,31 +331,6 @@ class DNETIntf:
 
         self.args = {}
         self.options = {}
-
-    def _netiface_from_address(self, function):
-        """
-        Find best interface from destination or source address.
-        """
-        if 'address' in self.options:
-            addresses = helpers.extract_scalar(self.options['address'])
-        else:
-            addresses = None
-
-        if not addresses:
-            raise HttpReqError(415, "invalid option 'address'")
-        else:
-            try:
-                addresses = [dumbnet.addr(x) for x in addresses]
-            except ValueError, e:
-                raise HttpReqError(415, "%s: %s" % (e, x))
-
-        if not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        try:
-            return dict((str(address), function(address)) for address in addresses)
-        finally:
-            self.LOCK.release()
 
     def get_netiface_info(self, iface):
         try:
@@ -548,19 +516,6 @@ class DNETIntf:
             return dict((iface, self.get_netiface_info(iface)) for iface in ifaces)
         finally:
             self.LOCK.release()
-
-    def netiface_from_src_address(self, args, options):
-        """
-        GET /netiface_from_src_address
-
-        >>> netiface_from_src_address({}, {'address':   '192.168.0.1'})
-        >>> netiface_from_src_address({}, {'address':   {0: '192.168.0.1', 1: '172.16.1.1'}})
-        >>> netiface_from_src_address({}, {'address':   ['192.168.0.1', '172.16.1.1']})
-        """
-        self.args = args
-        self.options = options
-
-        return self._netiface_from_address(self.netcfg.get_src)
 
     def _get_valid_eth_ipv4(self):
         if 'ifname' in self.options:
@@ -1072,7 +1027,6 @@ dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.netiface_from_src_address, CMD_R)
 http_json_server.register(dnetintf.modify_physical_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.replace_virtual_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.modify_eth_ipv4, CMD_RW)
