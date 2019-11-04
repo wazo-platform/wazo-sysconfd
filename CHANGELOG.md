@@ -12,6 +12,7 @@ Changelog
 * The `/swap_ethernet_interfaces` resource has been removed
 * The `/rename_ethernet_interfaces` resource has been removed
 * The `/network_config` resource has been removed
+* The `/netiface_from_dst_address` resource has been removed
 
 
 18.14

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010-2016 Avencall
+# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -225,14 +225,6 @@ class NetworkConfig(dumbnet.intf):
         Return the configuration for a network interface as a dict.
         """
         return self._intf_repr(dumbnet.intf.get(self, name))
-
-    def get_dst(self, dst):
-        """
-        Return the configuration for the best interface with which to
-        reach the specified dst address.
-        """
-        self.__realloc__()  # XXX: Workarround
-        return self._intf_repr(dumbnet.intf.get_dst(self, dst))
 
     def get_src(self, src):
         """
@@ -556,19 +548,6 @@ class DNETIntf:
             return dict((iface, self.get_netiface_info(iface)) for iface in ifaces)
         finally:
             self.LOCK.release()
-
-    def netiface_from_dst_address(self, args, options):
-        """
-        GET /netiface_from_dst_address
-
-        >>> netiface_from_dst_address({}, {'address':   '192.168.0.1'})
-        >>> netiface_from_dst_address({}, {'address':   {0: '192.168.0.1', 1: '172.16.1.1'}})
-        >>> netiface_from_dst_address({}, {'address':   ['192.168.0.1', '172.16.1.1']})
-        """
-        self.args = args
-        self.options = options
-
-        return self._netiface_from_address(self.netcfg.get_dst)
 
     def netiface_from_src_address(self, args, options):
         """
@@ -1093,7 +1072,6 @@ dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.netiface_from_dst_address, CMD_R)
 http_json_server.register(dnetintf.netiface_from_src_address, CMD_R)
 http_json_server.register(dnetintf.modify_physical_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.replace_virtual_eth_ipv4, CMD_RW)
