@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -23,13 +23,15 @@ log = logging.getLogger('xivo_sysconf.modules.resolvconf')
 
 RESOLVCONFLOCK = RWLock()
 
-Rcc = {'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
-       'hostname_tpl_file': os.path.join('resolvconf', 'hostname'),
-       'hosts_file': os.path.join(os.path.sep, 'etc', 'hosts'),
-       'hosts_tpl_file': os.path.join('resolvconf', 'hosts'),
-       'resolvconf_file': os.path.join(os.path.sep, 'etc', 'resolv.conf'),
-       'resolvconf_tpl_file': os.path.join('resolvconf', 'resolv.conf'),
-       'lock_timeout': 60}
+Rcc = {
+    'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
+    'hostname_tpl_file': os.path.join('resolvconf', 'hostname'),
+    'hosts_file': os.path.join(os.path.sep, 'etc', 'hosts'),
+    'hosts_tpl_file': os.path.join('resolvconf', 'hosts'),
+    'resolvconf_file': os.path.join(os.path.sep, 'etc', 'resolv.conf'),
+    'resolvconf_tpl_file': os.path.join('resolvconf', 'resolv.conf'),
+    'lock_timeout': 60,
+}
 
 
 def _write_config_file(optname, xvars):
@@ -51,10 +53,12 @@ def _write_config_file(optname, xvars):
     template_lines = template_file.readlines()
     template_file.close()
 
-    txt = txtsubst(template_lines,
-                   xvars,
-                   Rcc["%s_file" % optname],
-                   'utf8')
+    txt = txtsubst(
+        template_lines,
+        xvars,
+        Rcc["%s_file" % optname],
+        'utf8',
+    )
 
     system.file_writelines_flush_sync(Rcc["%s_file" % optname], txt)
 
@@ -79,25 +83,35 @@ def Hosts(args, options):
         raise HttpReqError(415, "invalid arguments for command")
 
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(415, "path not found or not writable or not executable: %r" % Rcc['hostname_path'])
+        raise HttpReqError(
+            415,
+            "path not found or not writable or not executable: %r" % Rcc['hostname_path'],
+        )
 
     if not os.access(Rcc['hosts_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(415, "path not found or not writable or not executable: %r" % Rcc['hosts_path'])
+        raise HttpReqError(
+            415,
+            "path not found or not writable or not executable: %r" % Rcc['hosts_path'],
+        )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise HttpReqError(503, "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'])
+        raise HttpReqError(
+            503,
+            "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
+        )
 
     hostnamebakfile = None
     hostsbakfile = None
 
     try:
         try:
-            hostnamebakfile = _write_config_file('hostname',
-                                                 {'_XIVO_HOSTNAME': args['hostname']})
+            hostnamebakfile = _write_config_file(
+                'hostname', {'_XIVO_HOSTNAME': args['hostname']},
+            )
 
-            hostsbakfile = _write_config_file('hosts',
-                                              {'_XIVO_HOSTNAME': args['hostname'],
-                                               '_XIVO_DOMAIN': args['domain']})
+            hostsbakfile = _write_config_file(
+                'hosts', {'_XIVO_HOSTNAME': args['hostname'], '_XIVO_DOMAIN': args['domain']},
+            )
 
             subprocess.call(['hostname', '-F', Rcc['hostname_file']])
 
@@ -160,23 +174,31 @@ def ResolvConf(args, options):
             raise HttpReqError(415, "duplicated search in %r" % list(args['search']))
 
         if len(''.join(args['search'])) > 255:
-            raise HttpReqError(415, "maximum length exceeded for option search: %r" % list(args['search']))
+            raise HttpReqError(
+                415,
+                "maximum length exceeded for option search: %r" % list(args['search']),
+            )
 
     if not xys.validate(args, RESOLVCONF_SCHEMA):
         raise HttpReqError(415, "invalid arguments for command")
 
     if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(415, "path not found or not writable or not executable: %r" % Rcc['resolvconf_path'])
+        raise HttpReqError(
+            415,
+            "path not found or not writable or not executable: %r" % Rcc['resolvconf_path'],
+        )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise HttpReqError(503, "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'])
+        raise HttpReqError(
+            503,
+            "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
+        )
 
     resolvconfbakfile = None
 
     try:
         try:
-            resolvconfbakfile = _write_config_file('resolvconf',
-                                                   _resolv_conf_variables(args))
+            resolvconfbakfile = _write_config_file('resolvconf', _resolv_conf_variables(args))
             return True
         except Exception, e:
             if resolvconfbakfile:
@@ -204,17 +226,19 @@ def safe_init(options):
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 
     for optname in ('hostname', 'hosts', 'resolvconf'):
-        Rcc["%s_tpl_file" % optname] = os.path.join(tpl_path,
-                                                    Rcc["%s_tpl_file" % optname])
+        Rcc["%s_tpl_file" % optname] = os.path.join(tpl_path, Rcc["%s_tpl_file" % optname])
 
-        Rcc["%s_custom_tpl_file" % optname] = os.path.join(custom_tpl_path,
-                                                           Rcc["%s_tpl_file" % optname])
+        Rcc["%s_custom_tpl_file" % optname] = os.path.join(
+            custom_tpl_path, Rcc["%s_tpl_file" % optname],
+        )
 
         Rcc["%s_path" % optname] = os.path.dirname(Rcc["%s_file" % optname])
-        Rcc["%s_backup_file" % optname] = os.path.join(backup_path,
-                                                       Rcc["%s_file" % optname].lstrip(os.path.sep))
-        Rcc["%s_backup_path" % optname] = os.path.join(backup_path,
-                                                       Rcc["%s_path" % optname].lstrip(os.path.sep))
+        Rcc["%s_backup_file" % optname] = os.path.join(
+            backup_path, Rcc["%s_file" % optname].lstrip(os.path.sep),
+        )
+        Rcc["%s_backup_path" % optname] = os.path.join(
+            backup_path, Rcc["%s_path" % optname].lstrip(os.path.sep),
+        )
 
 
 http_json_server.register(Hosts, CMD_RW, safe_init=safe_init, name='hosts')
