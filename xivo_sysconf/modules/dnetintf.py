@@ -539,18 +539,6 @@ class DNETIntf:
 
         return eth
 
-    def normalize_inet_options(self):
-        if 'method' in self.args:
-            if self.args['method'] == 'static':
-                if not xivo_config.plausible_static(self.args, None):
-                    raise HttpReqError(415, "invalid static arguments for command")
-            elif self.args['method'] == 'dhcp':
-                for x in ('address', 'netmask', 'broadcast', 'gateway', 'mtu'):
-                    if x in self.args:
-                        del self.args[x]
-        else:
-            raise HttpReqError(415, "missing argument 'method'")
-
     def get_interface_filecontent(self, conf):
         backupfilepath = None
 
@@ -585,132 +573,6 @@ class DNETIntf:
             old_lines.close()
 
         return (filecontent, backupfilepath)
-
-    REPLACE_VIRTUAL_ETH_IPV4_SCHEMA = xys.load("""
-    ifname:         !!str vlan42
-    method:         !~~enum(static,dhcp,manual)
-    vlanid?:        !~~between(0,65535) 42
-    vlanrawdevice?: !!str eth0
-    address?:       !~ipv4_address 172.16.42.1
-    netmask?:       !~netmask 255.255.255.0
-    broadcast?:     !~ipv4_address 172.16.42.255
-    gateway?:       !~ipv4_address 172.16.42.254
-    mtu?:           !~~between(68,1500) 1500
-    auto?:          !!bool True
-    up?:            !!bool True
-    options?:       !~~seqlen(0,64) [ !~~seqlen(2,2) ['dns-search', 'toto.tld tutu.tld'],
-                                      !~~seqlen(2,2) ['dns-nameservers', '127.0.0.1 192.168.0.254'] ]
-    """)
-
-    def replace_virtual_eth_ipv4(self, args, options):
-        """
-        POST /replace_virtual_eth_ipv4
-
-        >>> replace_virtual_eth_ipv4({'ifname': 'eth0:0',
-                                      'method': 'dhcp',
-                                      'auto':   True},
-                                     {'ifname': 'eth0:0'})
-        """
-        self.args = args
-        self.options = options
-        phyifname = None
-        phyinfo = None
-
-        if 'ifname' not in self.options \
-           or not isinstance(self.options['ifname'], basestring) \
-           or not xivo_config.netif_managed(self.options['ifname']):
-            raise HttpReqError(415, "invalid interface name, ifname: %r" % self.options['ifname'])
-        elif not xys.validate(self.args, self.REPLACE_VIRTUAL_ETH_IPV4_SCHEMA):
-            raise HttpReqError(415, "invalid arguments for command")
-
-        info = self.get_netiface_info(self.options['ifname'])
-
-        if info and info['physicalif']:
-            raise HttpReqError(415, "invalid interface, it is a physical interface")
-        elif network.is_alias_if(self.args['ifname']):
-            phyifname = network.phy_name_from_alias_if(self.args['ifname'])
-            phyinfo = self.get_netiface_info(phyifname)
-            if not phyinfo or True not in (phyinfo['physicalif'], phyinfo['vlanif']):
-                raise HttpReqError(415, "invalid interface, it is not an alias interface")
-            elif self.args['method'] != 'static':
-                raise HttpReqError(415, "invalid method, must be static")
-
-            if 'vlanrawdevice' in self.args:
-                del self.args['vlanrawdevice']
-            if 'vlanid' in self.args:
-                del self.args['vlanid']
-        elif network.is_vlan_if(self.args['ifname']):
-            if 'vlanrawdevice' not in self.args:
-                raise HttpReqError(415, "invalid arguments for command, missing vlanrawdevice")
-            if 'vlanid' not in self.args:
-                raise HttpReqError(415, "invalid arguments for command, missing vlanid")
-
-            phyifname = self.args['vlanrawdevice']
-            phyinfo = self.get_netiface_info(phyifname)
-            if not phyinfo or not phyinfo['physicalif']:
-                raise HttpReqError(415, "invalid vlanrawdevice, it is not a physical interface")
-
-            vconfig = network.get_vlan_info_from_ifname(self.args['ifname'])
-
-            if 'vlan-id' not in vconfig:
-                raise HttpReqError(415, "invalid vlan interface name")
-            elif vconfig['vlan-id'] != int(self.args['vlanid']):
-                raise HttpReqError(415, "invalid vlanid")
-            elif vconfig.get('vlan-raw-device', self.args['vlanrawdevice']) != self.args['vlanrawdevice']:
-                raise HttpReqError(415, "invalid vlanrawdevice")
-
-            self.args['vlan-id'] = self.args.pop('vlanid')
-            self.args['vlan-raw-device'] = self.args.pop('vlanrawdevice')
-        else:
-            raise HttpReqError(415, "invalid ifname argument for command")
-
-        if phyinfo.get('type') != 'eth':
-            raise HttpReqError(415, "invalid interface type")
-        elif phyinfo.get('family') != 'inet':
-            raise HttpReqError(415, "invalid address family")
-
-        self.normalize_inet_options()
-
-        if not os.access(self.CONFIG['interfaces_path'], (os.X_OK | os.W_OK)):
-            raise HttpReqError(415, "path not found or not writable or not executable: %r" % self.CONFIG['interfaces_path'])
-        elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        self.args['auto'] = self.args.get('auto', True)
-        self.args['family'] = 'inet'
-
-        conf = {'netIfaces': {},
-                'vlans': {},
-                'customipConfs': {}}
-
-        netifacesbakfile = None
-
-        try:
-            if self.CONFIG['netiface_down_cmd']:
-                subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [self.options['ifname']])
-
-            for iface in netifaces.interfaces():
-                if self.options['ifname'] != iface:
-                    conf['netIfaces'][iface] = 'reserved'
-
-            conf['netIfaces'][self.args['ifname']] = self.args['ifname']
-            conf['vlans'][self.args['ifname']] = {self.args.get('vlan-id', 0): self.args['ifname']}
-            conf['customipConfs'][self.args['ifname']] = self.args
-
-            filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
-
-            try:
-                system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
-
-                if self.args.get('up', True) and self.CONFIG['netiface_up_cmd']:
-                    subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [self.args['ifname']])
-            except Exception, e:
-                if netifacesbakfile:
-                    copy2(netifacesbakfile, self.CONFIG['interfaces_file'])
-                raise e.__class__(str(e))
-            return True
-        finally:
-            self.LOCK.release()
 
     MODIFY_ETH_IPV4_SCHEMA = xys.load("""
     address:    !~ipv4_address 192.168.0.1
@@ -952,7 +814,6 @@ dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.replace_virtual_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.modify_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.change_state_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.delete_eth_ipv4, CMD_R)
