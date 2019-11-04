@@ -20,6 +20,7 @@ Changelog
 * The `/delete_eth_ipv4` resource has been removed
 * the `/change_state_eth_ipv4` resource has been removed
 * the `/discover_netifaces` resource has been removed
+* the `/netiface` resource has been removed
 
 
 18.14
