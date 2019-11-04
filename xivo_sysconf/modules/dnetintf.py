@@ -574,111 +574,6 @@ class DNETIntf:
 
         return (filecontent, backupfilepath)
 
-    MODIFY_ETH_IPV4_SCHEMA = xys.load("""
-    address:    !~ipv4_address 192.168.0.1
-    netmask:    !~netmask 255.255.255.0
-    broadcast?: !~ipv4_address 192.168.0.255
-    gateway?:   !~ipv4_address 192.168.0.254
-    mtu?:       !~~between(68,1500) 1500
-    auto?:      !!bool True
-    up?:        !!bool True
-    options?:   !~~seqlen(0,64) [ !~~seqlen(2,2) ['dns-search', 'toto.tld tutu.tld'],
-                                  !~~seqlen(2,2) ['dns-nameservers', '127.0.0.1 192.168.0.254'] ]
-    """)
-
-    def modify_eth_ipv4(self, args, options):
-        """
-        POST /modify_eth_ipv4
-
-        >>> modify_eth_ipv4({'address':     '192.168.0.1',
-                             'netmask':     '255.255.255.0',
-                             'broadcast':   '192.168.0.255',
-                             'gateway':     '192.168.0.254',
-                             'mtu':         1500,
-                             'auto':        True,
-                             'up':          True,
-                             'options':     [['dns-search', 'toto.tld tutu.tld'],
-                                             ['dns-nameservers', '127.0.0.1 192.168.0.254']]},
-                            {'ifname':  'eth0'})
-        """
-        self.args = args
-        self.options = options
-
-        eth = self._get_valid_eth_ipv4()
-
-        if not xys.validate(self.args, self.MODIFY_ETH_IPV4_SCHEMA):
-            raise HttpReqError(415, "invalid arguments for command")
-
-        if 'up' in self.args:
-            if self.args['up']:
-                eth['flags'] |= dumbnet.INTF_FLAG_UP
-            else:
-                eth['flags'] &= ~dumbnet.INTF_FLAG_UP
-            del self.args['up']
-
-        if 'broadcast' not in self.args and 'broadcast' in eth:
-            del eth['broadcast']
-
-        if 'gateway' not in self.args and 'gateway' in eth:
-            del eth['gateway']
-
-        if 'mtu' not in self.args and 'mtu' in eth:
-            del eth['mtu']
-
-        eth.update(self.args)
-
-        eth['auto'] = self.args.get('auto', True)
-
-        if not xivo_config.plausible_static(eth, None):
-            raise HttpReqError(415, "invalid arguments for command")
-        elif not os.access(self.CONFIG['interfaces_path'], (os.X_OK | os.W_OK)):
-            raise HttpReqError(415, "path not found or not writable or not executable: %r" % self.CONFIG['interfaces_path'])
-        elif not self.LOCK.acquire_read(self.CONFIG['lock_timeout']):
-            raise HttpReqError(503, "unable to take LOCK for reading after %s seconds" % self.CONFIG['lock_timeout'])
-
-        conf = {'netIfaces': {},
-                'vlans': {},
-                'ipConfs': {}}
-
-        ret = False
-        netifacesbakfile = None
-
-        try:
-            if self.CONFIG['netiface_down_cmd'] \
-                    and subprocess.call(self.CONFIG['netiface_down_cmd'].strip().split() + [eth['name']]) == 0 \
-                    and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
-                ret = True
-
-            for iface in netifaces.interfaces():
-                conf['netIfaces'][iface] = 'reserved'
-
-            eth['ifname'] = eth['name']
-            conf['netIfaces'][eth['name']] = eth['name']
-            conf['vlans'][eth['name']] = {eth.get('vlan-id', 0): eth['name']}
-            conf['ipConfs'][eth['name']] = eth
-
-            filecontent, netifacesbakfile = self.get_interface_filecontent(conf)
-
-            try:
-                system.file_writelines_flush_sync(self.CONFIG['interfaces_file'], filecontent)
-
-                if self.CONFIG['netiface_up_cmd'] \
-                        and (eth['flags'] & dumbnet.INTF_FLAG_UP) \
-                        and subprocess.call(self.CONFIG['netiface_up_cmd'].strip().split() + [eth['name']]) == 0:
-                    ret = True
-
-                if not ret:
-                    if 'gateway' in eth and not (eth['flags'] & dumbnet.INTF_FLAG_UP):
-                        del eth['gateway']
-                    self.netcfg.set(eth)
-            except Exception, e:
-                if netifacesbakfile:
-                    copy2(netifacesbakfile, self.CONFIG['interfaces_file'])
-                raise e.__class__(str(e))
-            return True
-        finally:
-            self.LOCK.release()
-
     CHANGE_STATE_ETH_SCHEMA = xys.load("""
     state:  !!bool True
     """)
@@ -814,6 +709,5 @@ dnetintf = DNETIntf()
 
 http_json_server.register(dnetintf.discover_netifaces, CMD_R, safe_init=dnetintf.safe_init)
 http_json_server.register(dnetintf.netiface, CMD_R)
-http_json_server.register(dnetintf.modify_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.change_state_eth_ipv4, CMD_RW)
 http_json_server.register(dnetintf.delete_eth_ipv4, CMD_R)
