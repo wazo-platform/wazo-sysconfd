@@ -71,6 +71,11 @@ domain:     !~search_domain
 """)
 
 
+def _validate_hosts(args):
+    if not xys.validate(args, HOSTS_SCHEMA):
+        raise HttpReqError(415, "invalid arguments for command")
+
+
 def Hosts(args, options):
     """
     POST /hosts
@@ -78,9 +83,7 @@ def Hosts(args, options):
     >>> hosts({'hostname':  'xivo',
                'domain':    'localdomain'})
     """
-
-    if not xys.validate(args, HOSTS_SCHEMA):
-        raise HttpReqError(415, "invalid arguments for command")
+    _validate_hosts(args)
 
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
         raise HttpReqError(
