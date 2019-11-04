@@ -11,6 +11,7 @@ Changelog
 * The `/routes` resource has been removed
 * The `/swap_ethernet_interfaces` resource has been removed
 * The `/rename_ethernet_interfaces` resource has been removed
+* The `/network_config` resource has been removed
 
 
 18.14
