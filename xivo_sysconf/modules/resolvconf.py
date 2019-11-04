@@ -135,6 +135,11 @@ search?:        !~~seqlen(1,6) [ !~search_domain example.com ]
 """)
 
 
+def _validate_resolv_conf(args):
+    if not xys.validate(args, RESOLVCONF_SCHEMA):
+        raise HttpReqError(415, "invalid arguments for command")
+
+
 def _resolv_conf_variables(args):
     xvars = {}
     xvars['_XIVO_NAMESERVER_LIST'] = \
@@ -182,8 +187,7 @@ def ResolvConf(args, options):
                 "maximum length exceeded for option search: %r" % list(args['search']),
             )
 
-    if not xys.validate(args, RESOLVCONF_SCHEMA):
-        raise HttpReqError(415, "invalid arguments for command")
+    _validate_resolv_conf(args)
 
     if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
         raise HttpReqError(
