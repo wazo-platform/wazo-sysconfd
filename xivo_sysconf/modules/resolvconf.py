@@ -9,12 +9,21 @@ import subprocess
 from time import time
 from shutil import copy2
 
+from marshmallow import (
+    Schema,
+    fields,
+    ValidationError,
+)
+from marshmallow.validate import (
+    Length,
+    Regexp,
+)
+
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 from xivo.moresynchro import RWLock
 from xivo.xivo_config import txtsubst
-from xivo import xys
 from xivo import system
 
 from xivo_sysconf import helpers
@@ -22,6 +31,7 @@ from xivo_sysconf import helpers
 log = logging.getLogger('xivo_sysconf.modules.resolvconf')
 
 RESOLVCONFLOCK = RWLock()
+FQDN_RE = r'^[a-zA-Z0-9]([-a-zA-Z0-9]{0,61}[a-zA-Z0-9])(\.[a-zA-Z0-9]([-a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)*$'
 
 Rcc = {
     'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
@@ -65,14 +75,24 @@ def _write_config_file(optname, xvars):
     return backupfilename
 
 
-HOSTS_SCHEMA = xys.load("""
-hostname:   !~domain_label
-domain:     !~search_domain
-""")
+class HostSchema(Schema):
+    hostname = fields.String(validate=[
+        Length(max=63),
+        Regexp(r'[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$'),
+    ])
+    domain = fields.String(validate=[
+        Length(max=251),
+        Regexp(FQDN_RE),
+    ])
+
+
+HOST_SCHEMA = HostSchema()
 
 
 def _validate_hosts(args):
-    if not xys.validate(args, HOSTS_SCHEMA):
+    try:
+        HOST_SCHEMA.load(args)
+    except ValidationError:
         raise HttpReqError(415, "invalid arguments for command")
 
 
@@ -129,14 +149,26 @@ def Hosts(args, options):
         RESOLVCONFLOCK.release()
 
 
-RESOLVCONF_SCHEMA = xys.load("""
-nameservers:    !~~seqlen(1,3) [ !~ipv4_address_or_domain 192.168.0.254 ]
-search?:        !~~seqlen(1,6) [ !~search_domain example.com ]
-""")
+class ResolvConfSchema(Schema):
+    nameservers = fields.List(
+        fields.String(validate=[Regexp(FQDN_RE), Length(max=251)]),
+        validate=Length(min=1, max=3),
+        required=True,
+    )
+    search = fields.List(
+        fields.String(validate=[Regexp(FQDN_RE), Length(max=251)]),
+        validate=Length(min=1, max=6),
+        required=False,
+    )
+
+
+RESOLVCONF_SCHEMA = ResolvConfSchema()
 
 
 def _validate_resolv_conf(args):
-    if not xys.validate(args, RESOLVCONF_SCHEMA):
+    try:
+        RESOLVCONF_SCHEMA.load(args)
+    except ValidationError:
         raise HttpReqError(415, "invalid arguments for command")
 
 
