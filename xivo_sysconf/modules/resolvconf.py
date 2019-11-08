@@ -9,16 +9,6 @@ import subprocess
 from time import time
 from shutil import copy2
 
-from marshmallow import (
-    Schema,
-    fields,
-    ValidationError,
-)
-from marshmallow.validate import (
-    Length,
-    Regexp,
-)
-
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
@@ -31,7 +21,6 @@ from xivo_sysconf import helpers
 log = logging.getLogger('xivo_sysconf.modules.resolvconf')
 
 RESOLVCONFLOCK = RWLock()
-FQDN_RE = r'^[a-zA-Z0-9]([-a-zA-Z0-9]{0,61}[a-zA-Z0-9])(\.[a-zA-Z0-9]([-a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)*$'
 
 Rcc = {
     'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
@@ -75,24 +64,10 @@ def _write_config_file(optname, xvars):
     return backupfilename
 
 
-class HostSchema(Schema):
-    hostname = fields.String(validate=[
-        Length(max=63),
-        Regexp(r'[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$'),
-    ])
-    domain = fields.String(validate=[
-        Length(max=251),
-        Regexp(FQDN_RE),
-    ])
-
-
-HOST_SCHEMA = HostSchema()
-
-
 def _validate_hosts(args):
-    try:
-        HOST_SCHEMA.load(args)
-    except ValidationError:
+    if not helpers.domain_label(args.get('hostname')):
+        raise HttpReqError(415, "invalid arguments for command")
+    if not helpers.search_domain(args.get('domain')):
         raise HttpReqError(415, "invalid arguments for command")
 
 
@@ -149,27 +124,20 @@ def Hosts(args, options):
         RESOLVCONFLOCK.release()
 
 
-class ResolvConfSchema(Schema):
-    nameservers = fields.List(
-        fields.String(validate=[Regexp(FQDN_RE), Length(max=251)]),
-        validate=Length(min=1, max=3),
-        required=True,
-    )
-    search = fields.List(
-        fields.String(validate=[Regexp(FQDN_RE), Length(max=251)]),
-        validate=Length(min=1, max=6),
-        required=False,
-    )
-
-
-RESOLVCONF_SCHEMA = ResolvConfSchema()
-
-
 def _validate_resolv_conf(args):
-    try:
-        RESOLVCONF_SCHEMA.load(args)
-    except ValidationError:
+    nameservers = args.get('nameservers', [])
+    if not 0 < len(nameservers) < 4:
         raise HttpReqError(415, "invalid arguments for command")
+    for nameserver in nameservers:
+        if not helpers.ipv4_address_or_domain(nameserver):
+            raise HttpReqError(415, "invalid arguments for command")
+
+    searches = args.get('searches', [])
+    if not 0 < len(searches) < 7:
+        raise HttpReqError(415, "invalid arguments for command")
+    for search in searches:
+        if not helpers.search_domain(search):
+            raise HttpReqError(415, "invalid arguments for command")
 
 
 def _resolv_conf_variables(args):

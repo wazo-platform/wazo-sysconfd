@@ -15,7 +15,6 @@ Depends: ${python:Depends},
          xivo-lib-python,
          python-dumbnet,
          python-kombu (>= 4.2.1-3),
-         python-marshmallow,
          python-netifaces,
          python-vine,
          sudo

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010-2015 Avencall
+# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import re
+import socket
 
 
 def castint(s):
@@ -55,3 +56,55 @@ def unique_case_tuple(sequence):
     """ Build an ordered case-insensitive collection """
     xlist = dict(zip(map(str.lower, sequence), sequence)).values()
     return tuple([x for x in sequence if x in xlist])
+
+
+# WARNING: the following function does not test the length which must be <= 63
+DomainLabelOk = re.compile(r'[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$').match
+
+
+def search_domain(search_domain):
+    """
+    Return True if the search_domain is suitable for use in the search
+    line of /etc/resolv.conf, else False.
+    """
+    # NOTE: 251 comes from FQDN 255 maxi including label length bytes, we
+    # do not want to validate search domain beginning or ending with '.',
+    # 255 seems to include the final '\0' length byte, so a FQDN is 253
+    # char max.  We remove 2 char so that a one letter label requested and
+    # prepended to the search domain results in a FQDN that is not too long
+    return (
+        search_domain
+        and len(search_domain) <= 251
+        and all(
+            (
+                ((len(label) <= 63) and DomainLabelOk(label))
+                for label in search_domain.split('.')
+            )
+        )
+    )
+
+
+def is_ipv4_address_valid(addr):
+    "True <=> valid"
+    try:
+        socket.inet_aton(addr)
+        return True
+    except (TypeError, socket.error):
+        return False
+
+
+def ipv4_address_or_domain(nstr):
+    """
+    !~ipv4_address_or_domain
+        Return True if the document string is an IPv4 address
+        or a domain, else False
+    """
+    return is_ipv4_address_valid(nstr) or search_domain(nstr)
+
+
+def domain_label(nstr):
+    """
+    !~domain_label
+        Return True if the document string is a domain label, else False
+    """
+    return DomainLabelOk(nstr) and len(nstr) <= 63
