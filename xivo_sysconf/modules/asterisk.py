@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2015 Avencall
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
@@ -90,45 +90,8 @@ def _is_valid_path_component(path_component):
                 os.sep not in path_component)
 
 
-def core_show_version(args, options):
-    command = 'core show version'
-    return _exec_asterisk_command(command)
-
-
-def core_show_channels(args, options):
-    command = 'core show channels'
-    return _exec_asterisk_command(command)
-
-
-def sip_show_peer(args, options):
-    peer = options.get('peer')
-    if not peer:
-        raise HttpReqError(400, 'missing peer')
-
-    command = 'sip show peer {}'.format(peer)
-    return _exec_asterisk_command(command)
-
-
-def _exec_asterisk_command(command):
-    p = subprocess.Popen(['asterisk', '-rx', command],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT,
-                         close_fds=True)
-    output = p.communicate()[0]
-
-    if p.returncode != 0:
-        raise HttpReqError(500, output)
-    return output
-
-
 asterisk = Asterisk()
 http_json_server.register(asterisk.delete_voicemail, CMD_R,
                           name='delete_voicemail')
 http_json_server.register(asterisk.move_voicemail, CMD_R,
                           name='move_voicemail')
-http_json_server.register(core_show_version, CMD_R,
-                          name='core_show_version')
-http_json_server.register(core_show_channels, CMD_R,
-                          name='core_show_channels')
-http_json_server.register(sip_show_peer, CMD_R,
-                          name='sip_show_peer')
