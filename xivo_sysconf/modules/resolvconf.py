@@ -132,7 +132,7 @@ def _validate_resolv_conf(args):
         if not helpers.ipv4_address_or_domain(nameserver):
             raise HttpReqError(415, "invalid arguments for command")
 
-    searches = args.get('searches', [])
+    searches = args.get('search', [])
     if not 0 < len(searches) < 7:
         raise HttpReqError(415, "invalid arguments for command")
     for search in searches:

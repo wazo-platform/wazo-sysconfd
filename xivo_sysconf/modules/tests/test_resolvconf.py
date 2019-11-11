@@ -148,3 +148,9 @@ class TestValidateResolvConf(unittest.TestCase):
                 raises(HttpReqError),
                 name,
             )
+
+        valid_body = {'nameservers': ['valid'], 'search': ['valid']}
+        assert_that(
+            calling(validate_resolv_conf).with_args(valid_body),
+            not_(raises(Exception)),
+        )
