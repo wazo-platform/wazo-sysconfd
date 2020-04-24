@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -173,7 +173,7 @@ class TestRequestQueue(unittest.TestCase):
         self.optimizer.on_request_get.assert_called_once_with(sentinel.request)
 
 
-class TestExit(BaseException):
+class ExitTestException(BaseException):
     pass
 
 
@@ -185,11 +185,11 @@ class TestRequestProcessor(unittest.TestCase):
 
     def test_run(self):
         request = self.request_queue.get.return_value
-        request.execute.side_effect = TestExit()
+        request.execute.side_effect = ExitTestException()
 
         try:
             self.request_processor.run()
-        except TestExit:
+        except ExitTestException:
             pass
 
 
