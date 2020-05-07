@@ -4,7 +4,6 @@ After=network.target rabbitmq-server.service
 Before=monit.service
 
 [Service]
-Type=forking
 ExecStart=/usr/bin/xivo-sysconfd
 PIDFile=/run/xivo-sysconfd.pid
 

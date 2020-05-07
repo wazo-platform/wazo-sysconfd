@@ -41,4 +41,4 @@ RUN rm -rf /usr/src/*
 
 EXPOSE 8668
 
-CMD ["xivo-sysconfd", "-l", "debug", "-f"]
+CMD ["xivo-sysconfd", "-l", "debug"]
