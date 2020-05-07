@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -16,6 +16,7 @@ from xivo.xivo_logging import setup_logging, get_log_level_by_name
 from xivo_sysconf.modules import *
 
 
+FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
 LOG_FILE_NAME = "/var/log/xivo-sysconfd.log"
 
 log = logging.getLogger('xivo-sysconfd')
@@ -37,10 +38,6 @@ def argv_parse_check():
                         default='info',
                         help="Emit traces with LOGLEVEL details, must be one of:\n"
                              "critical, error, warning, info, debug")
-    parser.add_argument('-f',
-                        '--foreground',
-                        action='store_true',
-                        help="Foreground, don't daemonize")
     parser.add_argument('-c',
                         '--conffile',
                         default="/etc/xivo/sysconfd.conf",
@@ -69,7 +66,7 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, options.foreground, log_level=options.loglevel)
+    setup_logging(LOG_FILE_NAME, FOREGROUND, log_level=options.loglevel)
 
     cp = ConfigParser()
     cp.readfp(SysconfDefaultsConf)
@@ -79,7 +76,7 @@ def main():
 
     http_json_server.init(options)
 
-    with pidfile_context(options.pidfile, options.foreground):
+    with pidfile_context(options.pidfile, FOREGROUND):
         try:
             os.umask(022)
             http_json_server.run(options)
