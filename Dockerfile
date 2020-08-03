@@ -31,7 +31,6 @@ RUN python setup.py install
 RUN touch /etc/network/interfaces
 RUN touch /var/log/xivo-sysconfd.log
 RUN mkdir /etc/xivo/
-RUN mkdir /run/xivo-sysconfd
 RUN cp -a etc/xivo/* /etc/xivo/
 WORKDIR /root
 

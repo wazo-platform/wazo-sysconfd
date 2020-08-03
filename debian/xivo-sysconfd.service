@@ -1,11 +1,13 @@
 [Unit]
 Description=xivo-sysconfd server
 After=network.target rabbitmq-server.service
-Before=monit.service
+StartLimitBurst=15
+StartLimitIntervalSec=150
 
 [Service]
 ExecStart=/usr/bin/xivo-sysconfd
-PIDFile=/run/xivo-sysconfd.pid
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

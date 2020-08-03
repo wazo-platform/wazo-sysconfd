@@ -9,14 +9,11 @@ from ConfigParser import ConfigParser
 from StringIO import StringIO
 
 from xivo import http_json_server
-from xivo.daemonize import pidfile_context
 from xivo.http_json_server import CMD_R
 from xivo.xivo_logging import setup_logging, get_log_level_by_name
 
 from xivo_sysconf.modules import *
 
-
-FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
 LOG_FILE_NAME = "/var/log/xivo-sysconfd.log"
 
 log = logging.getLogger('xivo-sysconfd')
@@ -42,10 +39,6 @@ def argv_parse_check():
                         '--conffile',
                         default="/etc/xivo/sysconfd.conf",
                         help="Use configuration file <conffile> instead of %(default)s")
-    parser.add_argument('-p',
-                        '--pidfile',
-                        default="/run/xivo-sysconfd.pid",
-                        help="Use PID file <pidfile> instead of %(default)s")
     parser.add_argument('--listen-addr',
                         default='127.0.0.1',
                         help="Listen on address <listen_addr> instead of %(default)s")
@@ -66,7 +59,7 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, FOREGROUND, log_level=options.loglevel)
+    setup_logging(LOG_FILE_NAME, log_level=options.loglevel)
 
     cp = ConfigParser()
     cp.readfp(SysconfDefaultsConf)
@@ -76,14 +69,13 @@ def main():
 
     http_json_server.init(options)
 
-    with pidfile_context(options.pidfile, FOREGROUND):
-        try:
-            os.umask(022)
-            http_json_server.run(options)
-        except SystemExit:
-            raise
-        except Exception:
-            log.exception("bad things happen")
+    try:
+        os.umask(022)
+        http_json_server.run(options)
+    except SystemExit:
+        raise
+    except Exception:
+        log.exception("bad things happen")
 
 
 if __name__ == '__main__':
