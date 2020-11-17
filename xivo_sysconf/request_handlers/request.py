@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -9,7 +9,7 @@ import threading
 from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
-from xivo_bus.publisher import Publisher
+from xivo_bus.publisher import FailFastPublisher
 
 from .agentd import (
     AgentdCommandExecutor,
@@ -190,7 +190,7 @@ class LazyBusPublisher(object):
 
     def _new_publisher(self):
         bus_producer = Producer(self._bus_connection, self._bus_exchange, auto_declare=True)
-        return Publisher(bus_producer, self._marshaler)
+        return FailFastPublisher(bus_producer, self._marshaler)
 
 
 class RequestHandlersProxy(object):
