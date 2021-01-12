@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -23,7 +23,6 @@ class AsteriskCommandFactory(object):
         'moh reload',
         'iax2 reload',
         'module reload app_queue.so',
-        'module reload app_meetme.so',
         'module reload features',
         'module reload res_parking.so',
         'module reload res_pjsip.so',
