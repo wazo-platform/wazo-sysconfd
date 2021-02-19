@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2013 Avencall
+# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import subprocess
@@ -17,7 +17,7 @@ def dhcpd_update(args, options):
     try:
         returncode = subprocess.call(DHCPD_UDPATE_COMMAND, close_fds=True)
     except OSError, e:
-        raise HttpReqError(500, "error while executing dhcpd-update command", e)
+        raise HttpReqError(500, "error while executing dhcpd-update command: %s" % e)
     else:
         if returncode:
             raise HttpReqError(500, "dhcpd-update command returned %s" % returncode)
