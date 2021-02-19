@@ -1,0 +1,10 @@
+FROM wazoplatform/wazo-sysconfd
+
+ENV PYTHONDONTWRITEBYTECODE='true'
+
+COPY . /usr/local/src/xivo-sysconfd
+COPY integration_tests/assets/bin/mock-command /usr/local/bin/
+WORKDIR /usr/local/src/xivo-sysconfd
+RUN python setup.py develop \
+    && ln /usr/local/bin/mock-command /usr/local/bin/dhcpd-update
+
