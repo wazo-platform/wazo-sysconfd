@@ -94,6 +94,28 @@ class TestSysconfd(IntegrationTest):
         until.true(agent_event_was_sent, timeout=5)
         assert(self._file_owner(autoprov_filename) == 'asterisk')
 
+    def test_hosts(self):
+        self._given_file_absent('/etc/local/hostname')
+        self._given_file_absent('/etc/local/hosts')
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        body = {
+            'hostname': 'wazo',
+            'domain': 'example.com',
+        }
+
+        self.sysconfd.hosts(body)
+
+        def command_was_called(command):
+            return any(
+                message for message in bus_events.accumulate()
+                if message['name'] == 'sysconfd_sentinel'
+                and message['data']['command'] == command
+            )
+
+        until.true(command_was_called, ['hostname', '-F', '/etc/local/hostname'], timeout=5)
+        assert(self._file_exists('/etc/local/hostname'))
+        assert(self._file_exists('/etc/local/hosts'))
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 
@@ -110,5 +132,18 @@ class TestSysconfd(IntegrationTest):
     def _create_file(self, file_name, owner):
         self.docker_exec(['install', '-D', '-o', owner, '/dev/null', file_name], 'sysconfd')
 
+    def _given_file_absent(self, file_name):
+        self.docker_exec(['rm', '-f', file_name], 'sysconfd')
+
     def _file_owner(self, file_name):
         return self.docker_exec(['stat', '-c', '%U', file_name], 'sysconfd').strip().decode('utf-8')
+
+    def _file_exists(self, file_name):
+        command = ' '.join(['test', '-f', file_name, '&&', 'echo', 'true', '||', 'echo', 'false'])
+        out = self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        if out == 'true':
+            return True
+        elif out == 'false':
+            return False
+        else:
+            raise RuntimeError(f'Unknown output: "{out}"')
