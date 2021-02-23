@@ -32,6 +32,35 @@ class TestSysconfd(IntegrationTest):
 
         assert(not self._directory_exists(voicemail_directory))
 
+    def test_commonconf_generate(self):
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+
+        self.sysconfd.commonconf_generate()
+
+        def command_was_called(command):
+            return any(
+                message for message in bus_events.accumulate()
+                if message['name'] == 'sysconfd_sentinel'
+                and message['data']['command'] == command
+            )
+
+        until.true(command_was_called, ['xivo-create-config'], timeout=5)
+
+    def test_commonconf_apply(self):
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+
+        self.sysconfd.commonconf_apply()
+
+        def command_was_called(command):
+            return any(
+                message for message in bus_events.accumulate()
+                if message['name'] == 'sysconfd_sentinel'
+                and message['data']['command'] == command
+            )
+
+        until.true(command_was_called, ['xivo-update-config'], timeout=5)
+        until.true(command_was_called, ['xivo-monitoring-update'], timeout=5)
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 

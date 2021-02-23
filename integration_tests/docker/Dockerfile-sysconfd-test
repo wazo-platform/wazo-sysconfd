@@ -6,5 +6,9 @@ COPY . /usr/local/src/xivo-sysconfd
 COPY integration_tests/assets/bin/mock-command /usr/local/bin/
 WORKDIR /usr/local/src/xivo-sysconfd
 RUN python setup.py develop \
-    && ln /usr/local/bin/mock-command /usr/local/bin/dhcpd-update
+    && ln /usr/local/bin/mock-command /usr/local/bin/dhcpd-update \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-create-config \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-update-config \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-monitoring-update \
+    && true
 
