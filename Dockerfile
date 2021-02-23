@@ -19,6 +19,7 @@ FROM python:2.7-slim-buster AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
 COPY etc/xivo /etc/xivo
+COPY templates /usr/share/xivo-sysconfd/templates
 
 RUN install -D -o root -g root /dev/null /etc/network/interfaces \
     && install -D -o root -g root /dev/null /var/log/xivo-sysconfd.log
