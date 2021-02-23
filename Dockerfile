@@ -18,12 +18,10 @@ RUN python setup.py install
 FROM python:2.7-slim-buster AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
-COPY etc /usr/local/src/wazo-sysconfd/etc
-WORKDIR /usr/local/src/wazo-sysconfd
+COPY etc/xivo /etc/xivo
 
 RUN install -D -o root -g root /dev/null /etc/network/interfaces \
-    && install -D -o root -g root /dev/null /var/log/xivo-sysconfd.log \
-    && install -D -o root -g root -t /etc/xivo/ etc/xivo/*
+    && install -D -o root -g root /dev/null /var/log/xivo-sysconfd.log
 
 EXPOSE 8668
 
