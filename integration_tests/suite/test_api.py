@@ -116,6 +116,17 @@ class TestSysconfd(IntegrationTest):
         assert(self._file_exists('/etc/local/hostname'))
         assert(self._file_exists('/etc/local/hosts'))
 
+    def test_resolv_conf(self):
+        self._given_file_absent('/etc/local/resolv.conf')
+        body = {
+            'nameservers': ['192.168.0.1'],
+            'search': ['wazo.example.com'],
+        }
+
+        self.sysconfd.resolv_conf(body)
+
+        assert(self._file_exists('/etc/local/resolv.conf'))
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 
