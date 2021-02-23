@@ -12,6 +12,7 @@ services:
       - "8668"
     volumes:
       - "../..:/usr/local/src/xivo-sysconfd"
+      - "./etc/xivo/sysconfd.conf:/etc/xivo/sysconfd.conf"
       - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"
       # - "${LOCAL_GIT_REPOS}/xivo-bus/xivo_bus:/opt/venv/lib/python2.7/site-packages/xivo_bus"
 
