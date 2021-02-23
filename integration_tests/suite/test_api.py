@@ -1,8 +1,6 @@
 # Copyright 2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import requests
-
 from xivo_test_helpers import until
 
 from .helpers.base import IntegrationTest
