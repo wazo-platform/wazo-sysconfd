@@ -7,17 +7,17 @@ COPY integration_tests/assets/bin/mock-command /usr/local/bin/
 WORKDIR /usr/local/src/xivo-sysconfd
 RUN python setup.py develop \
     && adduser --quiet --system --group --no-create-home --home /var/lib/asterisk asterisk \
-    && mkdir -p /etc/local \
     && mkdir -p /etc/cron.d \
-    && ln /usr/local/bin/mock-command /usr/local/bin/dhcpd-update \
-    && ln /usr/local/bin/mock-command /usr/sbin/xivo-create-config \
-    && ln /usr/local/bin/mock-command /usr/sbin/xivo-update-config \
-    && ln /usr/local/bin/mock-command /usr/sbin/xivo-monitoring-update \
-    && ln /usr/local/bin/mock-command /usr/bin/asterisk \
-    && ln /usr/local/bin/mock-command /usr/local/bin/hostname \
+    && mkdir -p /etc/local \
     && ln /usr/local/bin/mock-command /bin/systemctl \
-    && ln /usr/local/bin/mock-command /usr/sbin/xivo-manage-slave-services \
+    && ln /usr/local/bin/mock-command /usr/bin/asterisk \
+    && ln /usr/local/bin/mock-command /usr/local/bin/dhcpd-update \
+    && ln /usr/local/bin/mock-command /usr/local/bin/hostname \
     && ln /usr/local/bin/mock-command /usr/local/bin/wazo-service \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-create-config \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-manage-slave-services \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-monitoring-update \
+    && ln /usr/local/bin/mock-command /usr/sbin/xivo-update-config \
     && install -D /dev/null /etc/postgresql/11/main/pg_hba.conf \
     && install -D /dev/null /etc/postgresql/11/main/postgresql.conf \
     && true
