@@ -124,6 +124,16 @@ class TestSysconfd(IntegrationTest):
 
         assert(result == {'status': 'up'})
 
+    def test_xivoctl(self):
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        body = {
+            'wazo-service': 'start',
+        }
+
+        self.sysconfd.xivoctl(body)
+
+        assert(self._command_was_called(bus_events, ['wazo-service', 'start']))
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 

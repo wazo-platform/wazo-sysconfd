@@ -17,6 +17,7 @@ RUN python setup.py develop \
     && ln /usr/local/bin/mock-command /usr/local/bin/hostname \
     && ln /usr/local/bin/mock-command /bin/systemctl \
     && ln /usr/local/bin/mock-command /usr/sbin/xivo-manage-slave-services \
+    && ln /usr/local/bin/mock-command /usr/local/bin/wazo-service \
     && install -D /dev/null /etc/postgresql/11/main/pg_hba.conf \
     && install -D /dev/null /etc/postgresql/11/main/postgresql.conf \
     && true
