@@ -21,10 +21,12 @@ exchange_name = 'xivo'
 exchange_type = 'topic'
 uuid = None
 
-url = 'amqp://{username}:{password}@{host}:{port}//'.format(username=username,
-                                                            password=password,
-                                                            host=host,
-                                                            port=port)
+url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+    username=username,
+    password=password,
+    host=host,
+    port=port,
+)
 bus_connection = Connection(url)
 bus_exchange = Exchange(exchange_name, exchange_type, durable=True)
 bus_producer = Producer(bus_connection, bus_exchange, auto_declare=True)
