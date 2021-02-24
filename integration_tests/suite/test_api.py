@@ -127,6 +127,30 @@ class TestSysconfd(IntegrationTest):
 
         assert(self._file_exists('/etc/local/resolv.conf'))
 
+    def test_ha_config(self):
+        self._given_file_absent('/etc/xivo/ha.conf')
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        body = {
+            'node_type': 'master',
+            'remote_address': '192.168.99.99'
+        }
+
+        self.sysconfd.ha_config.update(body)
+        result = self.sysconfd.ha_config.get()
+
+        def command_was_called(command):
+            return any(
+                message for message in bus_events.accumulate()
+                if message['name'] == 'sysconfd_sentinel'
+                and message['data']['command'] == command
+            )
+
+        until.true(command_was_called, ['systemctl', 'restart', 'postgresql.service'], timeout=5)
+        until.true(command_was_called, ['xivo-manage-slave-services', 'start'], timeout=5)
+        assert(result == body)
+        assert(self._file_exists('/etc/xivo/ha.conf'))
+        assert(self._file_exists('/etc/cron.d/xivo-ha-master'))
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 
