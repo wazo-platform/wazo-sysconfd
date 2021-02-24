@@ -119,6 +119,11 @@ class TestSysconfd(IntegrationTest):
 
         assert(self._command_was_called(bus_events, ['systemctl', 'restart', 'networking.service']))
 
+    def test_status_check(self):
+        result = self.sysconfd.status_check()
+
+        assert(result == {'status': 'up'})
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 
