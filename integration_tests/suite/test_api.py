@@ -15,14 +15,7 @@ class TestSysconfd(IntegrationTest):
 
         self.sysconfd.dhcpd_update()
 
-        def command_was_called(command):
-            return any(
-                message for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
-        until.true(command_was_called, ['dhcpd-update', '-dr'], timeout=5)
+        assert(self._command_was_called(bus_events, ['dhcpd-update', '-dr']))
 
     def test_delete_voicemail(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
@@ -37,29 +30,15 @@ class TestSysconfd(IntegrationTest):
 
         self.sysconfd.commonconf_generate()
 
-        def command_was_called(command):
-            return any(
-                message for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
-        until.true(command_was_called, ['xivo-create-config'], timeout=5)
+        assert(self._command_was_called(bus_events, ['xivo-create-config']))
 
     def test_commonconf_apply(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
         self.sysconfd.commonconf_apply()
 
-        def command_was_called(command):
-            return any(
-                message for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
-        until.true(command_was_called, ['xivo-update-config'], timeout=5)
-        until.true(command_was_called, ['xivo-monitoring-update'], timeout=5)
+        assert(self._command_was_called(bus_events, ['xivo-update-config']))
+        assert(self._command_was_called(bus_events, ['xivo-monitoring-update']))
 
     def test_exec_request_handlers(self):
         agent_id = 12
@@ -76,13 +55,6 @@ class TestSysconfd(IntegrationTest):
 
         self.sysconfd.exec_request_handlers(body)
 
-        def command_was_called(command):
-            return any(
-                message for message in command_bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
         def agent_event_was_sent():
             return any(
                 message for message in agent_bus_events.accumulate()
@@ -90,7 +62,7 @@ class TestSysconfd(IntegrationTest):
                 and message['data']['id'] == agent_id
             )
 
-        until.true(command_was_called, ['asterisk', '-rx', asterisk_command], timeout=5)
+        assert(self._command_was_called(command_bus_events, ['asterisk', '-rx', asterisk_command]))
         until.true(agent_event_was_sent, timeout=5)
         assert(self._file_owner(autoprov_filename) == 'asterisk')
 
@@ -105,14 +77,7 @@ class TestSysconfd(IntegrationTest):
 
         self.sysconfd.hosts(body)
 
-        def command_was_called(command):
-            return any(
-                message for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
-        until.true(command_was_called, ['hostname', '-F', '/etc/local/hostname'], timeout=5)
+        assert(self._command_was_called(bus_events, ['hostname', '-F', '/etc/local/hostname']))
         assert(self._file_exists('/etc/local/hostname'))
         assert(self._file_exists('/etc/local/hosts'))
 
@@ -138,15 +103,8 @@ class TestSysconfd(IntegrationTest):
         self.sysconfd.ha_config.update(body)
         result = self.sysconfd.ha_config.get()
 
-        def command_was_called(command):
-            return any(
-                message for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
-            )
-
-        until.true(command_was_called, ['systemctl', 'restart', 'postgresql.service'], timeout=5)
-        until.true(command_was_called, ['xivo-manage-slave-services', 'start'], timeout=5)
+        assert(self._command_was_called(bus_events, ['systemctl', 'restart', 'postgresql.service']))
+        assert(self._command_was_called(bus_events, ['xivo-manage-slave-services', 'start']))
         assert(result == body)
         assert(self._file_exists('/etc/xivo/ha.conf'))
         assert(self._file_exists('/etc/cron.d/xivo-ha-master'))
@@ -182,3 +140,12 @@ class TestSysconfd(IntegrationTest):
             return False
         else:
             raise RuntimeError(f'Unknown output: "{out}"')
+
+    def _command_was_called(self, bus_events, command):
+        def poll():
+            return any(
+                message for message in bus_events.accumulate()
+                if message['name'] == 'sysconfd_sentinel'
+                and message['data']['command'] == command
+            )
+        return until.true(poll, timeout=5)
