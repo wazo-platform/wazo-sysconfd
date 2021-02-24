@@ -109,6 +109,16 @@ class TestSysconfd(IntegrationTest):
         assert(self._file_exists('/etc/xivo/ha.conf'))
         assert(self._file_exists('/etc/cron.d/xivo-ha-master'))
 
+    def test_services(self):
+        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        body = {
+            'networking': 'restart',
+        }
+
+        self.sysconfd.services(body)
+
+        assert(self._command_was_called(bus_events, ['systemctl', 'restart', 'networking.service']))
+
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
 
