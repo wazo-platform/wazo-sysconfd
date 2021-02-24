@@ -17,6 +17,21 @@ class TestSysconfd(IntegrationTest):
 
         assert(self._command_was_called(bus_events, ['dhcpd-update', '-dr']))
 
+    def test_move_voicemail(self):
+        old_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/oldvoicemail'
+        new_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/newvoicemail'
+        self._create_directory(old_voicemail_directory)
+        self._given_directory_absent(new_voicemail_directory)
+
+        self.sysconfd.move_voicemail(
+            old_mailbox='oldvoicemail',
+            old_context='mycontext',
+            new_mailbox='newvoicemail',
+            new_context='mycontext',
+        )
+
+        assert(self._directory_exists(new_voicemail_directory))
+
     def test_delete_voicemail(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
         self._create_directory(voicemail_directory)
@@ -146,6 +161,9 @@ class TestSysconfd(IntegrationTest):
             return False
         else:
             raise RuntimeError(f'Unknown output: "{out}"')
+
+    def _given_directory_absent(self, directory):
+        self.docker_exec(['rm', '-rf', directory], 'sysconfd')
 
     def _create_file(self, file_name, owner):
         self.docker_exec(['install', '-D', '-o', owner, '/dev/null', file_name], 'sysconfd')
