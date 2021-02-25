@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+import os.path
+import logging
+import sys
+
+from kombu import Connection, Exchange, Producer
+from xivo_bus.marshaler import Marshaler
+from xivo_bus.publisher import FailFastPublisher
+from xivo_bus.resources.common.event import BaseEvent
+
+logging.basicConfig(level=logging.INFO)
+
+username = 'guest'
+password = 'guest'
+host = 'rabbitmq'
+port = '5672'
+exchange_name = 'xivo'
+exchange_type = 'topic'
+uuid = None
+
+url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+    username=username,
+    password=password,
+    host=host,
+    port=port,
+)
+bus_connection = Connection(url)
+bus_exchange = Exchange(exchange_name, exchange_type, durable=True)
+bus_producer = Producer(bus_connection, bus_exchange, auto_declare=True)
+bus_publisher = FailFastPublisher(bus_producer, Marshaler(uuid))
+
+
+class SentinelEvent(BaseEvent):
+
+    name = 'sysconfd_sentinel'
+    routing_key_fmt = 'sysconfd.sentinel'
+
+    _body = {'command': [os.path.basename(sys.argv[0])] + sys.argv[1:]}
+
+
+event = SentinelEvent()
+bus_publisher.publish(event)

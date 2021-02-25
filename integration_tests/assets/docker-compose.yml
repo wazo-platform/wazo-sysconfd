@@ -1,0 +1,23 @@
+version: '3'
+services:
+
+  sync:
+    image: wazoplatform/wait
+    environment:
+      TIMEOUT: "${INTEGRATION_TEST_TIMEOUT}"
+
+  sysconfd:
+    image: wazoplatform/wazo-sysconfd-tests
+    ports:
+      - "8668"
+    volumes:
+      - "../..:/usr/local/src/xivo-sysconfd"
+      - "./etc/xivo/sysconfd.conf:/etc/xivo/sysconfd.conf"
+      # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"
+      # - "${LOCAL_GIT_REPOS}/xivo-bus/xivo_bus:/opt/venv/lib/python2.7/site-packages/xivo_bus"
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672"
+

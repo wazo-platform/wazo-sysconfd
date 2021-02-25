@@ -1,4 +1,9 @@
 - project:
     templates:
-      - debian-packaging-template
+      - wazo-tox-linters
       - wazo-tox-py27
+      - wazo-tox-integration
+      - debian-packaging-template
+    vars:
+      docker_compose_services_override:
+        - sysconfd

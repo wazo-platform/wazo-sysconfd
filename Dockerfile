@@ -1,43 +1,31 @@
-FROM debian:buster
+FROM python:2.7-slim-buster AS compile-image
 MAINTAINER Wazo Maintainers <dev@wazo.community>
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV HOME /root
+RUN apt-get -qq update && apt-get -qq -y install python-virtualenv
+RUN virtualenv /opt/venv
+# Activate virtual env
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Add dependencies
-RUN apt-get -qq update
-RUN apt-get -qq -y install \
-    wget \
-    git \
-    apt-utils \
-    python-pip \
-    python-dev \
-    python-dumbnet \
-    python-netifaces \
-    libyaml-dev \
-    ifupdown \
-    sudo \
-    curl \
-    net-tools
-
-# Install xivo-sysconfd
-WORKDIR /usr/src
-ADD . /usr/src/sysconfd
-WORKDIR sysconfd
+COPY requirements.txt /usr/local/src/wazo-sysconfd/requirements.txt
+WORKDIR /usr/local/src/wazo-sysconfd
 RUN pip install -r requirements.txt
+
+COPY setup.py /usr/local/src/wazo-sysconfd/
+COPY xivo_sysconf /usr/local/src/wazo-sysconfd/xivo_sysconf
+COPY bin/xivo-sysconfd /usr/local/src/wazo-sysconfd/bin/
 RUN python setup.py install
 
-# Configure environment
-RUN touch /etc/network/interfaces
-RUN touch /var/log/xivo-sysconfd.log
-RUN mkdir /etc/xivo/
-RUN cp -a etc/xivo/* /etc/xivo/
-WORKDIR /root
+FROM python:2.7-slim-buster AS build-image
+COPY --from=compile-image /opt/venv /opt/venv
 
-# Clean
-RUN apt-get clean
-RUN rm -rf /usr/src/*
+COPY etc/xivo /etc/xivo
+COPY templates /usr/share/xivo-sysconfd/templates
+
+RUN install -D -o root -g root /dev/null /etc/network/interfaces \
+    && install -D -o root -g root /dev/null /var/log/xivo-sysconfd.log
 
 EXPOSE 8668
 
-CMD ["xivo-sysconfd", "-l", "debug"]
+# Activate virtual env
+ENV PATH="/opt/venv/bin:$PATH"
+CMD ["xivo-sysconfd", "-l", "debug", "--listen-addr=0.0.0.0"]
