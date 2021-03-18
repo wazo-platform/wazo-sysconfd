@@ -13,5 +13,5 @@ setup(
     author_email='dev.wazo@gmail.com',
     url='http://wazo.community',
     packages=find_packages(),
-    scripts=['bin/xivo-sysconfd']
+    scripts=['bin/wazo-sysconfd']
 )

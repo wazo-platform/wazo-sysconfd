@@ -1,2 +1,2 @@
-templates               usr/share/xivo-sysconfd
+templates               usr/share/wazo-sysconfd
 etc/*                   etc/

@@ -1,11 +1,11 @@
 [Unit]
-Description=xivo-sysconfd server
+Description=wazo-sysconfd server
 After=network.target rabbitmq-server.service
 StartLimitBurst=15
 StartLimitIntervalSec=150
 
 [Service]
-ExecStart=/usr/bin/xivo-sysconfd
+ExecStart=/usr/bin/wazo-sysconfd
 Restart=on-failure
 RestartSec=5
 

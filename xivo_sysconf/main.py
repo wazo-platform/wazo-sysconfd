@@ -14,16 +14,16 @@ from xivo.xivo_logging import setup_logging, get_log_level_by_name
 
 from xivo_sysconf.modules import *
 
-LOG_FILE_NAME = "/var/log/xivo-sysconfd.log"
+LOG_FILE_NAME = "/var/log/wazo-sysconfd.log"
 
-log = logging.getLogger('xivo-sysconfd')
+log = logging.getLogger('wazo-sysconfd')
 
 SysconfDefaultsConf = StringIO("""
 [general]
 xivo_config_path        = /etc/xivo
-templates_path          = /usr/share/xivo-sysconfd/templates
+templates_path          = /usr/share/wazo-sysconfd/templates
 custom_templates_path   = /etc/xivo/sysconfd/custom-templates
-backup_path             = /var/backups/xivo-sysconfd
+backup_path             = /var/backups/wazo-sysconfd
 """)
 
 
