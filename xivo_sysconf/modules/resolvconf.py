@@ -16,9 +16,9 @@ from xivo.moresynchro import RWLock
 from xivo.xivo_config import txtsubst
 from xivo import system
 
-from xivo_sysconf import helpers
+from wazo_sysconf import helpers
 
-log = logging.getLogger('xivo_sysconf.modules.resolvconf')
+log = logging.getLogger('wazo_sysconf.modules.resolvconf')
 
 RESOLVCONFLOCK = RWLock()
 

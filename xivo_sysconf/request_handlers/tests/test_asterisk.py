@@ -7,7 +7,7 @@ import unittest
 from mock import ANY, Mock, patch, sentinel
 
 from xivo_bus import Publisher
-from xivo_sysconf.request_handlers.asterisk import (
+from wazo_sysconf.request_handlers.asterisk import (
     AsteriskCommandFactory,
     AsteriskCommandExecutor,
 )

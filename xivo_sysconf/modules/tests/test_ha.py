@@ -13,7 +13,7 @@ from StringIO import StringIO
 
 import mock
 
-from xivo_sysconf.modules.ha import HAConfigManager, _PostgresConfigUpdater, \
+from wazo_sysconf.modules.ha import HAConfigManager, _PostgresConfigUpdater, \
     _CronFileInstaller
 
 

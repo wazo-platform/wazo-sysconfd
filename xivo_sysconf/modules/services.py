@@ -9,7 +9,7 @@ from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
 
-logger = logging.getLogger('xivo_sysconf.modules.services')
+logger = logging.getLogger('wazo_sysconf.modules.services')
 
 
 class InvalidActionException(ValueError):

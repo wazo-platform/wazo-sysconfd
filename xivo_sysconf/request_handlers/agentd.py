@@ -6,7 +6,7 @@ import re
 
 from xivo_bus.resources.agent.event import DeleteAgentEvent, EditAgentEvent
 from xivo_bus.resources.queue.event import CreateQueueEvent, DeleteQueueEvent, EditQueueEvent
-from xivo_sysconf.request_handlers.command import Command
+from wazo_sysconf.request_handlers.command import Command
 
 
 class AgentdCommandFactory(object):
