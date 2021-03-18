@@ -18,9 +18,9 @@ Depends: ${python:Depends},
          python-netifaces,
          python-vine,
          sudo
-Provides: pf-wazo-sysconfd
-Conflicts: pf-wazo-sysconfd
-Replaces: pf-wazo-sysconfd
+Provides: pf-xivo-sysconfd, xivo-sysconfd
+Conflicts: pf-xivo-sysconfd, xivo-sysconfd
+Replaces: pf-xivo-sysconfd, xivo-sysconfd
 Description: Wazo sysconf daemon
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
