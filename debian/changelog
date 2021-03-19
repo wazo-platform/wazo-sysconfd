@@ -4,97 +4,97 @@ wazo-sysconfd (21.04~20210319.061823) wazo-dev-buster; urgency=low
 
  -- Wazo Maintainers <dev+pkg@wazo.community>  Fri, 19 Mar 2021 06:18:23 -0400
 
-xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3) xivo-dev; urgency=low
+xivo-sysconfd (14.01~20140110.152524.8c2e4b3) xivo-dev; urgency=low
 
   * add missing conffile in maintscript
 
  -- Sebastien Duthil <sduthil@avencall.com>  Thu, 16 Jan 2014 10:32:59 -0500
 
-xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3-wheezy-4) xivo-dev; urgency=low
+xivo-sysconfd (14.01~20140110.152524.8c2e4b3-wheezy-4) xivo-dev; urgency=low
 
   * add epoch to version limiting moving conffile
 
  -- Sebastien Duthil <sduthil@avencall.com>  Thu, 16 Jan 2014 08:57:19 -0500
 
-xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3-wheezy-3) xivo-dev; urgency=low
+xivo-sysconfd (14.01~20140110.152524.8c2e4b3-wheezy-3) xivo-dev; urgency=low
 
   * use maintscript to rename pf-xivo to xivo
 
  -- Pascal Cadotte Michaud <pcadottemichaud@avencall.com>  Tue, 14 Jan 2014 11:39:44 -0500
 
-xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3-wheezy-2) xivo-dev; urgency=low
+xivo-sysconfd (14.01~20140110.152524.8c2e4b3-wheezy-2) xivo-dev; urgency=low
 
   * rename configuration paths from pf-xivo to xivo when copying conffiles
 
  -- Sebastien Duthil <sduthil@avencall.com>  Mon, 13 Jan 2014 11:07:24 -0500
 
-xivo-sysconfd (1:13.22~20130802.182644.1ca9b8a-2) squeeze-xivo-skaro-dev; urgency=low
+xivo-sysconfd (13.22~20130802.182644.1ca9b8a-2) squeeze-xivo-skaro-dev; urgency=low
 
   * replace dependency from xivo-agent to xivo-bus
 
  -- Sebastien Duthil <sduthil@avencall.com>  Fri, 01 Nov 2013 14:47:32 -0400
 
-xivo-sysconfd (1:13.07~20130201.205244.14c7760-4.1) squeeze-xivo-skaro-dev; urgency=low
+xivo-sysconfd (13.07~20130201.205244.14c7760-4.1) squeeze-xivo-skaro-dev; urgency=low
 
-  * renama package 
+  * renama package
 
  -- Nicolas HICHER <nhicher@avencall.com>  Wed, 03 Apr 2013 14:32:52 -0400
 
-pf-xivo-sysconfd (1:13.03~20130201.205244.14c7760-4) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (13.03~20130201.205244.14c7760-4) squeeze-xivo-skaro-dev; urgency=low
 
   * update sysconfd dependencies
 
  -- Etienne Lessard <elessard@avencall.com>  Fri, 08 Feb 2013 13:27:18 -0500
 
-pf-xivo-sysconfd (1:13.03~20130201.205244.14c7760-3) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (13.03~20130201.205244.14c7760-3) squeeze-xivo-skaro-dev; urgency=low
 
   * remove default file for xivo
 
  -- Cedric Abunar <cabunar@avencall.com>  Thu, 07 Feb 2013 14:07:09 -0500
 
-pf-xivo-sysconfd (1:13.03~20130201.205244.14c7760-2) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (13.03~20130201.205244.14c7760-2) squeeze-xivo-skaro-dev; urgency=low
 
   * add default file for xivo
 
  -- Cedric Abunar <cabunar@avencall.com>  Tue, 05 Feb 2013 10:39:23 -0500
 
-pf-xivo-sysconfd (1:13.02~20130122.213129.fe490c7-2) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (13.02~20130122.213129.fe490c7-2) squeeze-xivo-skaro-dev; urgency=low
 
-  * add depends on xivo-monitoring 
+  * add depends on xivo-monitoring
 
  -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Wed, 23 Jan 2013 09:58:30 -0500
 
-pf-xivo-sysconfd (1:12.22~20121105.205002.127ab43-2) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (12.22~20121105.205002.127ab43-2) squeeze-xivo-skaro-dev; urgency=low
 
   * fix depends, now on xivo-lib-python
 
  -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Wed, 07 Nov 2012 11:15:06 -0500
 
-pf-xivo-sysconfd (1:12.16~20120817.122931.d72742a-2) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (12.16~20120817.122931.d72742a-2) squeeze-xivo-skaro-dev; urgency=low
 
   * Add configuration file socket.conf
 
  -- Sebastien Duthil <sduthil@avencall.com>  Fri, 17 Aug 2012 09:39:55 -0400
 
-pf-xivo-sysconfd (1:1.2.10~20120404.122459.64862d0-2) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (1.2.10~20120404.122459.64862d0-2) squeeze-xivo-skaro-dev; urgency=low
 
   * fix path in init file
 
  -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Tue, 12 Jun 2012 12:17:11 -0400
 
-pf-xivo-sysconfd (1:1.2~beta-2.1-1) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (1.2~beta-2.1-1) squeeze-xivo-skaro-dev; urgency=low
 
   * Update initscript for new location of executable.
 
  -- Etienne Lessard <edesrocherslessard@avencall.com>  Fri, 16 Dec 2011 16:17:53 -0500
 
-pf-xivo-sysconfd (1:1.2~20110921.125935.e2a736d-1) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (1.2~20110921.125935.e2a736d-1) squeeze-xivo-skaro-dev; urgency=low
 
   * Remove references to monit.
 
  -- Etienne Lessard <edesrocherslessard@avencall.com>  Wed, 21 Sep 2011 13:12:36 -0400
 
-pf-xivo-sysconfd (1:1.2~20110818.192128.9f3d578-1) squeeze-xivo-skaro-dev; urgency=low
+pf-xivo-sysconfd (1.2~20110818.192128.9f3d578-1) squeeze-xivo-skaro-dev; urgency=low
 
   * Update package version (svn to git).
 
