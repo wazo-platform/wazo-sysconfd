@@ -1,5 +1,5 @@
 FROM python:2.7-slim-buster AS compile-image
-MAINTAINER Wazo Maintainers <dev@wazo.community>
+LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
 RUN apt-get -qq update && apt-get -qq -y install python-virtualenv
 RUN virtualenv /opt/venv
