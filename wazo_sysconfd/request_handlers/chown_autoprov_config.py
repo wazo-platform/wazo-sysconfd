@@ -7,7 +7,7 @@ import logging
 
 from pwd import getpwnam
 
-from wazo_sysconf.request_handlers.command import SimpleCommandFactory
+from wazo_sysconfd.request_handlers.command import SimpleCommandFactory
 
 logger = logging.getLogger(__name__)
 

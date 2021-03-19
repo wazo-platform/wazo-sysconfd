@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo.http_json_server import register, CMD_RW
-from wazo_sysconf.request_handlers.request import RequestHandlersProxy
+from wazo_sysconfd.request_handlers.request import RequestHandlersProxy
 
 
 proxy = RequestHandlersProxy()
