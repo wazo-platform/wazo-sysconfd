@@ -1,3 +1,9 @@
+wazo-sysconfd (21.04~20210319.061823) wazo-dev-buster; urgency=low
+
+  * Rename xivo-sysconfd to wazo-sysconfd
+
+ -- Wazo Maintainers <dev+pkg@wazo.community>  Fri, 19 Mar 2021 06:18:23 -0400
+
 xivo-sysconfd (1:14.01~20140110.152524.8c2e4b3) xivo-dev; urgency=low
 
   * add missing conffile in maintscript
