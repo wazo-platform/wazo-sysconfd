@@ -14,25 +14,25 @@ To install docker on Linux :
 
 To build the image, simply invoke
 
-    docker build -t xivo-sysconfd github.com/wazo-platform/xivo-sysconfd.git
+    docker build -t wazo-sysconfd github.com/wazo-platform/wazo-sysconfd.git
 
 Or directly in the sources in contribs/docker
 
-    docker build -t xivo-sysconfd .
+    docker build -t wazo-sysconfd .
   
 ## Usage
 
 To run the container, do the following:
 
-    docker run -d -p 8668:8668 -v /conf/sysconfd:/etc/xivo/sysconfd -t xivo-sysconfd
+    docker run -d -p 8668:8668 -v /conf/sysconfd:/etc/xivo/sysconfd -t wazo-sysconfd
 
 On interactive mode :
 
-    docker run -p 8668:8668 -v /conf/sysconfd:/etc/xivo/sysconfd -it xivo-sysconfd bash
+    docker run -p 8668:8668 -v /conf/sysconfd:/etc/xivo/sysconfd -it wazo-sysconfd bash
 
-After launch xivo-sysconfd.
+After launch wazo-sysconfd.
 
-    xivo-sysconfd -l debug -f
+    wazo-sysconfd -l debug -f
 
 ## Infos
 

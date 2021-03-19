@@ -1,4 +1,4 @@
 etc/xivo/custom-templates
 etc/xivo/sysconfd/custom-templates
-usr/share/xivo-sysconfd/templates
-var/backups/xivo-sysconfd
+usr/share/wazo-sysconfd/templates
+var/backups/wazo-sysconfd

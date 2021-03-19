@@ -13,8 +13,11 @@ from StringIO import StringIO
 
 import mock
 
-from xivo_sysconf.modules.ha import HAConfigManager, _PostgresConfigUpdater, \
-    _CronFileInstaller
+from wazo_sysconf.modules.ha import (
+    HAConfigManager,
+    _PostgresConfigUpdater,
+    _CronFileInstaller,
+)
 
 
 def new_master_ha_config(slave_ip_address):

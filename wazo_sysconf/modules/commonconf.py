@@ -8,7 +8,7 @@ import traceback
 from xivo import http_json_server
 from xivo.http_json_server import CMD_RW, CMD_R, HttpReqError
 
-logger = logging.getLogger('xivo_sysconf.modules.commonconf')
+logger = logging.getLogger('wazo_sysconf.modules.commonconf')
 
 
 class CommonConf(object):

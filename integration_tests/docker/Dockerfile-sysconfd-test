@@ -2,9 +2,9 @@ FROM wazoplatform/wazo-sysconfd
 
 ENV PYTHONDONTWRITEBYTECODE='true'
 
-COPY . /usr/local/src/xivo-sysconfd
+COPY . /usr/local/src/wazo-sysconfd
 COPY integration_tests/assets/bin/mock-command /usr/local/bin/
-WORKDIR /usr/local/src/xivo-sysconfd
+WORKDIR /usr/local/src/wazo-sysconfd
 RUN python setup.py develop \
     && adduser --quiet --system --group --no-create-home --home /var/lib/asterisk asterisk \
     && mkdir -p /etc/cron.d \

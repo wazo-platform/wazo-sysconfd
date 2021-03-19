@@ -7,10 +7,17 @@ import unittest
 from mock import Mock, sentinel
 from xivo.http_json_server import HttpReqError
 
-from xivo_sysconf.request_handlers.command import Command
-from xivo_sysconf.request_handlers.request import Request, RequestFactory, \
-    DuplicateRequestOptimizer, RequestQueue, RequestProcessor, RequestHandlers,\
-    SyncRequestHandlers, SyncRequestObserver
+from wazo_sysconf.request_handlers.command import Command
+from wazo_sysconf.request_handlers.request import (
+    Request,
+    RequestFactory,
+    DuplicateRequestOptimizer,
+    RequestQueue,
+    RequestProcessor,
+    RequestHandlers,
+    SyncRequestHandlers,
+    SyncRequestObserver,
+)
 
 
 class TestRequest(unittest.TestCase):

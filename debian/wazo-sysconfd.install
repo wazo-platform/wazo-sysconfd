@@ -1,0 +1,2 @@
+templates               usr/share/wazo-sysconfd
+etc/*                   etc/

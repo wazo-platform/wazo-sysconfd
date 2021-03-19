@@ -1,4 +1,4 @@
-Source: xivo-sysconfd
+Source: wazo-sysconfd
 Section: python
 Priority: extra
 Maintainer: Wazo Maintainers <dev@wazo.community>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9), dh-python, dh-systemd (>= 1.5), python-all (>= 
 Standards-Version: 3.9.6
 X-Python-Version: >= 2.7
 
-Package: xivo-sysconfd
+Package: wazo-sysconfd
 Architecture: all
 # TODO Remove python-vine when python-kombu will depends on amqp >= 2.1.4
 Depends: ${python:Depends},
@@ -18,9 +18,9 @@ Depends: ${python:Depends},
          python-netifaces,
          python-vine,
          sudo
-Provides: pf-xivo-sysconfd
-Conflicts: pf-xivo-sysconfd
-Replaces: pf-xivo-sysconfd
+Provides: pf-xivo-sysconfd, xivo-sysconfd
+Conflicts: pf-xivo-sysconfd, xivo-sysconfd
+Replaces: pf-xivo-sysconfd, xivo-sysconfd
 Description: Wazo sysconf daemon
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.

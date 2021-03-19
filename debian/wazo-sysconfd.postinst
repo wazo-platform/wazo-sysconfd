@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+LOG_FILENAME="/var/log/wazo-sysconfd.log"
+
+case "$1" in
+  configure)
+    # move files from xivo-sysconfd 21.03
+    if [ -f /var/log/xivo-sysconfd.log ] ; then
+      rename 's/xivo-sysconfd/wazo-sysconfd/g' /var/log/xivo-sysconfd.log*
+    fi
+  ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+  ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+  ;;
+esac
