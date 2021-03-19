@@ -11,21 +11,21 @@ WORKDIR /usr/local/src/wazo-sysconfd
 RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-sysconfd/
-COPY xivo_sysconf /usr/local/src/wazo-sysconfd/xivo_sysconf
-COPY bin/xivo-sysconfd /usr/local/src/wazo-sysconfd/bin/
+COPY wazo_sysconf /usr/local/src/wazo-sysconfd/wazo_sysconf
+COPY bin/wazo-sysconfd /usr/local/src/wazo-sysconfd/bin/
 RUN python setup.py install
 
 FROM python:2.7-slim-buster AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
 COPY etc/xivo /etc/xivo
-COPY templates /usr/share/xivo-sysconfd/templates
+COPY templates /usr/share/wazo-sysconfd/templates
 
 RUN install -D -o root -g root /dev/null /etc/network/interfaces \
-    && install -D -o root -g root /dev/null /var/log/xivo-sysconfd.log
+    && install -D -o root -g root /dev/null /var/log/wazo-sysconfd.log
 
 EXPOSE 8668
 
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"
-CMD ["xivo-sysconfd", "-l", "debug", "--listen-addr=0.0.0.0"]
+CMD ["wazo-sysconfd", "-l", "debug", "--listen-addr=0.0.0.0"]
