@@ -17,6 +17,7 @@ Depends: ${python:Depends},
          python-kombu (>= 4.2.1-3),
          python-netifaces,
          python-vine,
+         rename,
          sudo
 Provides: xivo-sysconfd
 Conflicts: xivo-sysconfd
