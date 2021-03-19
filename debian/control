@@ -11,16 +11,16 @@ Architecture: all
 # TODO Remove python-vine when python-kombu will depends on amqp >= 2.1.4
 Depends: ${python:Depends},
          ${misc:Depends},
-         xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
+         xivo-bus,
          xivo-lib-python,
          python-dumbnet,
          python-kombu (>= 4.2.1-3),
          python-netifaces,
          python-vine,
          sudo
-Provides: pf-xivo-sysconfd, xivo-sysconfd
-Conflicts: pf-xivo-sysconfd, xivo-sysconfd
-Replaces: pf-xivo-sysconfd, xivo-sysconfd
+Provides: xivo-sysconfd
+Conflicts: xivo-sysconfd
+Replaces: xivo-sysconfd
 Description: Wazo sysconf daemon
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
