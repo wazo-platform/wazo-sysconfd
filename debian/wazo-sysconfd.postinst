@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for wazo-confd
+# postinst script for wazo-sysconfd
 #
 # see: dh_installdeb(1)
 
