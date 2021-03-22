@@ -1,8 +1,11 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
+export PYBUILD_NAME=wazo-sysconfd
+export PYBUILD_DISABLE=test
+
 %:
-	dh $@ --with python2,systemd
+	dh $@ --with python2,systemd --buildsystem=pybuild
 
 override_dh_installinit:
 	dh_installinit --noscripts
