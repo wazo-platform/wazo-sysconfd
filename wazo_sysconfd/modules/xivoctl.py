@@ -8,9 +8,9 @@ import subprocess
 from xivo import http_json_server
 from xivo.http_json_server import HttpReqError
 from xivo.http_json_server import CMD_RW
-from wazo_sysconf.modules.services import services
+from wazo_sysconfd.modules.services import services
 
-logger = logging.getLogger('wazo_sysconf.modules.xivoctl')
+logger = logging.getLogger('wazo_sysconfd.modules.xivoctl')
 
 
 def xivoctl(args, options):

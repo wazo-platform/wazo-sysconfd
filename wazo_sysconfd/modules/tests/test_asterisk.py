@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from mock import Mock, call, patch
 from xivo.http_json_server import HttpReqError
-from wazo_sysconf.modules.asterisk import (
+from wazo_sysconfd.modules.asterisk import (
     Asterisk,
     _remove_directory,
     _is_valid_path_component,

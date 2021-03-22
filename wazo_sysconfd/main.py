@@ -12,7 +12,7 @@ from xivo import http_json_server
 from xivo.http_json_server import CMD_R
 from xivo.xivo_logging import setup_logging, get_log_level_by_name
 
-from wazo_sysconf.modules import *
+from wazo_sysconfd.modules import *
 
 LOG_FILE_NAME = "/var/log/wazo-sysconfd.log"
 

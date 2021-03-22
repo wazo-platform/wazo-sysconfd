@@ -7,7 +7,7 @@ import unittest
 from mock import Mock, sentinel
 from xivo_bus import Publisher
 from xivo_bus.resources.agent.event import EditAgentEvent
-from wazo_sysconf.request_handlers.agentd import (
+from wazo_sysconfd.request_handlers.agentd import (
     AgentdCommandFactory,
     AgentdCommandExecutor,
 )

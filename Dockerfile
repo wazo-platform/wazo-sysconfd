@@ -1,5 +1,5 @@
 FROM python:2.7-slim-buster AS compile-image
-MAINTAINER Wazo Maintainers <dev@wazo.community>
+LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
 RUN apt-get -qq update && apt-get -qq -y install python-virtualenv
 RUN virtualenv /opt/venv
@@ -11,7 +11,7 @@ WORKDIR /usr/local/src/wazo-sysconfd
 RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-sysconfd/
-COPY wazo_sysconf /usr/local/src/wazo-sysconfd/wazo_sysconf
+COPY wazo_sysconfd /usr/local/src/wazo-sysconfd/wazo_sysconfd
 COPY bin/wazo-sysconfd /usr/local/src/wazo-sysconfd/bin/
 RUN python setup.py install
 
