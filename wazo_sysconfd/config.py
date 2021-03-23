@@ -16,6 +16,9 @@ _DEFAULT_CONFIG = {
     'custom_templates_path': '/etc/xivo/sysconfd/custom-templates',
     'backup_path': '/var/backups/wazo-sysconfd',
     'log_file': '/var/log/wazo-sysconfd.log',
+    'log_level': 'info',
+    'listen_addr': '127.0.0.1',
+    'listen_port': 8668,
     'resolvconf': {
         'hostname_file': '/etc/hostname',
         'hosts_file': '/etc/hosts',
@@ -58,7 +61,6 @@ def argv_parse_check():
     parser.add_argument('-l',
                         '--log-level',
                         type=get_log_level_by_name,
-                        default='info',
                         help="Emit traces with LOGLEVEL details, must be one of:\n"
                              "critical, error, warning, info, debug")
     parser.add_argument('-c',
