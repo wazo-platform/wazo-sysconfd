@@ -2,13 +2,12 @@
 # Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import argparse
 import logging
 import os
 
 from xivo import http_json_server
 from xivo.http_json_server import CMD_R
-from xivo.xivo_logging import setup_logging, get_log_level_by_name
+from xivo.xivo_logging import setup_logging
 
 from wazo_sysconfd.modules import *
 
@@ -16,29 +15,6 @@ from .config import load_config
 
 
 log = logging.getLogger('wazo-sysconfd')
-
-
-def argv_parse_check():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l',
-                        '--loglevel',
-                        type=get_log_level_by_name,
-                        default='info',
-                        help="Emit traces with LOGLEVEL details, must be one of:\n"
-                             "critical, error, warning, info, debug")
-    parser.add_argument('-c',
-                        '--config-file',
-                        default="/etc/wazo-sysconfd/config.yml",
-                        help="Use configuration file <config-file> instead of %(default)s")
-    parser.add_argument('--listen-addr',
-                        default='127.0.0.1',
-                        help="Listen on address <listen_addr> instead of %(default)s")
-    parser.add_argument('--listen-port',
-                        type=int,
-                        default=8668,
-                        help="Listen on port <listen_port> instead of %(default)s")
-
-    return parser.parse_args()
 
 
 def status_check(args, options):
