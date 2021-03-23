@@ -56,7 +56,7 @@ _DEFAULT_CONFIG = {
 def argv_parse_check():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l',
-                        '--loglevel',
+                        '--log-level',
                         type=get_log_level_by_name,
                         default='info',
                         help="Emit traces with LOGLEVEL details, must be one of:\n"

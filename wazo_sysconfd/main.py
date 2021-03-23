@@ -27,7 +27,7 @@ def main():
     options = argv_parse_check()
 
     configuration = load_config()
-    setup_logging(configuration['log_file'], log_level=options.loglevel)
+    setup_logging(configuration['log_file'], log_level=options.log_level)
 
     options.configuration = configuration
 
