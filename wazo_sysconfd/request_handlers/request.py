@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -202,14 +202,14 @@ class RequestHandlersProxy(object):
     def safe_init(self, options):
         # read config from main configuration file
         config = options.configuration
-        synchronous = config.getboolean('request_handlers', 'synchronous')
-        username = config.get('bus', 'username')
-        password = config.get('bus', 'password')
-        host = config.get('bus', 'host')
-        port = config.getint('bus', 'port')
-        exchange_name = config.get('bus', 'exchange_name')
-        exchange_type = config.get('bus', 'exchange_type')
-        exchange_durable = config.getboolean('bus', 'exchange_durable')
+        synchronous = config.get('request_handlers', {}).get('synchronous')
+        username = config.get('bus', {}).get('username')
+        password = config.get('bus', {}).get('password')
+        host = config.get('bus', {}).get('host')
+        port = config.get('bus', {}).get('port')
+        exchange_name = config.get('bus', {}).get('exchange_name')
+        exchange_type = config.get('bus', {}).get('exchange_type')
+        exchange_durable = config.get('bus', {}).get('exchange_durable')
 
         # instantiate bus publisher
         # XXX should fetch the uuid from the config
