@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -20,12 +20,12 @@ class CommonConf(object):
         http_json_server.register(self.apply, CMD_R, name='commonconf_apply')
 
     def safe_init(self, options):
-        self.file = options.configuration.get('commonconf', 'commonconf_file')
-        self.generate_cmd = options.configuration.get('commonconf', 'commonconf_generate_cmd')
-        self.update_cmd = options.configuration.get('commonconf', 'commonconf_update_cmd')
-        self.monit = options.configuration.get('commonconf', 'commonconf_monit')
-        self.monit_checks_dir = options.configuration.get('monit', 'monit_checks_dir')
-        self.monit_conf_dir = options.configuration.get('monit', 'monit_conf_dir')
+        self.file = options.configuration.get('commonconf', {}).get('commonconf_file')
+        self.generate_cmd = options.configuration.get('commonconf', {}).get('commonconf_generate_cmd')
+        self.update_cmd = options.configuration.get('commonconf', {}).get('commonconf_update_cmd')
+        self.monit = options.configuration.get('commonconf', {}).get('commonconf_monit')
+        self.monit_checks_dir = options.configuration.get('monit', {}).get('monit_checks_dir')
+        self.monit_conf_dir = options.configuration.get('monit', {}).get('monit_conf_dir')
 
     def generate(self, args, options):
         try:
