@@ -8,7 +8,7 @@ from setuptools import find_packages
 setup(
     name='wazo_sysconfd',
     version='1.2',
-    description='XIVO sysconf daemon',
+    description='Wazo sysconf daemon',
     author='Wazo Authors',
     author_email='dev.wazo@gmail.com',
     url='http://wazo.community',
