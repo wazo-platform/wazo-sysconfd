@@ -14,7 +14,6 @@ from wazo_sysconfd.modules import *
 
 from .config import load_config
 
-LOG_FILE_NAME = "/var/log/wazo-sysconfd.log"
 
 log = logging.getLogger('wazo-sysconfd')
 
@@ -51,9 +50,10 @@ def main():
     http_json_server.register(status_check, CMD_R, name='status-check')
     options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, log_level=options.loglevel)
+    configuration = load_config()
+    setup_logging(configuration['log_file'], log_level=options.loglevel)
 
-    options.configuration = load_config()
+    options.configuration = configuration
 
     http_json_server.init(options)
 

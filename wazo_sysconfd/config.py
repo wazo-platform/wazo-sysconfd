@@ -12,6 +12,7 @@ _DEFAULT_CONFIG = {
     'templates_path': '/usr/share/wazo-sysconfd/templates',
     'custom_templates_path': '/etc/xivo/sysconfd/custom-templates',
     'backup_path': '/var/backups/wazo-sysconfd',
+    'log_file': '/var/log/wazo-sysconfd.log',
     'resolvconf': {
         'hostname_file': '/etc/hostname',
         'hosts_file': '/etc/hosts',
