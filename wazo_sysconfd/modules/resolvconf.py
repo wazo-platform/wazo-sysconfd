@@ -114,7 +114,7 @@ def Hosts(args, options):
             subprocess.call(['hostname', '-F', Rcc['hostname_file']])
 
             return True
-        except Exception, e:
+        except Exception as e:
             if hostnamebakfile:
                 copy2(hostnamebakfile, Rcc['hostname_file'])
             if hostsbakfile:
@@ -207,7 +207,7 @@ def ResolvConf(args, options):
         try:
             resolvconfbakfile = _write_config_file('resolvconf', _resolv_conf_variables(args))
             return True
-        except Exception, e:
+        except Exception as e:
             if resolvconfbakfile:
                 copy2(resolvconfbakfile, Rcc['resolvconf_file'])
             raise e.__class__(str(e))
