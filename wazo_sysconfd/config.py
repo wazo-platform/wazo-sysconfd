@@ -1,7 +1,13 @@
 # Copyright 2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from xivo.chain_map import ChainMap
+from xivo.config_helper import read_config_file_hierarchy
+
+
 _DEFAULT_CONFIG = {
+    'config_file': '/etc/wazo-sysconfd/config.yml',
+    'extra_config_files': '/etc/wazo-sysconfd/conf.d/',
     'xivo_config_path': '/etc/xivo',
     'templates_path': '/usr/share/wazo-sysconfd/templates',
     'custom_templates_path': '/etc/xivo/sysconfd/custom-templates',
@@ -41,3 +47,8 @@ _DEFAULT_CONFIG = {
         'exchange_durable': True,
     },
 }
+
+
+def load_config():
+    file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
+    return ChainMap(file_config, _DEFAULT_CONFIG)
