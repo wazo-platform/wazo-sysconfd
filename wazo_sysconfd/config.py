@@ -114,8 +114,11 @@ def load_config(argv):
 
 
 def prepare_http_server_options(configuration):
-    configuration['configuration'] = configuration
-    configuration['listen_addr'] = configuration['rest_api']['listen']
-    configuration['listen_port'] = configuration['rest_api']['port']
-    HTTPServerOptions = namedtuple('HTTPServerOptions', configuration)
-    return HTTPServerOptions(**configuration)
+    HTTPServerOptions = namedtuple(
+        'HTTPServerOptions', ['listen_addr', 'listen_port', 'configuration']
+    )
+    return HTTPServerOptions(
+        configuration['rest_api']['listen'],
+        configuration['rest_api']['port'],
+        configuration,
+    )
