@@ -105,7 +105,8 @@ def load_config(argv):
     cli_config = _parse_cli_args(argv)
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
     intermediate_config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
-    return _get_reinterpreted_raw_values(intermediate_config)
+    reinterpreted_config = _get_reinterpreted_raw_values(intermediate_config)
+    return ChainMap(reinterpreted_config, intermediate_config)
 
 
 def prepare_http_server_options(configuration):
