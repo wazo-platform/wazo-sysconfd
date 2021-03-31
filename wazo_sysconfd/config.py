@@ -18,8 +18,10 @@ _DEFAULT_CONFIG = {
     'backup_path': '/var/backups/wazo-sysconfd',
     'log_file': '/var/log/wazo-sysconfd.log',
     'log_level': 'info',
-    'listen_addr': '127.0.0.1',
-    'listen_port': 8668,
+    'rest_api': {
+        'listen': '127.0.0.1',
+        'port': 8668,
+    },
     'resolvconf': {
         'hostname_file': '/etc/hostname',
         'hosts_file': '/etc/hosts',
@@ -108,5 +110,7 @@ def load_config(argv):
 
 def prepare_http_options(configuration):
     configuration['configuration'] = configuration
+    configuration['listen_addr'] = configuration['rest_api']['listen']
+    configuration['listen_port'] = configuration['rest_api']['port']
     HTTPOptions = namedtuple('HTTPOptions', configuration)
     return HTTPOptions(**configuration)
