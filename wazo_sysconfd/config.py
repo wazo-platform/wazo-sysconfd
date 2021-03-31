@@ -95,9 +95,13 @@ def _parse_cli_args(argv):
     if parsed_args.config_file:
         result['config_file'] = parsed_args.config_file
     if parsed_args.listen_addr:
-        result['listen_addr'] = parsed_args.listen_addr
+        if not result.get('rest_api'):
+            result['rest_api'] = {}
+        result['rest_api']['listen'] = parsed_args.listen_addr
     if parsed_args.listen_port:
-        result['listen_port'] = parsed_args.listen_port
+        if not result.get('rest_api'):
+            result['rest_api'] = {}
+        result['rest_api']['port'] = parsed_args.listen_port
     return result
 
 
