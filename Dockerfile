@@ -12,7 +12,6 @@ RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-sysconfd/
 COPY wazo_sysconfd /usr/local/src/wazo-sysconfd/wazo_sysconfd
-COPY bin/wazo-sysconfd /usr/local/src/wazo-sysconfd/bin/
 RUN python setup.py install
 
 FROM python:2.7-slim-buster AS build-image
