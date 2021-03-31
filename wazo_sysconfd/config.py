@@ -3,6 +3,7 @@
 
 import argparse
 
+from collections import namedtuple
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.xivo_logging import get_log_level_by_name
@@ -56,7 +57,17 @@ _DEFAULT_CONFIG = {
 }
 
 
-def argv_parse_check():
+def _get_reinterpreted_raw_values(config):
+    result = {}
+
+    log_level = config.get('log_level')
+    if log_level:
+        result['log_level'] = get_log_level_by_name(log_level)
+
+    return result
+
+
+def _parse_cli_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('-l',
                         '--log-level',
@@ -75,9 +86,27 @@ def argv_parse_check():
                         default=8668,
                         help="Listen on port <listen_port> instead of %(default)s")
 
-    return parser.parse_args()
+    parsed_args = parser.parse_args(argv)
+    result = {}
+    if parsed_args.log_level:
+        result['log_level'] = parsed_args.log_level
+    if parsed_args.config_file:
+        result['config_file'] = parsed_args.config_file
+    if parsed_args.listen_addr:
+        result['listen_addr'] = parsed_args.listen_addr
+    if parsed_args.listen_port:
+        result['listen_port'] = parsed_args.listen_port
+    return result
 
 
-def load_config():
-    file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
-    return ChainMap(file_config, _DEFAULT_CONFIG)
+def load_config(argv):
+    cli_config = _parse_cli_args(argv)
+    file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
+    intermediate_config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
+    return _get_reinterpreted_raw_values(intermediate_config)
+
+
+def prepare_http_options(configuration):
+    configuration['configuration'] = configuration
+    HTTPOptions = namedtuple('HTTPOptions', configuration)
+    return HTTPOptions(**configuration)

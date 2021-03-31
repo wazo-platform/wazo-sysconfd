@@ -4,6 +4,7 @@
 
 import logging
 import os
+import sys
 
 from xivo import http_json_server
 from xivo.http_json_server import CMD_R
@@ -11,7 +12,7 @@ from xivo.xivo_logging import setup_logging
 
 from wazo_sysconfd.modules import *
 
-from .config import load_config
+from .config import load_config, prepare_http_options
 
 
 log = logging.getLogger('wazo-sysconfd')
@@ -21,21 +22,20 @@ def status_check(args, options):
     return {'status': 'up'}
 
 
-def main():
+def main(argv=None):
     "entry point"
+    argv = argv or sys.argv[1:]
     http_json_server.register(status_check, CMD_R, name='status-check')
-    options = argv_parse_check()
 
-    configuration = load_config()
-    setup_logging(configuration['log_file'], log_level=options.log_level)
+    configuration = load_config(argv)
+    setup_logging(configuration['log_file'], log_level=configuration['log_level'])
 
-    options.configuration = configuration
-
-    http_json_server.init(options)
+    http_server_options = prepare_http_options(configuration)
+    http_json_server.init(http_server_options)
 
     try:
         os.umask(022)
-        http_json_server.run(options)
+        http_json_server.run(http_server_options)
     except SystemExit:
         raise
     except Exception:
