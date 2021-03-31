@@ -12,7 +12,7 @@ from xivo.xivo_logging import setup_logging
 
 from wazo_sysconfd.modules import *
 
-from .config import load_config, prepare_http_options
+from .config import load_config, prepare_http_server_options
 
 
 log = logging.getLogger('wazo-sysconfd')
@@ -30,7 +30,7 @@ def main(argv=None):
     configuration = load_config(argv)
     setup_logging(configuration['log_file'], log_level=configuration['log_level'])
 
-    http_server_options = prepare_http_options(configuration)
+    http_server_options = prepare_http_server_options(configuration)
     http_json_server.init(http_server_options)
 
     try:

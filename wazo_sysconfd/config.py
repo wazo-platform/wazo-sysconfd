@@ -108,9 +108,9 @@ def load_config(argv):
     return _get_reinterpreted_raw_values(intermediate_config)
 
 
-def prepare_http_options(configuration):
+def prepare_http_server_options(configuration):
     configuration['configuration'] = configuration
     configuration['listen_addr'] = configuration['rest_api']['listen']
     configuration['listen_port'] = configuration['rest_api']['port']
-    HTTPOptions = namedtuple('HTTPOptions', configuration)
-    return HTTPOptions(**configuration)
+    HTTPServerOptions = namedtuple('HTTPServerOptions', configuration)
+    return HTTPServerOptions(**configuration)
