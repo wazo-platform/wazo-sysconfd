@@ -81,26 +81,20 @@ def _parse_cli_args(argv):
                         default="/etc/wazo-sysconfd/config.yml",
                         help="Use configuration file <config-file> instead of %(default)s")
     parser.add_argument('--listen-addr',
-                        default='127.0.0.1',
-                        help="Listen on address <listen_addr> instead of %(default)s")
+                        help="Listen on address <listen_addr> instead of 127.0.0.1")
     parser.add_argument('--listen-port',
                         type=int,
-                        default=8668,
-                        help="Listen on port <listen_port> instead of %(default)s")
+                        help="Listen on port <listen_port> instead of 8668")
 
     parsed_args = parser.parse_args(argv)
-    result = {}
+    result = {'rest_api': {}}
     if parsed_args.log_level:
         result['log_level'] = parsed_args.log_level
     if parsed_args.config_file:
         result['config_file'] = parsed_args.config_file
     if parsed_args.listen_addr:
-        if not result.get('rest_api'):
-            result['rest_api'] = {}
         result['rest_api']['listen'] = parsed_args.listen_addr
     if parsed_args.listen_port:
-        if not result.get('rest_api'):
-            result['rest_api'] = {}
         result['rest_api']['port'] = parsed_args.listen_port
     return result
 
