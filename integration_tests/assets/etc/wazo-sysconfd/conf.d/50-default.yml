@@ -1,0 +1,7 @@
+resolvconf:
+  hostname_file: /etc/local/hostname
+  hosts_file: /etc/local/hosts
+  resolvconf_file: /etc/local/resolv.conf
+
+bus:
+  host: rabbitmq
