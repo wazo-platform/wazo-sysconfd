@@ -1,77 +1,41 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import argparse
 import logging
 import os
-from ConfigParser import ConfigParser
-from StringIO import StringIO
+import sys
 
 from xivo import http_json_server
 from xivo.http_json_server import CMD_R
-from xivo.xivo_logging import setup_logging, get_log_level_by_name
+from xivo.xivo_logging import setup_logging
 
 from wazo_sysconfd.modules import *
 
-LOG_FILE_NAME = "/var/log/wazo-sysconfd.log"
+from .config import load_config, prepare_http_server_options
+
 
 log = logging.getLogger('wazo-sysconfd')
-
-SysconfDefaultsConf = StringIO("""
-[general]
-xivo_config_path        = /etc/xivo
-templates_path          = /usr/share/wazo-sysconfd/templates
-custom_templates_path   = /etc/xivo/sysconfd/custom-templates
-backup_path             = /var/backups/wazo-sysconfd
-""")
-
-
-def argv_parse_check():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l',
-                        '--loglevel',
-                        type=get_log_level_by_name,
-                        default='info',
-                        help="Emit traces with LOGLEVEL details, must be one of:\n"
-                             "critical, error, warning, info, debug")
-    parser.add_argument('-c',
-                        '--conffile',
-                        default="/etc/xivo/sysconfd.conf",
-                        help="Use configuration file <conffile> instead of %(default)s")
-    parser.add_argument('--listen-addr',
-                        default='127.0.0.1',
-                        help="Listen on address <listen_addr> instead of %(default)s")
-    parser.add_argument('--listen-port',
-                        type=int,
-                        default=8668,
-                        help="Listen on port <listen_port> instead of %(default)s")
-
-    return parser.parse_args()
 
 
 def status_check(args, options):
     return {'status': 'up'}
 
 
-def main():
+def main(argv=None):
     "entry point"
+    argv = argv or sys.argv[1:]
     http_json_server.register(status_check, CMD_R, name='status-check')
-    options = argv_parse_check()
 
-    setup_logging(LOG_FILE_NAME, log_level=options.loglevel)
+    configuration = load_config(argv)
+    setup_logging(configuration['log_file'], log_level=configuration['log_level'])
 
-    cp = ConfigParser()
-    cp.readfp(SysconfDefaultsConf)
-    cp.readfp(open(options.conffile))
-
-    options.configuration = cp
-
-    http_json_server.init(options)
+    http_server_options = prepare_http_server_options(configuration)
+    http_json_server.init(http_server_options)
 
     try:
         os.umask(022)
-        http_json_server.run(options)
+        http_json_server.run(http_server_options)
     except SystemExit:
         raise
     except Exception:

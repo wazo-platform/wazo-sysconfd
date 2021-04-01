@@ -1,3 +1,9 @@
+wazo-sysconfd (21.05~20210331.112010) wazo-dev-buster; urgency=low
+
+  * Migrate configuration files to YAML format
+
+ -- Wazo Maintainers <dev+pkg@wazo.community>  Wed, 31 Mar 2021 11:20:10 -0400
+
 wazo-sysconfd (21.04~20210319.061823) wazo-dev-buster; urgency=low
 
   * Rename xivo-sysconfd to wazo-sysconfd

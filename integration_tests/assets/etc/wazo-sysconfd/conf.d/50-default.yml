@@ -1,0 +1,9 @@
+rest_api:
+  listen: 0.0.0.0
+resolvconf:
+  hostname_file: /etc/local/hostname
+  hosts_file: /etc/local/hosts
+  resolvconf_file: /etc/local/resolv.conf
+
+bus:
+  host: rabbitmq

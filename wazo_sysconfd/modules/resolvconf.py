@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -114,7 +114,7 @@ def Hosts(args, options):
             subprocess.call(['hostname', '-F', Rcc['hostname_file']])
 
             return True
-        except Exception, e:
+        except Exception as e:
             if hostnamebakfile:
                 copy2(hostnamebakfile, Rcc['hostname_file'])
             if hostsbakfile:
@@ -207,7 +207,7 @@ def ResolvConf(args, options):
         try:
             resolvconfbakfile = _write_config_file('resolvconf', _resolv_conf_variables(args))
             return True
-        except Exception, e:
+        except Exception as e:
             if resolvconfbakfile:
                 copy2(resolvconfbakfile, Rcc['resolvconf_file'])
             raise e.__class__(str(e))
@@ -221,14 +221,14 @@ def safe_init(options):
 
     cfg = options.configuration
 
-    tpl_path = cfg.get('general', 'templates_path')
-    custom_tpl_path = cfg.get('general', 'custom_templates_path')
-    backup_path = cfg.get('general', 'backup_path')
+    tpl_path = cfg.get('templates_path')
+    custom_tpl_path = cfg.get('custom_templates_path')
+    backup_path = cfg.get('backup_path')
 
-    if cfg.has_section('resolvconf'):
+    if cfg.get('resolvconf'):
         for x in Rcc.iterkeys():
-            if cfg.has_option('resolvconf', x):
-                Rcc[x] = cfg.get('resolvconf', x)
+            if cfg['resolvconf'].get(x):
+                Rcc[x] = cfg['resolvconf'].get(x)
 
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 

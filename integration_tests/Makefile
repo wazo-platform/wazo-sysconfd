@@ -8,6 +8,6 @@ egg-info:
 	cd .. && python3 setup.py egg_info
 
 test:
-	pytest -x
+	pytest
 
 .PHONY: test-setup test test-image

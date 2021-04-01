@@ -8,10 +8,14 @@ from setuptools import find_packages
 setup(
     name='wazo_sysconfd',
     version='1.2',
-    description='XIVO sysconf daemon',
+    description='Wazo sysconf daemon',
     author='Wazo Authors',
     author_email='dev.wazo@gmail.com',
     url='http://wazo.community',
     packages=find_packages(),
-    scripts=['bin/wazo-sysconfd']
+    entry_points={
+        'console_scripts': [
+            'wazo-sysconfd=wazo_sysconfd.main:main',
+        ]
+    },
 )

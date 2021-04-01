@@ -16,7 +16,7 @@ def dhcpd_update(args, options):
     """
     try:
         returncode = subprocess.call(DHCPD_UDPATE_COMMAND, close_fds=True)
-    except OSError, e:
+    except OSError as e:
         raise HttpReqError(500, "error while executing dhcpd-update command: %s" % e)
     else:
         if returncode:
