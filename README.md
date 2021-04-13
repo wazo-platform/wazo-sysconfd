@@ -9,3 +9,4 @@ wazo-sysconfd is a daemon for configuring system parameters on a Wazo server
 ```shell
 tox --recreate -e py27
 ```
+
