@@ -15,11 +15,11 @@ class IntegrationTest(AssetLaunchingTestCase):
 
     def setUp(self):
         bus_port = self.service_port(5672, 'rabbitmq')
-        self.bus = BusClient.from_connection_fields(host='localhost', port=bus_port)
+        self.bus = BusClient.from_connection_fields(host='127.0.0.1', port=bus_port)
 
         sysconfd_port = self.service_port(8668, 'sysconfd')
         self.sysconfd = SysconfdClient(
-            'localhost',
+            '127.0.0.1',
             sysconfd_port,
             prefix='',
             https=False,
