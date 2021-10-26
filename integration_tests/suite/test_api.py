@@ -61,6 +61,7 @@ class TestSysconfd(IntegrationTest):
         autoprov_filename = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
         self._create_file(autoprov_filename, owner='root')
         agent_bus_events = self.bus.accumulator('config.agent.edited')
+        asterisk_reload_bus_events = self.bus.accumulator('sysconfd.asterisk.reload.#')
         command_bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
             'ipbx': [asterisk_command],
@@ -78,9 +79,17 @@ class TestSysconfd(IntegrationTest):
                 and message['data']['id'] == agent_id
             )
 
+        def asterisk_reload_events_are_sent():
+            assert [
+                message['data']['status']
+                for message in asterisk_reload_bus_events.accumulate()
+                if message['name'] == 'asterisk_reload_progress'
+            ] == ['starting', 'completed']
+
         expected_command = ['asterisk', '-rx', asterisk_command]
         assert self._command_was_called(command_bus_events, expected_command)
         until.true(agent_event_was_sent, timeout=5)
+        until.assert_(asterisk_reload_events_are_sent, timeout=5)
         assert self._file_owner(autoprov_filename) == 'asterisk'
 
     def test_hosts(self):
