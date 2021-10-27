@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -220,9 +220,10 @@ class TestRequestProcessor(unittest.TestCase):
 class TestRequestHandlers(unittest.TestCase):
 
     def setUp(self):
+        self.bus_publisher = Mock()
         self.request_factory = Mock()
         self.request_queue = Mock()
-        self.request_handlers = RequestHandlers(self.request_factory, self.request_queue)
+        self.request_handlers = RequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
 
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)
@@ -239,8 +240,9 @@ class TestRequestHandlers(unittest.TestCase):
 class TestSyncRequestObserver(unittest.TestCase):
 
     def test_without_timeout(self):
+        request = Mock()
         observer = SyncRequestObserver()
-        observer.on_request_executed()
+        observer.on_request_executed(request)
         self.assertTrue(observer.wait())
 
     def test_with_timeout(self):
@@ -251,13 +253,16 @@ class TestSyncRequestObserver(unittest.TestCase):
 class TestSyncRequestHandlers(unittest.TestCase):
 
     def setUp(self):
+        self.bus_publisher = Mock()
         self.request_factory = Mock()
+        self.request_factory.new_request.return_value = Mock(observers=[])
         self.request_queue = Mock()
         self.request_queue.put.side_effect = self._request_queue_put
-        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue)
+        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
 
     def _request_queue_put(self, request):
-        request.observer.on_request_executed()
+        for observer in request.observers:
+            observer.on_request_executed(request)
 
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)

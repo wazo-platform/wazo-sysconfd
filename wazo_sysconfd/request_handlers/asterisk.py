@@ -60,7 +60,7 @@ class AsteriskCommandExecutor(object):
 
     def execute(self, command, data):
         command_string = data
-        request_uuids = list(request.uuid for request in command.requests)
+        request_uuids = [request.uuid for request in command.requests]
         task_uuid = str(uuid.uuid4())
         self._bus_publisher.publish(
             AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=command_string, request_uuids=request_uuids)

@@ -62,11 +62,23 @@ class TestSysconfd(IntegrationTest):
         self._create_file(autoprov_filename, owner='root')
         agent_bus_events = self.bus.accumulator('config.agent.edited')
         asterisk_reload_bus_events = self.bus.accumulator('sysconfd.asterisk.reload.#')
+        request_handlers_bus_events = self.bus.accumulator(
+            'sysconfd.request_handlers.#'
+        )
         command_bus_events = self.bus.accumulator('sysconfd.sentinel')
+        request_context = [
+            {
+                'resource_type': 'meeting',
+                'resource_body': {
+                    'uuid': '7c104958-bf9a-4681-84ed-44af84a78627',
+                },
+            }
+        ]
         body = {
             'ipbx': [asterisk_command],
             'agentbus': [f'agent.edit.{agent_id}'],
             'chown_autoprov_config': ['something'],
+            'context': request_context,
         }
 
         response = self.sysconfd.exec_request_handlers(body)
@@ -91,14 +103,23 @@ class TestSysconfd(IntegrationTest):
                 if message['name'] == 'asterisk_reload_progress'
             )
 
+        def request_handlers_event_was_sent(request_uuid):
+            assert any(
+                message['data']['uuid'] == request_uuid
+                for message in request_handlers_bus_events.accumulate()
+                if message['name'] == 'request_handlers_progress'
+            )
+
         assert 'request_uuid' in response
+
         expected_command = ['asterisk', '-rx', asterisk_command]
         assert self._command_was_called(command_bus_events, expected_command)
+        assert self._file_owner(autoprov_filename) == 'asterisk'
+
         until.true(agent_event_was_sent, timeout=5)
         until.assert_(
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
-        assert self._file_owner(autoprov_filename) == 'asterisk'
 
     def test_hosts(self):
         self._given_file_absent('/etc/local/hostname')
