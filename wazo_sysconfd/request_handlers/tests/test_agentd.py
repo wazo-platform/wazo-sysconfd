@@ -21,22 +21,26 @@ class TestAgentdCommandFactory(unittest.TestCase):
 
     def test_new_command(self):
         value = 'agent.edit.44'
+        request = Mock()
 
-        command = self.factory.new_command(value)
+        command = self.factory.new_command(value, request)
 
         self.assertEqual(command.value, value)
         self.assertIs(command.executor, self.executor)
         self.assertEqual(command.data, EditAgentEvent(44))
+        self.assertEqual(command.requests, {request})
 
     def test_new_command_invalid_format(self):
         value = 'foobar'
+        request = Mock()
 
-        self.assertRaises(ValueError, self.factory.new_command, value)
+        self.assertRaises(ValueError, self.factory.new_command, value, request)
 
     def test_new_command_unsupported_action(self):
         value = 'foo.bar.2'
+        request = Mock()
 
-        self.assertRaises(ValueError, self.factory.new_command, value)
+        self.assertRaises(ValueError, self.factory.new_command, value, request)
 
 
 class TestAgentdCommandExecutor(unittest.TestCase):
@@ -46,6 +50,8 @@ class TestAgentdCommandExecutor(unittest.TestCase):
         self.executor = AgentdCommandExecutor(self.bus_publisher)
 
     def test_execute(self):
-        self.executor.execute(sentinel.event)
+        command = Mock()
+
+        self.executor.execute(command, sentinel.event)
 
         self.bus_publisher.publish.assert_called_once_with(sentinel.event)

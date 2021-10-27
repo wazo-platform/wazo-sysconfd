@@ -23,10 +23,10 @@ class AgentdCommandFactory(object):
     def __init__(self, agent_command_executor):
         self._executor = agent_command_executor
 
-    def new_command(self, value):
+    def new_command(self, value, request):
         action, id_ = self._extract_action_and_id(value)
         event = self._new_event(action, id_)
-        return Command(value, self._executor, event)
+        return Command(value, request, self._executor, event)
 
     def _extract_action_and_id(self, value):
         match = self._REGEX.match(value)
@@ -48,5 +48,5 @@ class AgentdCommandExecutor(object):
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
 
-    def execute(self, event):
+    def execute(self, command, event):
         self._bus_publisher.publish(event)

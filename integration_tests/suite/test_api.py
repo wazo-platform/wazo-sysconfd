@@ -69,7 +69,7 @@ class TestSysconfd(IntegrationTest):
             'chown_autoprov_config': ['something'],
         }
 
-        self.sysconfd.exec_request_handlers(body)
+        response = self.sysconfd.exec_request_handlers(body)
 
         def agent_event_was_sent():
             return any(
@@ -79,17 +79,25 @@ class TestSysconfd(IntegrationTest):
                 and message['data']['id'] == agent_id
             )
 
-        def asterisk_reload_events_are_sent():
+        def asterisk_reload_events_are_sent(request_uuid):
             assert [
                 message['data']['status']
                 for message in asterisk_reload_bus_events.accumulate()
                 if message['name'] == 'asterisk_reload_progress'
             ] == ['starting', 'completed']
+            assert all(
+                message['data']['request_uuids'] == [request_uuid]
+                for message in asterisk_reload_bus_events.accumulate()
+                if message['name'] == 'asterisk_reload_progress'
+            )
 
+        assert 'request_uuid' in response
         expected_command = ['asterisk', '-rx', asterisk_command]
         assert self._command_was_called(command_bus_events, expected_command)
         until.true(agent_event_was_sent, timeout=5)
-        until.assert_(asterisk_reload_events_are_sent, timeout=5)
+        until.assert_(
+            asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
+        )
         assert self._file_owner(autoprov_filename) == 'asterisk'
 
     def test_hosts(self):

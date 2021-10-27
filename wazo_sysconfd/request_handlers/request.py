@@ -5,6 +5,7 @@
 import collections
 import logging
 import threading
+import uuid
 
 from kombu import Connection, Exchange, Producer
 from xivo.http_json_server import HttpReqError
@@ -32,6 +33,7 @@ class Request(object):
     def __init__(self, commands):
         self.commands = commands
         self.observer = None
+        self.uuid = str(uuid.uuid4())
 
     def execute(self):
         for command in self.commands:
@@ -51,21 +53,23 @@ class RequestFactory(object):
         self._chown_autoprov_command_factory = chown_autoprov_command_factory
 
     def new_request(self, args):
+        request = Request([])
         commands = []
         # asterisk commands must be executed first
-        self._append_commands('ipbx', self._asterisk_command_factory, args, commands)
-        self._append_commands('agentbus', self._agentd_command_factory, args, commands)
-        self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, commands)
-        return Request(commands)
+        self._append_commands('ipbx', self._asterisk_command_factory, args, request, commands)
+        self._append_commands('agentbus', self._agentd_command_factory, args, request, commands)
+        self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, request, commands)
+        request.commands = commands
+        return request
 
-    def _append_commands(self, key, factory, args, commands):
+    def _append_commands(self, key, factory, args, request, commands):
         values = args.get(key)
         if not values:
             return
 
         for value in values:
             try:
-                command = factory.new_command(value)
+                command = factory.new_command(value, request)
             except ValueError as e:
                 logger.warning('Invalid "%s" command %r: %s', key, value, e)
             except Exception:
@@ -78,23 +82,28 @@ class DuplicateRequestOptimizer(object):
 
     def __init__(self, executor):
         self._executor = executor
-        self._cache = set()
+        self._cache = {}
+        self._lock = threading.RLock()
 
     def on_request_put(self, request):
         for command in request.commands:
             if command.executor != self._executor:
                 continue
-            if command.value in self._cache:
-                command.optimized = True
-            else:
-                self._cache.add(command.value)
+            with self._lock:
+                if command.value in self._cache:
+                    command.optimized = True
+                    actual_command = self._cache[command.value]
+                    actual_command.requests.add(request)
+                else:
+                    self._cache[command.value] = command
 
     def on_request_get(self, request):
         for command in request.commands:
             if command.executor != self._executor:
                 continue
-            if not command.optimized:
-                self._cache.remove(command.value)
+            with self._lock:
+                if not command.optimized:
+                    self._cache.pop(command.value, None)
 
 
 class RequestQueue(object):
@@ -148,6 +157,7 @@ class RequestHandlers(object):
             raise HttpReqError(400)
         else:
             self._queue_request(request)
+        return request.uuid
 
     def _queue_request(self, request):
         self._request_queue.put(request)
@@ -250,4 +260,7 @@ class RequestHandlersProxy(object):
         t.start()
 
     def handle_request(self, args, options):
-        return self._request_handlers.handle_request(args, options)
+        request_uuid = self._request_handlers.handle_request(args, options)
+        return {
+            'request_uuid': request_uuid,
+        }
