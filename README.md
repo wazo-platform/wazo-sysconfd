@@ -14,4 +14,5 @@ tox --recreate -e py27
 
 ### Request handlers architecture
 
-[Architecture diagram](https://excalidraw.com/#json=5720016209051648,87-AW9gy4HNCa4M0pwUi6w)
+![Architecture diagram](doc/wazo-sysconfd-request-handlers-architecture.svg)
+[Architecture diagram source](https://excalidraw.com/#json=5720016209051648,87-AW9gy4HNCa4M0pwUi6w)
