@@ -18,7 +18,7 @@ class ChownAutoprovCommandExecutor(object):
 
     _CONFIG_FILE = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
 
-    def execute(self, data):
+    def execute(self, command, data):
         try:
             user = getpwnam('asterisk')
         except KeyError:

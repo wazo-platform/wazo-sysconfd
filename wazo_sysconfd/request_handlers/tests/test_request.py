@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
-from mock import Mock, sentinel
+from mock import ANY, Mock, sentinel
 from xivo.http_json_server import HttpReqError
 
 from wazo_sysconfd.request_handlers.command import Command
@@ -59,7 +59,7 @@ class TestRequestFactory(unittest.TestCase):
 
         request = self.request_factory.new_request(args)
 
-        self.asterisk_command_factory.new_command.assert_called_once_with('foo')
+        self.asterisk_command_factory.new_command.assert_called_once_with('foo', ANY)
         self.assertEqual(request.commands, [self.asterisk_command_factory.new_command.return_value])
 
     def test_new_request_chown_autoprov(self):
@@ -68,7 +68,7 @@ class TestRequestFactory(unittest.TestCase):
         }
 
         request = self.request_factory.new_request(args)
-        self.chown_autoprov_config_command_factory.new_command.assert_called_once_with('foo')
+        self.chown_autoprov_config_command_factory.new_command.assert_called_once_with('foo', ANY)
         self.assertEqual(
             request.commands,
             [self.chown_autoprov_config_command_factory.new_command.return_value],
@@ -81,7 +81,7 @@ class TestRequestFactory(unittest.TestCase):
 
         request = self.request_factory.new_request(args)
 
-        self.agent_command_factory.new_command.assert_called_once_with('foo')
+        self.agent_command_factory.new_command.assert_called_once_with('foo', ANY)
         self.assertEqual(request.commands, [self.agent_command_factory.new_command.return_value])
 
     def test_new_request_invalid_command(self):
@@ -111,21 +111,26 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
         self.optimizer = DuplicateRequestOptimizer(self.executor)
 
     def test_on_request_put_same_commands(self):
-        cmd1 = self._new_command('a')
-        cmd2 = self._new_command('a')
+        request1 = Request([])
+        request2 = Request([])
+        cmd1 = self._new_command('a', request1)
+        cmd2 = self._new_command('a', request2)
+        request1.commands = [cmd1]
+        request2.commands = [cmd2]
 
-        self.optimizer.on_request_put(Request([cmd1]))
+        self.optimizer.on_request_put(request1)
 
         self.assertFalse(cmd1.optimized)
 
-        self.optimizer.on_request_put(Request([cmd2]))
+        self.optimizer.on_request_put(request2)
 
         self.assertFalse(cmd1.optimized)
         self.assertTrue(cmd2.optimized)
+        assert cmd1.requests == {request1, request2}
 
     def test_on_request_put_same_commands_different_executor(self):
         cmd1 = self._new_command('a')
-        cmd2 = self._new_command('a', self.other_executor)
+        cmd2 = self._new_command('a', executor=self.other_executor)
 
         self.optimizer.on_request_put(Request([cmd1, cmd2]))
 
@@ -142,25 +147,37 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
         self.assertFalse(cmd2.optimized)
 
     def test_on_request_put_after_get(self):
-        cmd1 = self._new_command('a')
-        cmd2 = self._new_command('a')
-        cmd3 = self._new_command('a')
+        request1 = Request([])
+        request2 = Request([])
+        request3 = Request([])
+        cmd1 = self._new_command('a', request1)
+        cmd2 = self._new_command('a', request2)
+        cmd3 = self._new_command('a', request3)
+        request1.commands = [cmd1]
+        request2.commands = [cmd2]
+        request3.commands = [cmd3]
 
-        self.optimizer.on_request_put(Request([cmd1]))
-        self.optimizer.on_request_put(Request([cmd2]))
+        self.optimizer.on_request_put(request1)
+        self.optimizer.on_request_put(request2)
 
         self.assertFalse(cmd1.optimized)
         self.assertTrue(cmd2.optimized)
+        assert cmd1.requests == {request1, request2}
 
-        self.optimizer.on_request_get(Request([cmd1]))
-        self.optimizer.on_request_put(Request([cmd3]))
+        self.optimizer.on_request_get(request1)
+        self.optimizer.on_request_put(request3)
 
         self.assertFalse(cmd3.optimized)
+        assert cmd3.requests == {request3}
 
-    def _new_command(self, value, executor=None):
+    def _new_command(self, value, request=None, executor=None):
         if executor is None:
             executor = self.executor
-        return Command(value, executor, value)
+        return Command(value, request, executor, value)
+
+    def _new_request_from_command(self, command):
+        request = Request()
+        return request.commands
 
 
 class TestRequestQueue(unittest.TestCase):
@@ -203,9 +220,10 @@ class TestRequestProcessor(unittest.TestCase):
 class TestRequestHandlers(unittest.TestCase):
 
     def setUp(self):
+        self.bus_publisher = Mock()
         self.request_factory = Mock()
         self.request_queue = Mock()
-        self.request_handlers = RequestHandlers(self.request_factory, self.request_queue)
+        self.request_handlers = RequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
 
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)
@@ -222,8 +240,9 @@ class TestRequestHandlers(unittest.TestCase):
 class TestSyncRequestObserver(unittest.TestCase):
 
     def test_without_timeout(self):
+        request = Mock()
         observer = SyncRequestObserver()
-        observer.on_request_executed()
+        observer.on_request_executed(request)
         self.assertTrue(observer.wait())
 
     def test_with_timeout(self):
@@ -234,13 +253,16 @@ class TestSyncRequestObserver(unittest.TestCase):
 class TestSyncRequestHandlers(unittest.TestCase):
 
     def setUp(self):
+        self.bus_publisher = Mock()
         self.request_factory = Mock()
+        self.request_factory.new_request.return_value = Mock(observers=[])
         self.request_queue = Mock()
         self.request_queue.put.side_effect = self._request_queue_put
-        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue)
+        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
 
     def _request_queue_put(self, request):
-        request.observer.on_request_executed()
+        for observer in request.observers:
+            observer.on_request_executed(request)
 
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)

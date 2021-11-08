@@ -39,9 +39,9 @@ class AsteriskCommandFactory(object):
     def __init__(self, asterisk_command_executor):
         self._executor = asterisk_command_executor
 
-    def new_command(self, value):
+    def new_command(self, value, request):
         self._check_validity(value)
-        return Command(value, self._executor, value)
+        return Command(value, request, self._executor, value)
 
     def _check_validity(self, value):
         if value in self._COMMANDS:
@@ -58,20 +58,22 @@ class AsteriskCommandExecutor(object):
         self._bus_publisher = bus_publisher
         self._null = open(os.devnull)
 
-    def execute(self, data):
+    def execute(self, command, data):
+        command_string = data
+        request_uuids = [request.uuid for request in command.requests]
         task_uuid = str(uuid.uuid4())
         self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=data)
+            AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=command_string, request_uuids=request_uuids)
         )
 
-        if data == 'module reload res_pjsip.so':
+        if command_string == 'module reload res_pjsip.so':
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
             subprocess.call(cmd, stdout=self._null, close_fds=True)
 
-        exit_code = subprocess.call(['asterisk', '-rx', data], stdout=self._null, close_fds=True)
+        exit_code = subprocess.call(['asterisk', '-rx', command_string], stdout=self._null, close_fds=True)
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
 
         self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(uuid=task_uuid, status='completed', command=data)
+            AsteriskReloadProgressEvent(uuid=task_uuid, status='completed', command=command_string, request_uuids=request_uuids)
         )

@@ -13,6 +13,7 @@ services:
     volumes:
       - "../..:/usr/local/src/wazo-sysconfd"
       - "./etc/wazo-sysconfd/conf.d/50-default.yml:/etc/wazo-sysconfd/conf.d/50-default.yml"
+      - "./bin/mock-command:/usr/local/bin/mock-command"
       # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"
       # - "${LOCAL_GIT_REPOS}/xivo-bus/xivo_bus:/opt/venv/lib/python2.7/site-packages/xivo_bus"
 

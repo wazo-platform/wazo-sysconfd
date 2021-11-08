@@ -12,21 +12,22 @@ class TestCommand(unittest.TestCase):
 
     def setUp(self):
         self.value = Mock()
+        self.request = Mock()
         self.executor = Mock()
         self.data = Mock()
-        self.command = Command(self.value, self.executor, self.data)
+        self.command = Command(self.value, self.request, self.executor, self.data)
 
     def test_execute(self):
         self.command.execute()
 
-        self.executor.execute.assert_called_once_with(self.data)
+        self.executor.execute.assert_called_once_with(self.command, self.data)
 
     def test_execute_catch_executor_exception(self):
         self.executor.execute.side_effect = Exception()
 
         self.command.execute()
 
-        self.executor.execute.assert_called_once_with(self.data)
+        self.executor.execute.assert_called_once_with(self.command, self.data)
 
     def test_execute_optimized(self):
         self.command.optimized = True
@@ -44,9 +45,11 @@ class TestSimpleCommandFactory(unittest.TestCase):
 
     def test_new_command(self):
         value = 'foobar'
+        request = Mock()
 
-        command = self.factory.new_command(value)
+        command = self.factory.new_command(value, request)
 
         self.assertEqual(command.value, value)
         self.assertIs(command.executor, self.executor)
         self.assertEqual(command.data, value)
+        self.assertEqual(command.requests, {request})
