@@ -4,8 +4,8 @@
 import os
 
 from wazo_sysconfd_client.client import SysconfdClient
-from xivo_test_helpers.bus import BusClient
-from xivo_test_helpers.asset_launching_test_case import AssetLaunchingTestCase
+from wazo_test_helpers.bus import BusClient
+from wazo_test_helpers.asset_launching_test_case import AssetLaunchingTestCase
 
 
 class IntegrationTest(AssetLaunchingTestCase):
