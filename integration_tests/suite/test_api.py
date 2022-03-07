@@ -1,4 +1,4 @@
-# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from wazo_test_helpers import until
@@ -56,11 +56,9 @@ class TestSysconfd(IntegrationTest):
         assert self._command_was_called(bus_events, ['xivo-monitoring-update'])
 
     def test_exec_request_handlers(self):
-        agent_id = 12
         asterisk_command = 'dialplan reload'
         autoprov_filename = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
         self._create_file(autoprov_filename, owner='root')
-        agent_bus_events = self.bus.accumulator('config.agent.edited')
         asterisk_reload_bus_events = self.bus.accumulator('sysconfd.asterisk.reload.#')
         request_handlers_bus_events = self.bus.accumulator(
             'sysconfd.request_handlers.#'
@@ -76,20 +74,11 @@ class TestSysconfd(IntegrationTest):
         ]
         body = {
             'ipbx': [asterisk_command],
-            'agentbus': [f'agent.edit.{agent_id}'],
             'chown_autoprov_config': ['something'],
             'context': request_context,
         }
 
         response = self.sysconfd.exec_request_handlers(body)
-
-        def agent_event_was_sent():
-            return any(
-                message
-                for message in agent_bus_events.accumulate()
-                if message['name'] == 'agent_edited'
-                and message['data']['id'] == agent_id
-            )
 
         def asterisk_reload_events_are_sent(request_uuid):
             assert [
@@ -116,7 +105,6 @@ class TestSysconfd(IntegrationTest):
         assert self._command_was_called(command_bus_events, expected_command)
         assert self._file_owner(autoprov_filename) == 'asterisk'
 
-        until.true(agent_event_was_sent, timeout=5)
         until.assert_(
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
