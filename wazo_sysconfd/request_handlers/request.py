@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -13,10 +13,6 @@ from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import FailFastPublisher
 from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
-from .agentd import (
-    AgentdCommandExecutor,
-    AgentdCommandFactory,
-)
 from .asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
@@ -47,10 +43,8 @@ class Request(object):
 class RequestFactory(object):
 
     def __init__(self,
-                 agentd_command_factory,
                  asterisk_command_factory,
                  chown_autoprov_command_factory):
-        self._agentd_command_factory = agentd_command_factory
         self._asterisk_command_factory = asterisk_command_factory
         self._chown_autoprov_command_factory = chown_autoprov_command_factory
 
@@ -59,7 +53,6 @@ class RequestFactory(object):
         commands = []
         # asterisk commands must be executed first
         self._append_commands('ipbx', self._asterisk_command_factory, args, request, commands)
-        self._append_commands('agentbus', self._agentd_command_factory, args, request, commands)
         self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, request, commands)
         request.commands = commands
         return request
@@ -253,18 +246,15 @@ class RequestHandlersProxy(object):
         bus_publisher = LazyBusPublisher(bus_connection, bus_exchange, Marshaler(uuid))
 
         # instantiate executors
-        agentd_command_executor = AgentdCommandExecutor(bus_publisher)
         asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
         chown_autoprov_command_executor = ChownAutoprovCommandExecutor()
 
         # instantiate factories
-        agentd_command_factory = AgentdCommandFactory(agentd_command_executor)
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
         chown_autoprov_command_factory = ChownAutoprovCommandFactory(chown_autoprov_command_executor)
 
         # instantiate other stuff
-        request_factory = RequestFactory(agentd_command_factory,
-                                         asterisk_command_factory,
+        request_factory = RequestFactory(asterisk_command_factory,
                                          chown_autoprov_command_factory)
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
