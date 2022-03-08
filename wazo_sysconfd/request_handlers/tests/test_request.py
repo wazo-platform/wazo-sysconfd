@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -45,11 +45,9 @@ class TestRequest(unittest.TestCase):
 class TestRequestFactory(unittest.TestCase):
 
     def setUp(self):
-        self.agent_command_factory = Mock()
         self.asterisk_command_factory = Mock()
         self.chown_autoprov_config_command_factory = Mock()
-        self.request_factory = RequestFactory(self.agent_command_factory,
-                                              self.asterisk_command_factory,
+        self.request_factory = RequestFactory(self.asterisk_command_factory,
                                               self.chown_autoprov_config_command_factory)
 
     def test_new_request_ipbx(self):
@@ -73,16 +71,6 @@ class TestRequestFactory(unittest.TestCase):
             request.commands,
             [self.chown_autoprov_config_command_factory.new_command.return_value],
         )
-
-    def test_new_request_agentbus(self):
-        args = {
-            'agentbus': ['foo'],
-        }
-
-        request = self.request_factory.new_request(args)
-
-        self.agent_command_factory.new_command.assert_called_once_with('foo', ANY)
-        self.assertEqual(request.commands, [self.agent_command_factory.new_command.return_value])
 
     def test_new_request_invalid_command(self):
         returns = [ValueError(), sentinel.command]
