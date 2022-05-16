@@ -1,8 +1,8 @@
-FROM python:2.7-slim-buster AS compile-image
+FROM python:3.7-slim-buster AS compile-image
 LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
-RUN apt-get -qq update && apt-get -qq -y install python-virtualenv
-RUN virtualenv /opt/venv
+RUN apt-get -qq update && apt-get -qq -y install python3-virtualenv
+RUN python3 -m venv /opt/venv
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"
 
@@ -14,7 +14,7 @@ COPY setup.py /usr/local/src/wazo-sysconfd/
 COPY wazo_sysconfd /usr/local/src/wazo-sysconfd/wazo_sysconfd
 RUN python setup.py install
 
-FROM python:2.7-slim-buster AS build-image
+FROM python:3.7-slim-buster AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
 COPY ./etc/wazo-sysconfd /etc/wazo-sysconfd
