@@ -1,15 +1,20 @@
 # Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import pytest
+
 from wazo_test_helpers import until
 
 from .helpers.base import IntegrationTest
+
+FASTAPI_REASON = 'Not reimplemented using FastAPI'
 
 
 class TestSysconfd(IntegrationTest):
 
     asset = 'base'
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_dhcpd_update(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
@@ -17,6 +22,7 @@ class TestSysconfd(IntegrationTest):
 
         assert self._command_was_called(bus_events, ['dhcpd-update', '-dr'])
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_move_voicemail(self):
         old_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/oldvoicemail'
         new_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/newvoicemail'
@@ -32,6 +38,7 @@ class TestSysconfd(IntegrationTest):
 
         assert self._directory_exists(new_voicemail_directory)
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_delete_voicemail(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
         self._create_directory(voicemail_directory)
@@ -40,6 +47,7 @@ class TestSysconfd(IntegrationTest):
 
         assert not self._directory_exists(voicemail_directory)
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_commonconf_generate(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
@@ -47,6 +55,7 @@ class TestSysconfd(IntegrationTest):
 
         assert self._command_was_called(bus_events, ['xivo-create-config'])
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_commonconf_apply(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
@@ -55,6 +64,7 @@ class TestSysconfd(IntegrationTest):
         assert self._command_was_called(bus_events, ['xivo-update-config'])
         assert self._command_was_called(bus_events, ['xivo-monitoring-update'])
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_exec_request_handlers(self):
         asterisk_command = 'dialplan reload'
         autoprov_filename = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
@@ -109,6 +119,7 @@ class TestSysconfd(IntegrationTest):
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_hosts(self):
         self._given_file_absent('/etc/local/hostname')
         self._given_file_absent('/etc/local/hosts')
@@ -125,6 +136,7 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/local/hostname')
         assert self._file_exists('/etc/local/hosts')
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_resolv_conf(self):
         self._given_file_absent('/etc/local/resolv.conf')
         body = {
@@ -136,6 +148,7 @@ class TestSysconfd(IntegrationTest):
 
         assert self._file_exists('/etc/local/resolv.conf')
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_ha_config(self):
         self._given_file_absent('/etc/xivo/ha.conf')
         bus_events = self.bus.accumulator('sysconfd.sentinel')
@@ -152,6 +165,7 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/xivo/ha.conf')
         assert self._file_exists('/etc/cron.d/xivo-ha-master')
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_services(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
@@ -168,6 +182,7 @@ class TestSysconfd(IntegrationTest):
 
         assert result == {'status': 'up'}
 
+    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_xivoctl(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
