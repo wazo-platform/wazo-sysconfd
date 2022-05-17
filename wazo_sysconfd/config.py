@@ -6,7 +6,6 @@ import argparse
 from collections import namedtuple
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
-from xivo.xivo_logging import get_log_level_by_name
 
 
 _DEFAULT_CONFIG = {
@@ -62,16 +61,6 @@ _DEFAULT_CONFIG = {
 }
 
 
-def _get_reinterpreted_raw_values(config):
-    result = {}
-
-    log_level = config.get('log_level')
-    if log_level:
-        result['log_level'] = get_log_level_by_name(log_level)
-
-    return result
-
-
 def _parse_cli_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('-l',
@@ -105,9 +94,7 @@ def _parse_cli_args(argv):
 def load_config(argv):
     cli_config = _parse_cli_args(argv)
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    intermediate_config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
-    reinterpreted_config = _get_reinterpreted_raw_values(intermediate_config)
-    return ChainMap(reinterpreted_config, intermediate_config)
+    return ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
 
 
 def prepare_http_server_options(configuration):
