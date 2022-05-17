@@ -7,15 +7,18 @@ from setuptools import find_packages
 
 setup(
     name='wazo_sysconfd',
-    version='1.2',
+    version='2.0',
     description='Wazo sysconf daemon',
     author='Wazo Authors',
     author_email='dev.wazo@gmail.com',
-    url='http://wazo.community',
+    url='https://wazo-platform.org',
     packages=find_packages(),
     entry_points={
         'console_scripts': [
             'wazo-sysconfd=wazo_sysconfd.main:main',
+        ],
+        'wazo_sysconfd.plugins': [
+            'status = wazo_sysconfd.plugins.status.plugin:Plugin',
         ]
-    },
+    }
 )

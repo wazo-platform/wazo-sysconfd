@@ -56,6 +56,9 @@ _DEFAULT_CONFIG = {
         'exchange_type': 'topic',
         'exchange_durable': True,
     },
+    'enabled_plugins': {
+        'status': True,
+    },
 }
 
 
