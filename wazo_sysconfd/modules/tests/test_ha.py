@@ -62,7 +62,7 @@ class TestHA(unittest.TestCase):
         shutil.rmtree(self._tmp_dir)
 
     def _create_tmp_conf_file(self, content):
-        with open(self._ha_conf_file, 'wb') as fobj:
+        with open(self._ha_conf_file, 'w') as fobj:
             fobj.write(content)
 
     def test_read_conf(self):
