@@ -27,7 +27,7 @@ class Controller:
                 'status_aggregator': self.status_aggregator,
             }
         )
-        logger.debug('Loaded routes:\n', self.list_routes())
+        logger.debug('Loaded routes:\n%s', self.list_routes())
 
     def list_routes(self) -> List:
         url_list = [
