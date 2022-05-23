@@ -177,8 +177,8 @@ class TestSysconfd(IntegrationTest):
         expected_command = ['systemctl', 'restart', 'networking.service']
         assert self._command_was_called(bus_events, expected_command)
 
-    def test_status_check(self):
-        result = self.sysconfd.status_check()
+    def test_status(self):
+        result = self.sysconfd.status()
 
         assert result == {'status': 'up'}
 
