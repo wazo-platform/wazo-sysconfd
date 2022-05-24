@@ -20,14 +20,9 @@ class SysconfdApplication(BaseApplication):
         super().__init__(*args, **kwargs)
 
     def load_config(self):
-        self.cfg.set(
-            'bind',
-            [
-                '{}:{}'.format(
-                    self.config['rest_api']['listen'], self.config['rest_api']['port']
-                )
-            ],
-        )
+        host = self.config['rest_api']['listen']
+        port = self.config['rest_api']['port']
+        self.cfg.set('bind', [f'{host}:{port}'])
         self.cfg.set('default_proc_name', 'sysconfd-api')
         self.cfg.set('loglevel', self.config['log_level'])
         self.cfg.set('accesslog', '-')
