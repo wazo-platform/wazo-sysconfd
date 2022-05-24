@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
 from xivo.status import StatusAggregator
 
 router = APIRouter()
