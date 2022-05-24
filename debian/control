@@ -8,7 +8,6 @@ X-Python-Version: >= 3.7
 
 Package: wazo-sysconfd
 Architecture: all
-# TODO Remove python-vine when python-kombu will depends on amqp >= 2.1.4
 Depends: ${python3:Depends},
          ${misc:Depends},
          xivo-bus-python3,
@@ -21,7 +20,6 @@ Depends: ${python3:Depends},
          python3-starlette,
          python3-stevedore,
          python3-uvicorn,
-         python3-vine,
          rename,
          sudo
 Provides: xivo-sysconfd
