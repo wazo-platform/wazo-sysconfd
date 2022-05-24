@@ -16,6 +16,10 @@ def splitint(s):
     return list(map(castint, re.findall(r'(\d+|\D+)', str(s))))
 
 
+def cmp(a, b):
+    return (a > b) - (a < b)
+
+
 def natsort(a, b):
     return cmp(splitint(a), splitint(b))
 
@@ -32,7 +36,7 @@ def extract_scalar_from_list(xlist):
 
 def extract_scalar_from_dict(xdict):
     """ Extract scalar values from a dict natural ordered by key """
-    return [xdict[key] for key in sorted(iter(xdict.keys()), natsort)
+    return [xdict[key] for key in sorted(xdict.keys(), natsort)
             if is_scalar(xdict[key])]
 
 
@@ -53,7 +57,7 @@ def extract_scalar(var):
 
 def unique_case_tuple(sequence):
     """ Build an ordered case-insensitive collection """
-    xlist = list(dict(list(zip(list(map(str.lower, sequence)), sequence))).values())
+    xlist = dict(zip(map(str.lower, sequence), sequence)).values()
     return tuple([x for x in sequence if x in xlist])
 
 
