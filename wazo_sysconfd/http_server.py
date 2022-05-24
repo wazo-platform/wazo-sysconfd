@@ -7,13 +7,6 @@ from gunicorn.app.base import BaseApplication
 api = FastAPI(title='wazo-sysconfd', openapi_url='/api/api.yml')
 
 
-def ensure_list(obj):
-    if not isinstance(obj, list):
-        return [obj]
-    else:
-        return obj
-
-
 class SysconfdApplication(BaseApplication):
     def __init__(self, *args, config: dict = None, **kwargs):
         self.config = config or {}
