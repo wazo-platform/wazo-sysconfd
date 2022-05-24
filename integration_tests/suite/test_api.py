@@ -180,7 +180,7 @@ class TestSysconfd(IntegrationTest):
     def test_status(self):
         result = self.sysconfd.status()
 
-        assert result == {'status': 'up'}
+        assert result == {'rest_api': {'status': 'ok'}}
 
     @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_xivoctl(self):
