@@ -9,9 +9,9 @@ router = APIRouter()
 
 
 @router.get('/status', status_code=200)
-def get_status(status: StatusAggregator = Depends(StatusAggregator)):
+def get_status(status_aggregator: StatusAggregator = Depends(StatusAggregator)):
     total_status = {'status': 'up'}
-    if status is not None:
-        total_status.update(status.status())
+    if status_aggregator is not None:
+        total_status.update(status_aggregator.status())
 
     return total_status
