@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import errno
@@ -30,7 +29,7 @@ class HAConfigManager(object):
 
     def _read_ha_config(self):
         try:
-            with open(self._ha_conf_file) as fobj:
+            with open(self._ha_conf_file, 'r') as fobj:
                 return self._read_ha_config_from_fobj(fobj)
         except IOError as e:
             if e.errno == errno.ENOENT:
@@ -49,7 +48,7 @@ class HAConfigManager(object):
         self._manage_services(ha_config)
 
     def _write_ha_config(self, ha_config):
-        with open(self._ha_conf_file, 'wb') as fobj:
+        with open(self._ha_conf_file, 'w') as fobj:
             self._write_ha_config_to_fobj(ha_config, fobj)
 
     def _write_ha_config_to_fobj(self, ha_config, fobj):

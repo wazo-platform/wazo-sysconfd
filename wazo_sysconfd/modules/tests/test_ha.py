@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2013,2015 Avencall
+# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import functools
@@ -9,7 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
 import mock
 
@@ -63,7 +62,7 @@ class TestHA(unittest.TestCase):
         shutil.rmtree(self._tmp_dir)
 
     def _create_tmp_conf_file(self, content):
-        with open(self._ha_conf_file, 'wb') as fobj:
+        with open(self._ha_conf_file, 'w') as fobj:
             fobj.write(content)
 
     def test_read_conf(self):

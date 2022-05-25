@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2010-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -226,7 +225,7 @@ def safe_init(options):
     backup_path = cfg.get('backup_path')
 
     if cfg.get('resolvconf'):
-        for x in Rcc.iterkeys():
+        for x in Rcc.keys():
             if cfg['resolvconf'].get(x):
                 Rcc[x] = cfg['resolvconf'].get(x)
 

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2010-2015 Avencall
+# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -32,7 +31,7 @@ def services(args, options):
     >>> services({'networking': 'restart'})
     """
     output = ''
-    for service, action in args.iteritems():
+    for service, action in args.items():
         output += _run_action_for_service(service, action)
 
     return output
