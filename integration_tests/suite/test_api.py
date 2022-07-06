@@ -22,7 +22,6 @@ class TestSysconfd(IntegrationTest):
 
         assert self._command_was_called(bus_events, ['dhcpd-update', '-dr'])
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_move_voicemail(self):
         old_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/oldvoicemail'
         new_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/newvoicemail'
@@ -38,7 +37,6 @@ class TestSysconfd(IntegrationTest):
 
         assert self._directory_exists(new_voicemail_directory)
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_delete_voicemail(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
         self._create_directory(voicemail_directory)

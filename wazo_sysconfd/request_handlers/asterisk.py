@@ -31,9 +31,7 @@ class AsteriskCommandFactory(object):
         'module reload res_rtp_asterisk.so',
         'module reload res_hep.so',
     ]
-    _ARG_COMMANDS = [
-        'sccp reset'
-    ]
+    _ARG_COMMANDS = ['sccp reset']
 
     def __init__(self, asterisk_command_executor):
         self._executor = asterisk_command_executor
@@ -52,7 +50,6 @@ class AsteriskCommandFactory(object):
 
 
 class AsteriskCommandExecutor(object):
-
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
         self._null = open(os.devnull)
@@ -62,17 +59,29 @@ class AsteriskCommandExecutor(object):
         request_uuids = [request.uuid for request in command.requests]
         task_uuid = str(uuid.uuid4())
         self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(uuid=task_uuid, status='starting', command=command_string, request_uuids=request_uuids)
+            AsteriskReloadProgressEvent(
+                uuid=task_uuid,
+                status='starting',
+                command=command_string,
+                request_uuids=request_uuids,
+            )
         )
 
         if command_string == 'module reload res_pjsip.so':
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
             subprocess.call(cmd, stdout=self._null, close_fds=True)
 
-        exit_code = subprocess.call(['asterisk', '-rx', command_string], stdout=self._null, close_fds=True)
+        exit_code = subprocess.call(
+            ['asterisk', '-rx', command_string], stdout=self._null, close_fds=True
+        )
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
 
         self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(uuid=task_uuid, status='completed', command=command_string, request_uuids=request_uuids)
+            AsteriskReloadProgressEvent(
+                uuid=task_uuid,
+                status='completed',
+                command=command_string,
+                request_uuids=request_uuids,
+            )
         )
