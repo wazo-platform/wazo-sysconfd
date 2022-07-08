@@ -12,7 +12,7 @@ from io import StringIO
 
 import mock
 
-from wazo_sysconfd.modules.ha import (
+from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
     _PostgresConfigUpdater,
     _CronFileInstaller,
@@ -36,7 +36,6 @@ def _new_ha_config(node_type, remote_address):
 
 
 def mock_subprocess_check_call(f):
-
     @functools.wraps(f)
     def decorator(*kargs):
         old_subprocess_check_call = subprocess.check_call
@@ -54,9 +53,9 @@ class TestHA(unittest.TestCase):
     def setUp(self):
         self._tmp_dir = tempfile.mkdtemp()
         self._ha_conf_file = os.path.join(self._tmp_dir, 'test_ha.conf')
-        self._ha_config_mgr = HAConfigManager(mock.Mock(),
-                                              mock.Mock(),
-                                              ha_conf_file=self._ha_conf_file)
+        self._ha_config_mgr = HAConfigManager(
+            mock.Mock(), mock.Mock(), ha_conf_file=self._ha_conf_file
+        )
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir)
@@ -125,7 +124,9 @@ class TestHA(unittest.TestCase):
 
         self._ha_config_mgr._manage_services(ha_config)
 
-        subprocess.check_call.assert_called_with(['/usr/sbin/xivo-manage-slave-services', 'start'], close_fds=True)
+        subprocess.check_call.assert_called_with(
+            ['/usr/sbin/xivo-manage-slave-services', 'start'], close_fds=True
+        )
 
     @mock_subprocess_check_call
     def test_manage_services_master(self):
@@ -133,7 +134,9 @@ class TestHA(unittest.TestCase):
 
         self._ha_config_mgr._manage_services(ha_config)
 
-        subprocess.check_call.assert_called_with(['/usr/sbin/xivo-manage-slave-services', 'start'], close_fds=True)
+        subprocess.check_call.assert_called_with(
+            ['/usr/sbin/xivo-manage-slave-services', 'start'], close_fds=True
+        )
 
     @mock_subprocess_check_call
     def test_manage_services_slave(self):
@@ -147,8 +150,12 @@ class TestHA(unittest.TestCase):
 class TestPostgresConfigUpdater(unittest.TestCase):
     def setUp(self):
         self._tmp_dir = tempfile.mkdtemp()
-        self._pg_hba_filename = os.path.join(self._tmp_dir, _PostgresConfigUpdater.PG_HBA_FILE)
-        self._postgresql_filename = os.path.join(self._tmp_dir, _PostgresConfigUpdater.POSTGRESQL_FILE)
+        self._pg_hba_filename = os.path.join(
+            self._tmp_dir, _PostgresConfigUpdater.PG_HBA_FILE
+        )
+        self._postgresql_filename = os.path.join(
+            self._tmp_dir, _PostgresConfigUpdater.POSTGRESQL_FILE
+        )
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir)
