@@ -2,5 +2,5 @@ kombu
 pytest
 
 https://github.com/wazo-platform/wazo-lib-rest-client/archive/master.zip
-https://github.com/wazo-platform/wazo-sysconfd-client/archive/master.zip
+https://github.com/wazo-platform/wazo-sysconfd-client/archive/fastapi.zip
 https://github.com/wazo-platform/wazo-test-helpers/archive/master.zip
