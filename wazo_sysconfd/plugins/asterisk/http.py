@@ -1,17 +1,17 @@
 # Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from fastapi import APIRouter, Depends, Body, HTTPException
+from fastapi import APIRouter, Depends
 
 from wazo_sysconfd.plugins.asterisk.asterisk import Asterisk
-from xivo.status import Status, StatusAggregator
+from wazo_sysconfd.settings import get_asterisk
 
 router = APIRouter()
 
 
 @router.get('/delete_voicemail', status_code=200)
 def delete_voicemail(
-    context: str, mailbox: str = None, asterisk: Asterisk = Depends(Asterisk)
+    context: str, mailbox: str = None, asterisk: Asterisk = Depends(get_asterisk)
 ):
     asterisk.delete_voicemail(None, dict(context=context, mailbox=mailbox))
 
