@@ -59,10 +59,11 @@ _DEFAULT_CONFIG = {
     'enabled_plugins': {
         'asterisk': True,
         'dhcp_update': True,
+        'ha_config': True,
         'hosts': True,
         'request_handlers': True,
         'status': True,
-        'ha_config': True,
+        'xivoctl': True,
     },
 }
 

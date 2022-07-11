@@ -4,9 +4,7 @@
 import logging
 import subprocess
 
-from xivo import http_json_server
-from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_RW
+from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.modules.services import services
 
 logger = logging.getLogger('wazo_sysconfd.modules.xivoctl')
@@ -18,10 +16,12 @@ def xivoctl(args, options):
             try:
                 if act == 'start':
                     services({'asterisk': 'stop'}, {})
-                p = subprocess.Popen(["%s" % service, act],
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT,
-                                     close_fds=True)
+                p = subprocess.Popen(
+                    ["%s" % service, act],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    close_fds=True,
+                )
                 output = p.communicate()[0]
                 logger.debug("%s %s : %d", service, act, p.returncode)
 
@@ -34,6 +34,3 @@ def xivoctl(args, options):
             logger.error("service not exist: %s", service)
 
     return output
-
-
-http_json_server.register(xivoctl, CMD_RW)
