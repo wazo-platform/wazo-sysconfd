@@ -1,10 +1,10 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from unittest import TestCase
 
 from hamcrest import assert_that, equal_to
-from mock import ANY, Mock, patch, sentinel
+from mock import ANY, Mock, patch
 
 from .. import services
 
@@ -19,7 +19,7 @@ class TestServices(TestCase):
         self.patcher.stop()
 
     def test_services_should_return_empty_string_when_called_with_empty_dict(self):
-        result = services.services({}, sentinel.options)
+        result = services.services({})
 
         assert_that(result, equal_to(''))
 
@@ -31,7 +31,7 @@ class TestServices(TestCase):
         service2, action2 = "service2", "stop"
 
         services.services({service1: action1,
-                           service2: action2}, sentinel.options)
+                           service2: action2})
 
         mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
         mock_popen_constructor.assert_any_call(["/bin/systemctl", action2, "service2.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
@@ -50,8 +50,7 @@ class TestServices(TestCase):
                            service2: action2,
                            service3: action3,
                            service4: action4,
-                           service5: action5},
-                          sentinel.options)
+                           service5: action5})
 
         mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
         mock_popen_constructor.assert_any_call(["/bin/systemctl", action3, "service3.service"], stdout=ANY, stderr=ANY, close_fds=ANY)

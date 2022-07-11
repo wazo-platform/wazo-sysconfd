@@ -58,6 +58,7 @@ _DEFAULT_CONFIG = {
     },
     'enabled_plugins': {
         'status': True,
+        'systemd_services': True,
     },
 }
 

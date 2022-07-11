@@ -19,6 +19,7 @@ setup(
         ],
         'wazo_sysconfd.plugins': [
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
+            'systemd_services = wazo_sysconfd.plugins.systemd_services.plugin:Plugin',
         ]
     }
 )

@@ -165,14 +165,13 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/xivo/ha.conf')
         assert self._file_exists('/etc/cron.d/xivo-ha-master')
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_services(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
             'networking': 'restart',
         }
 
-        self.sysconfd.services(body)
+        self.sysconfd.systemd_services(body)
 
         expected_command = ['systemctl', 'restart', 'networking.service']
         assert self._command_was_called(bus_events, expected_command)
