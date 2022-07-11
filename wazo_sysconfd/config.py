@@ -63,6 +63,7 @@ _DEFAULT_CONFIG = {
         'ha_config': True,
         'hosts': True,
         'request_handlers': True,
+        'services': True,
         'status': True,
         'xivoctl': True,
     },
