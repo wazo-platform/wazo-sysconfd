@@ -33,8 +33,8 @@ class TestServices(TestCase):
         services.services({service1: action1,
                            service2: action2}, sentinel.options)
 
-        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/bin/systemctl", action2, "service2.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY, encoding="UTF-8")
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action2, "service2.service"], stdout=ANY, stderr=ANY, close_fds=ANY, encoding="UTF-8")
 
     @patch('subprocess.Popen')
     def test_services_should_not_call_service_action_for_invalid_actions_service(self, mock_popen_constructor):
@@ -53,7 +53,7 @@ class TestServices(TestCase):
                            service5: action5},
                           sentinel.options)
 
-        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/bin/systemctl", action3, "service3.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
-        mock_popen_constructor.assert_any_call(["/bin/systemctl", action5, "service5.service"], stdout=ANY, stderr=ANY, close_fds=ANY)
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action1, "service1.service"], stdout=ANY, stderr=ANY, close_fds=ANY, encoding="UTF-8")
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action3, "service3.service"], stdout=ANY, stderr=ANY, close_fds=ANY, encoding="UTF-8")
+        mock_popen_constructor.assert_any_call(["/bin/systemctl", action5, "service5.service"], stdout=ANY, stderr=ANY, close_fds=ANY, encoding="UTF-8")
         assert_that(mock_popen_constructor.call_count, equal_to(3))
