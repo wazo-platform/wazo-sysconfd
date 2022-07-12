@@ -22,7 +22,7 @@ def move_voicemail(
     old_mailbox: str,
     new_context: str,
     new_mailbox: str,
-    asterisk: Asterisk = Depends(Asterisk),
+    asterisk: Asterisk = Depends(get_asterisk),
 ):
     asterisk.move_voicemail(
         None,
