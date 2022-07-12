@@ -117,7 +117,6 @@ class TestSysconfd(IntegrationTest):
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_hosts(self):
         self._given_file_absent('/etc/local/hostname')
         self._given_file_absent('/etc/local/hosts')

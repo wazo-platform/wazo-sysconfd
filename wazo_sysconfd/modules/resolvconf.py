@@ -58,7 +58,7 @@ def _write_config_file(optname, xvars):
         'utf8',
     )
 
-    system.file_writelines_flush_sync(Rcc["%s_file" % optname], txt)
+    system.file_writelines_flush_sync(Rcc["%s_file" % optname], [text.decode('utf8') if isinstance(text, bytes) else text for text in txt])
 
     return backupfilename
 
@@ -70,7 +70,7 @@ def _validate_hosts(args):
         raise HttpReqError(415, "invalid arguments for command")
 
 
-def Hosts(args, options):
+def Hosts(args):
     """
     POST /hosts
 
@@ -218,16 +218,15 @@ def safe_init(options):
     """Load parameters, etc"""
     global Rcc
 
-    cfg = options.configuration
 
-    tpl_path = cfg.get('templates_path')
-    custom_tpl_path = cfg.get('custom_templates_path')
-    backup_path = cfg.get('backup_path')
+    tpl_path = options.get('templates_path')
+    custom_tpl_path = options.get('custom_templates_path')
+    backup_path = options.get('backup_path')
 
-    if cfg.get('resolvconf'):
+    if options.get('resolvconf'):
         for x in Rcc.keys():
-            if cfg['resolvconf'].get(x):
-                Rcc[x] = cfg['resolvconf'].get(x)
+            if options['resolvconf'].get(x):
+                Rcc[x] = options['resolvconf'].get(x)
 
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 

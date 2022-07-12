@@ -59,6 +59,7 @@ _DEFAULT_CONFIG = {
     'enabled_plugins': {
         'status': True,
         'asterisk': True,
+        'hosts': True,
     },
 }
 
