@@ -5,9 +5,11 @@ import os
 import shutil
 import tempfile
 import unittest
+
 from mock import Mock, call, patch
-from xivo.http_json_server import HttpReqError
-from wazo_sysconfd.modules.asterisk import (
+
+from wazo_sysconfd.exceptions import HttpReqError
+from wazo_sysconfd.plugins.asterisk.asterisk import (
     Asterisk,
     _remove_directory,
     _is_valid_path_component,
@@ -16,7 +18,6 @@ from wazo_sysconfd.modules.asterisk import (
 
 
 class TestAsterisk(unittest.TestCase):
-
     def setUp(self):
         self.base_voicemail_path = '/tmp/foo/bar'
         self.remove_directory = Mock()
@@ -35,8 +36,9 @@ class TestAsterisk(unittest.TestCase):
 
         self.asterisk.delete_voicemail(None, options)
 
-        self.assertEqual([call(context), call(mailbox)],
-                         self.is_valid_path_component.call_args_list)
+        self.assertEqual(
+            [call(context), call(mailbox)], self.is_valid_path_component.call_args_list
+        )
 
         expected_path = os.path.join(self.base_voicemail_path, context, mailbox)
         self.remove_directory.assert_called_once_with(expected_path)
@@ -53,31 +55,46 @@ class TestAsterisk(unittest.TestCase):
         old_context = 'foo'
         new_mailbox = '1001'
         new_context = 'bar'
-        options = {'old_context': old_context, 'old_mailbox': old_mailbox,
-                   'new_context': new_context, 'new_mailbox': new_mailbox}
+        options = {
+            'old_context': old_context,
+            'old_mailbox': old_mailbox,
+            'new_context': new_context,
+            'new_mailbox': new_mailbox,
+        }
 
         self.asterisk.move_voicemail(None, options)
 
-        expected_calls = [call(old_context),
-                          call(old_mailbox),
-                          call(new_context),
-                          call(new_mailbox)]
+        expected_calls = [
+            call(old_context),
+            call(old_mailbox),
+            call(new_context),
+            call(new_mailbox),
+        ]
         self.assertEqual(expected_calls, self.is_valid_path_component.call_args_list)
 
-        expected_old_path = os.path.join(self.base_voicemail_path, old_context, old_mailbox)
-        expected_new_path = os.path.join(self.base_voicemail_path, new_context, new_mailbox)
-        self.move_directory.assert_called_once_with(expected_old_path, expected_new_path)
+        expected_old_path = os.path.join(
+            self.base_voicemail_path, old_context, old_mailbox
+        )
+        expected_new_path = os.path.join(
+            self.base_voicemail_path, new_context, new_mailbox
+        )
+        self.move_directory.assert_called_once_with(
+            expected_old_path, expected_new_path
+        )
 
     def test_move_voicemail_invalid_path_component_raise_error(self):
         self.asterisk.is_valid_path_component.return_value = False
-        options = {'old_context': '', 'old_mailbox': '',
-                   'new_context': '', 'new_mailbox': ''}
+        options = {
+            'old_context': '',
+            'old_mailbox': '',
+            'new_context': '',
+            'new_mailbox': '',
+        }
 
-        self.assertRaises(HttpReqError, self.asterisk.delete_voicemail, None, options)
+        self.assertRaises(HttpReqError, self.asterisk.move_voicemail, None, options)
 
 
 class TestRemoveDirectory(unittest.TestCase):
-
     def setUp(self):
         self.path = tempfile.mkdtemp()
 
@@ -93,21 +110,34 @@ class TestRemoveDirectory(unittest.TestCase):
 @patch('os.path.exists')
 @patch('subprocess.check_call')
 class TestMoveDirectory(unittest.TestCase):
-
     def test_move(self, check_call, path_exists):
         old_path = "/var/spool/asterisk/default/1000"
         new_path = "/var/spool/asterisk/newctx/2000"
         _move_directory(old_path, new_path)
 
-        expected_calls = [call(["rm", "-rf", new_path]),
-                          call(["install", "-d", "-m", "750",
-                                "-o", "asterisk", "-g", "asterisk",
-                                "/var/spool/asterisk/newctx"]),
-                          call(["mv", old_path, new_path])]
+        expected_calls = [
+            call(["rm", "-rf", new_path]),
+            call(
+                [
+                    "install",
+                    "-d",
+                    "-m",
+                    "750",
+                    "-o",
+                    "asterisk",
+                    "-g",
+                    "asterisk",
+                    "/var/spool/asterisk/newctx",
+                ]
+            ),
+            call(["mv", old_path, new_path]),
+        ]
 
         self.assertEqual(check_call.call_args_list, expected_calls)
 
-    def test_given_path_does_not_exist_when_moving_then_does_nothing(self, check_call, path_exists):
+    def test_given_path_does_not_exist_when_moving_then_does_nothing(
+        self, check_call, path_exists
+    ):
         old_path = "/var/spool/asterisk/default/1000"
         new_path = "/var/spool/asterisk/newctx/2000"
         path_exists.return_value = False
@@ -118,7 +148,6 @@ class TestMoveDirectory(unittest.TestCase):
 
 
 class TestPathComponentValidator(unittest.TestCase):
-
     def test_valid_path_component(self):
         path_components = [
             'foo',

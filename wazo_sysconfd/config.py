@@ -58,26 +58,32 @@ _DEFAULT_CONFIG = {
     },
     'enabled_plugins': {
         'status': True,
+        'asterisk': True,
     },
 }
 
 
 def _parse_cli_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l',
-                        '--log-level',
-                        default='INFO',
-                        help="Emit traces with LOGLEVEL details, must be one of:\n"
-                             "critical, error, warning, info, debug")
-    parser.add_argument('-c',
-                        '--config-file',
-                        default="/etc/wazo-sysconfd/config.yml",
-                        help="Use configuration file <config-file> instead of %(default)s")
-    parser.add_argument('--listen-addr',
-                        help="Listen on address <listen_addr> instead of 127.0.0.1")
-    parser.add_argument('--listen-port',
-                        type=int,
-                        help="Listen on port <listen_port> instead of 8668")
+    parser.add_argument(
+        '-l',
+        '--log-level',
+        default='INFO',
+        help="Emit traces with LOGLEVEL details, must be one of:\n"
+        "critical, error, warning, info, debug",
+    )
+    parser.add_argument(
+        '-c',
+        '--config-file',
+        default="/etc/wazo-sysconfd/config.yml",
+        help="Use configuration file <config-file> instead of %(default)s",
+    )
+    parser.add_argument(
+        '--listen-addr', help="Listen on address <listen_addr> instead of 127.0.0.1"
+    )
+    parser.add_argument(
+        '--listen-port', type=int, help="Listen on port <listen_port> instead of 8668"
+    )
 
     parsed_args = parser.parse_args(argv)
     result = {'rest_api': {}}

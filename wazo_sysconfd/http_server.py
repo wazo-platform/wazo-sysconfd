@@ -1,8 +1,10 @@
 # Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from gunicorn.app.base import BaseApplication
+
+from wazo_sysconfd.exceptions import HttpReqError
 
 api = FastAPI(title='wazo-sysconfd', openapi_url='/api/api.yml')
 
@@ -26,3 +28,11 @@ class SysconfdApplication(BaseApplication):
 
     def load(self):
         return api
+
+
+@api.exception_handler(HttpReqError)
+async def unicorn_exception_handler(request: Request, exc: HttpReqError):
+    return JSONResponse(
+        status_code=exc.code,
+        content={"code": exc.code, "message": exc.message},
+    )

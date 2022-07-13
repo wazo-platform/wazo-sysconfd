@@ -14,7 +14,6 @@ from wazo_sysconfd.request_handlers.asterisk import (
 
 
 class TestAsteriskCommandFactory(unittest.TestCase):
-
     def setUp(self):
         self.executor = Mock()
         self.factory = AsteriskCommandFactory(self.executor)
@@ -47,7 +46,6 @@ class TestAsteriskCommandFactory(unittest.TestCase):
 
 
 class TestAsteriskCommandExecutor(unittest.TestCase):
-
     def setUp(self):
         self.bus_publisher = Mock(Publisher)
         self.executor = AsteriskCommandExecutor(self.bus_publisher)

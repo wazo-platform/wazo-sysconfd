@@ -19,6 +19,7 @@ setup(
         ],
         'wazo_sysconfd.plugins': [
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
-        ]
-    }
+            'asterisk = wazo_sysconfd.plugins.asterisk.plugin:Plugin',
+        ],
+    },
 )
