@@ -19,6 +19,7 @@ setup(
         ],
         'wazo_sysconfd.plugins': [
             'asterisk = wazo_sysconfd.plugins.asterisk.plugin:Plugin',
+            'commonconf = wazo_sysconfd.plugins.commonconf.plugin:Plugin',
             'dhcp_update = wazo_sysconfd.plugins.dhcp_update.plugin:Plugin',
             'ha_config = wazo_sysconfd.plugins.ha_config.plugin:Plugin',
             'hosts = wazo_sysconfd.plugins.hosts.plugin:Plugin',

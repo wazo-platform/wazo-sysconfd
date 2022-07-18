@@ -44,7 +44,6 @@ class TestSysconfd(IntegrationTest):
 
         assert not self._directory_exists(voicemail_directory)
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_commonconf_generate(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
@@ -52,7 +51,6 @@ class TestSysconfd(IntegrationTest):
 
         assert self._command_was_called(bus_events, ['xivo-create-config'])
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_commonconf_apply(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
