@@ -11,7 +11,7 @@ from hamcrest import (
 )
 
 from wazo_sysconfd.modules.resolvconf import (
-    HttpReqError,
+    UnsupportedMediaException,
     _validate_hosts as validate_hosts,
 )
 
@@ -31,7 +31,7 @@ class TestValidateHosts(unittest.TestCase):
 
             assert_that(
                 calling(validate_hosts).with_args(body),
-                raises(HttpReqError),
+                raises(UnsupportedMediaException),
                 name,
             )
 
@@ -39,7 +39,7 @@ class TestValidateHosts(unittest.TestCase):
 
         assert_that(
             calling(validate_hosts).with_args(body),
-            not_(raises(HttpReqError)),
+            not_(raises(UnsupportedMediaException)),
         )
 
     def test_hostname(self):
@@ -55,7 +55,7 @@ class TestValidateHosts(unittest.TestCase):
 
             assert_that(
                 calling(validate_hosts).with_args(body),
-                raises(HttpReqError),
+                raises(UnsupportedMediaException),
                 name,
             )
 
@@ -63,5 +63,5 @@ class TestValidateHosts(unittest.TestCase):
 
         assert_that(
             calling(validate_hosts).with_args(body),
-            not_(raises(HttpReqError)),
+            not_(raises(UnsupportedMediaException)),
         )
