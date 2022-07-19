@@ -5,19 +5,11 @@ import logging
 import subprocess
 import traceback
 from .exceptions import InternalServerErrorException
-from xivo import http_json_server
-from xivo.http_json_server import CMD_RW, CMD_R
 
 logger = logging.getLogger('wazo_sysconfd.modules.commonconf')
 
 
 class CommonConf(object):
-
-    def __init__(self):
-        http_json_server.register(self.generate, CMD_RW,
-                                  safe_init=self.safe_init,
-                                  name='commonconf_generate')
-        http_json_server.register(self.apply, CMD_R, name='commonconf_apply')
 
     def safe_init(self, options):
         self.file = options.get('commonconf', {}).get('commonconf_file')
