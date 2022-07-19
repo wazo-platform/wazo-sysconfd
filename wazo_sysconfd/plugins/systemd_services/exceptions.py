@@ -13,3 +13,8 @@ class InvalidServiceException(ValueError):
     def __init__(self, service_name):
         super(InvalidServiceException, self).__init__(self)
         self.service_name = service_name
+
+
+class InternalServerErrorException(Exception):
+    def __init__(self, error_code, error_message):
+        super().__init__(error_code, error_message)

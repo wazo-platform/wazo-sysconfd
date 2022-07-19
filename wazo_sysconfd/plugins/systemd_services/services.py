@@ -4,9 +4,6 @@
 import logging
 import subprocess
 
-from xivo import http_json_server
-from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_RW
 from . import exceptions
 
 logger = logging.getLogger('wazo_sysconfd.modules.services')
@@ -55,15 +52,13 @@ def _run_action_for_service_validated(service, action):
         logger.debug("%s : return code %d", ' '.join(command), p.returncode)
 
         if p.returncode != 0:
-            raise HttpReqError(500, output)
+            raise exceptions.InternalServerErrorException(500, output)
     except OSError:
         logger.exception("Error while executing action")
-        raise HttpReqError(500, "can't manage services")
+        raise exceptions.InternalServerErrorException(500, "can't manage services")
 
     if isinstance(output, bytes):
         return output.decode("utf-8")
     else:
-        return output 
+        return output
 
-
-http_json_server.register(services, CMD_RW, name='services')
