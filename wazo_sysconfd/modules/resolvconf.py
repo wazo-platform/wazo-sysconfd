@@ -1,4 +1,4 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -8,14 +8,11 @@ import subprocess
 from time import time
 from shutil import copy2
 
-from xivo import http_json_server
-from xivo.http_json_server import HttpReqError
-from xivo.http_json_server import CMD_RW
 from xivo.moresynchro import RWLock
-from xivo.xivo_config import txtsubst
+from .utilities import txtsubst
 from xivo import system
 
-from wazo_sysconfd import helpers
+from wazo_sysconfd import exceptions, helpers
 
 log = logging.getLogger('wazo_sysconfd.modules.resolvconf')
 
@@ -58,19 +55,19 @@ def _write_config_file(optname, xvars):
         'utf8',
     )
 
-    system.file_writelines_flush_sync(Rcc["%s_file" % optname], txt)
+    system.file_writelines_flush_sync(Rcc["%s_file" % optname], [text.decode('utf8') if isinstance(text, bytes) else text for text in txt])
 
     return backupfilename
 
 
 def _validate_hosts(args):
     if not helpers.domain_label(args.get('hostname')):
-        raise HttpReqError(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     if not helpers.search_domain(args.get('domain')):
-        raise HttpReqError(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
 
 
-def Hosts(args, options):
+def hosts(args):
     """
     POST /hosts
 
@@ -80,19 +77,19 @@ def Hosts(args, options):
     _validate_hosts(args)
 
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['hostname_path'],
         )
 
     if not os.access(Rcc['hosts_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['hosts_path'],
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise HttpReqError(
+        raise exceptions.HttpReqError(
             503,
             "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
         )
@@ -126,17 +123,17 @@ def Hosts(args, options):
 def _validate_resolv_conf(args):
     nameservers = args.get('nameservers', [])
     if not 0 < len(nameservers) < 4:
-        raise HttpReqError(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     for nameserver in nameservers:
         if not helpers.ipv4_address_or_domain(nameserver):
-            raise HttpReqError(415, "invalid arguments for command")
+            raise exceptions.HttpReqError(415, "invalid arguments for command")
 
     searches = args.get('search', [])
     if not 0 < len(searches) < 7:
-        raise HttpReqError(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     for search in searches:
         if not helpers.search_domain(search):
-            raise HttpReqError(415, "invalid arguments for command")
+            raise exceptions.HttpReqError(415, "invalid arguments for command")
 
 
 def _resolv_conf_variables(args):
@@ -169,7 +166,7 @@ def ResolvConf(args, options):
         if len(nameservers) == len(args['nameservers']):
             args['nameservers'] = list(nameservers)
         else:
-            raise HttpReqError(415, "duplicated nameservers in %r" % list(args['nameservers']))
+            raise exceptions.HttpReqError(415, "duplicated nameservers in %r" % list(args['nameservers']))
 
     if 'search' in args:
         args['search'] = helpers.extract_scalar(args['search'])
@@ -178,10 +175,10 @@ def ResolvConf(args, options):
         if len(search) == len(args['search']):
             args['search'] = list(search)
         else:
-            raise HttpReqError(415, "duplicated search in %r" % list(args['search']))
+            raise exceptions.HttpReqError(415, "duplicated search in %r" % list(args['search']))
 
         if len(''.join(args['search'])) > 255:
-            raise HttpReqError(
+            raise exceptions.HttpReqError(
                 415,
                 "maximum length exceeded for option search: %r" % list(args['search']),
             )
@@ -189,13 +186,13 @@ def ResolvConf(args, options):
     _validate_resolv_conf(args)
 
     if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
-        raise HttpReqError(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['resolvconf_path'],
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise HttpReqError(
+        raise exceptions.HttpReqError(
             503,
             "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
         )
@@ -218,16 +215,15 @@ def safe_init(options):
     """Load parameters, etc"""
     global Rcc
 
-    cfg = options.configuration
 
-    tpl_path = cfg.get('templates_path')
-    custom_tpl_path = cfg.get('custom_templates_path')
-    backup_path = cfg.get('backup_path')
+    tpl_path = options.get('templates_path')
+    custom_tpl_path = options.get('custom_templates_path')
+    backup_path = options.get('backup_path')
 
-    if cfg.get('resolvconf'):
+    if options.get('resolvconf'):
         for x in Rcc.keys():
-            if cfg['resolvconf'].get(x):
-                Rcc[x] = cfg['resolvconf'].get(x)
+            if options['resolvconf'].get(x):
+                Rcc[x] = options['resolvconf'].get(x)
 
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 
@@ -246,6 +242,3 @@ def safe_init(options):
             backup_path, Rcc["%s_path" % optname].lstrip(os.path.sep),
         )
 
-
-http_json_server.register(Hosts, CMD_RW, safe_init=safe_init, name='hosts')
-http_json_server.register(ResolvConf, CMD_RW, name='resolv_conf')

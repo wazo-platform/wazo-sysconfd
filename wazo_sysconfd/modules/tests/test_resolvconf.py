@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -9,64 +9,10 @@ from hamcrest import (
     not_,
     raises,
 )
-
+from wazo_sysconfd import exceptions
 from ..resolvconf import (
-    HttpReqError,
-    _validate_hosts as validate_hosts,
     _validate_resolv_conf as validate_resolv_conf,
 )
-
-
-class TestValidateHosts(unittest.TestCase):
-
-    def test_domain(self):
-        invalid_names = [
-            64 * 'a.wazo-platform.org',
-            '-NOT',
-            'NOT-',
-            'foo!bar',
-            'foo.-NOT.bar',
-        ]
-
-        for name in invalid_names:
-            body = {'domain': name, 'hostname': 'valid'}
-
-            assert_that(
-                calling(validate_hosts).with_args(body),
-                raises(HttpReqError),
-                name,
-            )
-
-        body = {'domain': 'a' * 63 + '.wazo-platform.org', 'hostname': 'valid'}
-
-        assert_that(
-            calling(validate_hosts).with_args(body),
-            not_(raises(HttpReqError)),
-        )
-
-    def test_hostname(self):
-        invalid_names = [
-            64 * 'a',
-            '-NOT',
-            'NOT-',
-            'foo!bar',
-        ]
-
-        for name in invalid_names:
-            body = {'domain': 'valid', 'hostname': name}
-
-            assert_that(
-                calling(validate_hosts).with_args(body),
-                raises(HttpReqError),
-                name,
-            )
-
-        body = {'domain': 'valid', 'hostname': 'foo-bar'}
-
-        assert_that(
-            calling(validate_hosts).with_args(body),
-            not_(raises(HttpReqError)),
-        )
 
 
 class TestValidateResolvConf(unittest.TestCase):
@@ -74,19 +20,19 @@ class TestValidateResolvConf(unittest.TestCase):
     def test_nameservers(self):
         assert_that(
             calling(validate_resolv_conf).with_args({}),
-            raises(HttpReqError),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
             calling(validate_resolv_conf).with_args({'nameservers': []}),
-            raises(HttpReqError),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
             calling(validate_resolv_conf).with_args(
                 {'nameservers': ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4']},
             ),
-            raises(HttpReqError),
+            raises(exceptions.HttpReqError),
         )
 
         invalid_ip_or_domain = [
@@ -101,14 +47,14 @@ class TestValidateResolvConf(unittest.TestCase):
                 calling(validate_resolv_conf).with_args(
                     {'nameservers': [ip_or_domain]},
                 ),
-                raises(HttpReqError),
+                raises(exceptions.HttpReqError),
                 ip_or_domain,
             )
 
     def test_search(self):
         assert_that(
             calling(validate_resolv_conf).with_args({'nameservers': ['valid'], 'search': []}),
-            raises(HttpReqError),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
@@ -126,7 +72,7 @@ class TestValidateResolvConf(unittest.TestCase):
                     ],
                 },
             ),
-            raises(HttpReqError),
+            raises(exceptions.HttpReqError),
         )
 
         invalid_names = [
@@ -144,7 +90,7 @@ class TestValidateResolvConf(unittest.TestCase):
             }
             assert_that(
                 calling(validate_resolv_conf).with_args(body),
-                raises(HttpReqError),
+                raises(exceptions.HttpReqError),
                 name,
             )
 
