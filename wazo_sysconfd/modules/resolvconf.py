@@ -9,7 +9,7 @@ from time import time
 from shutil import copy2
 
 from xivo.moresynchro import RWLock
-from xivo.xivo_config import txtsubst
+from .utilities import txtsubst
 from xivo import system
 
 from wazo_sysconfd import helpers
