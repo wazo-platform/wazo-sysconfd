@@ -9,9 +9,8 @@ from hamcrest import (
     not_,
     raises,
 )
-
+from wazo_sysconfd import exceptions
 from ..resolvconf import (
-    UnsupportedMediaException,
     _validate_resolv_conf as validate_resolv_conf,
 )
 
@@ -21,19 +20,19 @@ class TestValidateResolvConf(unittest.TestCase):
     def test_nameservers(self):
         assert_that(
             calling(validate_resolv_conf).with_args({}),
-            raises(UnsupportedMediaException),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
             calling(validate_resolv_conf).with_args({'nameservers': []}),
-            raises(UnsupportedMediaException),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
             calling(validate_resolv_conf).with_args(
                 {'nameservers': ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4']},
             ),
-            raises(UnsupportedMediaException),
+            raises(exceptions.HttpReqError),
         )
 
         invalid_ip_or_domain = [
@@ -48,14 +47,14 @@ class TestValidateResolvConf(unittest.TestCase):
                 calling(validate_resolv_conf).with_args(
                     {'nameservers': [ip_or_domain]},
                 ),
-                raises(UnsupportedMediaException),
+                raises(exceptions.HttpReqError),
                 ip_or_domain,
             )
 
     def test_search(self):
         assert_that(
             calling(validate_resolv_conf).with_args({'nameservers': ['valid'], 'search': []}),
-            raises(UnsupportedMediaException),
+            raises(exceptions.HttpReqError),
         )
 
         assert_that(
@@ -73,7 +72,7 @@ class TestValidateResolvConf(unittest.TestCase):
                     ],
                 },
             ),
-            raises(UnsupportedMediaException),
+            raises(exceptions.HttpReqError),
         )
 
         invalid_names = [
@@ -91,7 +90,7 @@ class TestValidateResolvConf(unittest.TestCase):
             }
             assert_that(
                 calling(validate_resolv_conf).with_args(body),
-                raises(UnsupportedMediaException),
+                raises(exceptions.HttpReqError),
                 name,
             )
 

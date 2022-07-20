@@ -1,4 +1,4 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -12,7 +12,7 @@ from xivo.moresynchro import RWLock
 from .utilities import txtsubst
 from xivo import system
 
-from wazo_sysconfd import helpers
+from wazo_sysconfd import exceptions, helpers
 
 log = logging.getLogger('wazo_sysconfd.modules.resolvconf')
 
@@ -27,14 +27,6 @@ Rcc = {
     'resolvconf_tpl_file': os.path.join('resolvconf', 'resolv.conf'),
     'lock_timeout': 60,
 }
-
-
-class UnsupportedMediaException(Exception):
-    def __init__(self, error_code, error_message):
-        super().__init__(error_code, error_message)
-class ServiceUnavailableException(Exception):
-    def __init__(self, error_code, error_message):
-        super().__init__(error_code, error_message)
 
 
 def _write_config_file(optname, xvars):
@@ -70,12 +62,12 @@ def _write_config_file(optname, xvars):
 
 def _validate_hosts(args):
     if not helpers.domain_label(args.get('hostname')):
-        raise UnsupportedMediaException(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     if not helpers.search_domain(args.get('domain')):
-        raise UnsupportedMediaException(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
 
 
-def Hosts(args):
+def hosts(args):
     """
     POST /hosts
 
@@ -85,19 +77,19 @@ def Hosts(args):
     _validate_hosts(args)
 
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
-        raise UnsupportedMediaException(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['hostname_path'],
         )
 
     if not os.access(Rcc['hosts_path'], (os.X_OK | os.W_OK)):
-        raise UnsupportedMediaException(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['hosts_path'],
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise ServiceUnavailableException(
+        raise exceptions.HttpReqError(
             503,
             "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
         )
@@ -131,17 +123,17 @@ def Hosts(args):
 def _validate_resolv_conf(args):
     nameservers = args.get('nameservers', [])
     if not 0 < len(nameservers) < 4:
-        raise UnsupportedMediaException(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     for nameserver in nameservers:
         if not helpers.ipv4_address_or_domain(nameserver):
-            raise UnsupportedMediaException(415, "invalid arguments for command")
+            raise exceptions.HttpReqError(415, "invalid arguments for command")
 
     searches = args.get('search', [])
     if not 0 < len(searches) < 7:
-        raise UnsupportedMediaException(415, "invalid arguments for command")
+        raise exceptions.HttpReqError(415, "invalid arguments for command")
     for search in searches:
         if not helpers.search_domain(search):
-            raise UnsupportedMediaException(415, "invalid arguments for command")
+            raise exceptions.HttpReqError(415, "invalid arguments for command")
 
 
 def _resolv_conf_variables(args):
@@ -174,7 +166,7 @@ def ResolvConf(args, options):
         if len(nameservers) == len(args['nameservers']):
             args['nameservers'] = list(nameservers)
         else:
-            raise UnsupportedMediaException(415, "duplicated nameservers in %r" % list(args['nameservers']))
+            raise exceptions.HttpReqError(415, "duplicated nameservers in %r" % list(args['nameservers']))
 
     if 'search' in args:
         args['search'] = helpers.extract_scalar(args['search'])
@@ -183,10 +175,10 @@ def ResolvConf(args, options):
         if len(search) == len(args['search']):
             args['search'] = list(search)
         else:
-            raise UnsupportedMediaException(415, "duplicated search in %r" % list(args['search']))
+            raise exceptions.HttpReqError(415, "duplicated search in %r" % list(args['search']))
 
         if len(''.join(args['search'])) > 255:
-            raise UnsupportedMediaException(
+            raise exceptions.HttpReqError(
                 415,
                 "maximum length exceeded for option search: %r" % list(args['search']),
             )
@@ -194,13 +186,13 @@ def ResolvConf(args, options):
     _validate_resolv_conf(args)
 
     if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
-        raise UnsupportedMediaException(
+        raise exceptions.HttpReqError(
             415,
             "path not found or not writable or not executable: %r" % Rcc['resolvconf_path'],
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise ServiceUnavailableException(
+        raise exceptions.HttpReqError(
             503,
             "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
         )

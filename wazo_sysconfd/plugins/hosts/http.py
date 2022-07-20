@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter, Body
-from wazo_sysconfd.modules.resolvconf import Hosts
+from wazo_sysconfd.modules.resolvconf import hosts
 
 router = APIRouter()
 
 @router.post('/hosts', status_code=200)
 def update_files(body: dict = Body()):
-    Hosts(body)
+    hosts(body)

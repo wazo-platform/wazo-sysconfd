@@ -19,9 +19,9 @@ rest_api:
   port: 8668
 
 resolvconf:
-  hostname_file: /etc/local/hostname
-  hosts_file: /etc/local/hosts
-  resolvconf_file: /etc/local/resolv.conf
+  hostname_file: /etc/hostname
+  hosts_file: /etc/hosts
+  resolvconf_file: /etc/resolv.conf
 
 network:
   interfaces_file: /etc/network/interfaces

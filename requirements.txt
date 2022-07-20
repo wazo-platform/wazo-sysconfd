@@ -1,5 +1,5 @@
 https://github.com/wazo-platform/xivo-bus/archive/master.zip
-https://github.com/wazo-platform/xivo-lib-python/archive/WAZO-2364-unicode-error.zip
+https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
 fastapi==0.78.0
 gunicorn==20.1.0
 kombu==4.2.1
