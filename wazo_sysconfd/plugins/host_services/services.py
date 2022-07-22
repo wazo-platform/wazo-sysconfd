@@ -1,10 +1,10 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import subprocess
-
 from . import exceptions
+from wazo_sysconfd.exceptions import HttpReqError
 
 logger = logging.getLogger('wazo_sysconfd.modules.services')
 
@@ -52,13 +52,15 @@ def _run_action_for_service_validated(service, action):
         logger.debug("%s : return code %d", ' '.join(command), p.returncode)
 
         if p.returncode != 0:
-            raise exceptions.InternalServerErrorException(500, output)
+            raise HttpReqError(500, output)
     except OSError:
         logger.exception("Error while executing action")
-        raise exceptions.InternalServerErrorException(500, "can't manage services")
+        raise HttpReqError(500, "can't manage services")
 
     if isinstance(output, bytes):
         return output.decode("utf-8")
     else:
         return output
+
+
 

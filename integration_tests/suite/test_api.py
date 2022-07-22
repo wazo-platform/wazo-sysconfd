@@ -163,7 +163,7 @@ class TestSysconfd(IntegrationTest):
             'networking': 'restart',
         }
 
-        self.sysconfd.systemd_services(body)
+        self.sysconfd.services(body)
 
         expected_command = ['systemctl', 'restart', 'networking.service']
         assert self._command_was_called(bus_events, expected_command)
