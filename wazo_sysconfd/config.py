@@ -57,10 +57,10 @@ _DEFAULT_CONFIG = {
         'exchange_durable': True,
     },
     'enabled_plugins': {
-        'status': True,
         'asterisk': True,
         'hosts': True,
         'request_handlers': True,
+        'status': True,
     },
 }
 
