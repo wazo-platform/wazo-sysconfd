@@ -60,6 +60,7 @@ _DEFAULT_CONFIG = {
         'status': True,
         'asterisk': True,
         'hosts': True,
+        'request_handlers': True,
     },
 }
 
