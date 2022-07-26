@@ -57,10 +57,4 @@ def _run_action_for_service_validated(service, action):
         logger.exception("Error while executing action")
         raise HttpReqError(500, "can't manage services")
 
-    if isinstance(output, bytes):
-        return output.decode("utf-8")
-    else:
-        return output
-
-
-
+    return output
