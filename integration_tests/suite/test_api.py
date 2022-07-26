@@ -3,7 +3,15 @@
 
 import pytest
 
+from hamcrest import (
+    assert_that,
+    calling,
+    contains_string,
+    has_properties,
+)
+from wazo_test_helpers.hamcrest.raises import raises
 from wazo_test_helpers import until
+from wazo_sysconfd_client.exceptions import SysconfdError
 
 from .helpers.base import IntegrationTest
 
@@ -35,6 +43,16 @@ class TestSysconfd(IntegrationTest):
         )
 
         assert self._directory_exists(new_voicemail_directory)
+
+    def test_delete_voicemail_path_injection(self):
+        assert_that(
+            calling(self.sysconfd.delete_voicemail).with_args(
+                mailbox='../../../attack/me', context='some-context'
+            ),
+            raises(SysconfdError).matching(
+                has_properties(status_code=400, message=contains_string('mailbox'))
+            ),
+        )
 
     def test_delete_voicemail(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from gunicorn.app.base import BaseApplication
 
 from wazo_sysconfd.exceptions import HttpReqError
