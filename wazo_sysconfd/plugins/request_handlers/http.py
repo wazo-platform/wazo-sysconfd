@@ -3,7 +3,9 @@
 
 from fastapi import APIRouter, Depends, Body
 
-from wazo_sysconfd.plugins.request_handlers.plugin import get_request_handlers_proxy
+from wazo_sysconfd.plugins.request_handlers.dependencies import (
+    get_request_handlers_proxy,
+)
 from wazo_sysconfd.plugins.request_handlers.request import RequestHandlersProxy
 
 router = APIRouter()

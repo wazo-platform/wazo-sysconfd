@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, Body
 
 from wazo_sysconfd.plugins.ha_config.ha import HAConfigManager
-from wazo_sysconfd.plugins.ha_config.plugin import get_ha_config_manager
+from wazo_sysconfd.plugins.ha_config.dependencies import get_ha_config_manager
 
 router = APIRouter()
 

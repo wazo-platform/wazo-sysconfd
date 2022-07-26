@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends
 
 from wazo_sysconfd.plugins.asterisk.asterisk import Asterisk
-from .plugin import get_asterisk
+from .dependencies import get_asterisk
 
 router = APIRouter()
 
