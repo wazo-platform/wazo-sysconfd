@@ -112,8 +112,8 @@ class TestSysconfd(IntegrationTest):
         )
 
     def test_hosts(self):
-        self._given_file_absent('/etc/hostname')
-        self._given_file_absent('/etc/hosts')
+        self._given_file_absent('/etc/local/hostname')
+        self._given_file_absent('/etc/local/hosts')
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
             'hostname': 'wazo',
@@ -122,10 +122,10 @@ class TestSysconfd(IntegrationTest):
 
         self.sysconfd.hosts(body)
 
-        expected_command = ['hostname', '-F', '/etc/hostname']
+        expected_command = ['hostname', '-F', '/etc/local/hostname']
         assert self._command_was_called(bus_events, expected_command)
-        assert self._file_exists('/etc/hostname')
-        assert self._file_exists('/etc/hosts')
+        assert self._file_exists('/etc/local/hostname')
+        assert self._file_exists('/etc/local/hosts')
 
     def test_resolv_conf(self):
         self._given_file_absent('/etc/local/resolv.conf')
