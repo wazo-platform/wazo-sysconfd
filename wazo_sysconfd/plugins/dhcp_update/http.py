@@ -2,14 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter
-import subprocess
 
 from wazo_sysconfd.exceptions import HttpReqError
+from wazo_sysconfd.plugins.dhcp_update.services import exec_dhcp_update
+
 
 router = APIRouter()
-
-
-DHCPD_UDPATE_COMMAND = ['dhcpd-update', '-dr']
 
 
 @router.get('/dhcpd_update', status_code=200)
@@ -17,10 +15,9 @@ def get_dhcp_update():
     """Download the latest ISC dhcp server configuration files and
     regenerate the affected configuration files via the dhcpd-update
     command.
-
     """
     try:
-        returncode = subprocess.call(DHCPD_UDPATE_COMMAND, close_fds=True)
+        returncode = exec_dhcp_update()
     except OSError as e:
         raise HttpReqError(500, "error while executing dhcpd-update command: %s" % e)
     else:
