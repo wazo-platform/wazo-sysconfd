@@ -15,7 +15,7 @@ def xivoctl(args, options):
         if service == 'wazo-service':
             try:
                 if act == 'start':
-                    services({'asterisk': 'stop'}, {})
+                    services({'asterisk': 'stop'})
                 p = subprocess.Popen(
                     ["%s" % service, act],
                     stdout=subprocess.PIPE,
