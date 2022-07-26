@@ -58,6 +58,7 @@ _DEFAULT_CONFIG = {
     },
     'enabled_plugins': {
         'asterisk': True,
+        'dhcp_update': True,
         'hosts': True,
         'request_handlers': True,
         'status': True,

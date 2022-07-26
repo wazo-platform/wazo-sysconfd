@@ -14,7 +14,6 @@ class TestSysconfd(IntegrationTest):
 
     asset = 'base'
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_dhcpd_update(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
 
