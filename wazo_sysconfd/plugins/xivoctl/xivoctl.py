@@ -5,7 +5,7 @@ import logging
 import subprocess
 
 from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.modules.services import services
+from wazo_sysconfd.plugins.host_services.services import services
 
 logger = logging.getLogger('wazo_sysconfd.modules.xivoctl')
 
@@ -15,7 +15,7 @@ def xivoctl(args, options):
         if service == 'wazo-service':
             try:
                 if act == 'start':
-                    services({'asterisk': 'stop'}, {})
+                    services({'asterisk': 'stop'})
                 p = subprocess.Popen(
                     ["%s" % service, act],
                     stdout=subprocess.PIPE,

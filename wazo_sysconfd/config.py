@@ -61,6 +61,7 @@ _DEFAULT_CONFIG = {
         'commonconf': True,
         'dhcp_update': True,
         'ha_config': True,
+        'host_services': True,
         'hosts': True,
         'request_handlers': True,
         'status': True,

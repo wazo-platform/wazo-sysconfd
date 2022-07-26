@@ -22,6 +22,7 @@ setup(
             'commonconf = wazo_sysconfd.plugins.commonconf.plugin:Plugin',
             'dhcp_update = wazo_sysconfd.plugins.dhcp_update.plugin:Plugin',
             'ha_config = wazo_sysconfd.plugins.ha_config.plugin:Plugin',
+            'host_services = wazo_sysconfd.plugins.host_services.plugin:Plugin',
             'hosts = wazo_sysconfd.plugins.hosts.plugin:Plugin',
             'request_handlers = wazo_sysconfd.plugins.request_handlers.plugin:Plugin',
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',

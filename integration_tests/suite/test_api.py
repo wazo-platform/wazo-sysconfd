@@ -157,7 +157,6 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/xivo/ha.conf')
         assert self._file_exists('/etc/cron.d/xivo-ha-master')
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_services(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {
