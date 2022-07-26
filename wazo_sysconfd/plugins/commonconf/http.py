@@ -7,10 +7,12 @@ from .plugin import get_commonconf
 
 router = APIRouter()
 
+
 @router.post('/commonconf_generate', status_code=200)
 def commonconf_generate(commonconf: CommonConf = Depends(get_commonconf)):
 
     commonconf.generate_commonconf()
+
 
 @router.get('/commonconf_apply', status_code=200)
 def commonconf_apply(commonconf: CommonConf = Depends(get_commonconf)):

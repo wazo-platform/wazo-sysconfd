@@ -15,8 +15,8 @@ from wazo_sysconfd.modules.resolvconf import (
     _validate_hosts as validate_hosts,
 )
 
+
 class TestValidateHosts(unittest.TestCase):
-    
     def test_domain(self):
         invalid_names = [
             64 * 'a.wazo-platform.org',

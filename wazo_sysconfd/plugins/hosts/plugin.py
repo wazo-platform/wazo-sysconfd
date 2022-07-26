@@ -7,6 +7,8 @@ from xivo.config_helper import parse_config_file
 from .http import router
 
 SYSCONFD_CONFIGURATION_FILE = os.path.join('/etc/wazo-sysconfd', 'config.yml')
+
+
 class Plugin:
     def load(self, dependencies: dict):
         options = parse_config_file(SYSCONFD_CONFIGURATION_FILE)

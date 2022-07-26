@@ -13,4 +13,3 @@ class InvalidServiceException(ValueError):
     def __init__(self, service_name):
         super().__init__()
         self.service_name = service_name
-
