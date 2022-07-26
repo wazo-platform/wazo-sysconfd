@@ -176,7 +176,6 @@ class TestSysconfd(IntegrationTest):
 
         assert result == {'rest_api': {'status': 'ok'}}
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_xivoctl(self):
         bus_events = self.bus.accumulator('sysconfd.sentinel')
         body = {

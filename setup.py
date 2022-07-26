@@ -24,6 +24,7 @@ setup(
             'hosts = wazo_sysconfd.plugins.hosts.plugin:Plugin',
             'request_handlers = wazo_sysconfd.plugins.request_handlers.plugin:Plugin',
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
+            'xivoctl = wazo_sysconfd.plugins.xivoctl.plugin:Plugin',
         ],
     },
 )
