@@ -5,21 +5,20 @@ import errno
 import json
 import os
 import subprocess
-from xivo import http_json_server
-from xivo.http_json_server import CMD_R, CMD_RW
 
 
 class HAConfigManager(object):
     DEFAULT_HA_CONF_FILE = '/etc/xivo/ha.conf'
-    DEFAULT_HA_CONFIG = {
-        'node_type': 'disabled',
-        'remote_address': ''
-    }
+    DEFAULT_HA_CONFIG = {'node_type': 'disabled', 'remote_address': ''}
     CRONFILE_SLAVE = 'xivo-ha-slave'
     CRONFILE_MASTER = 'xivo-ha-master'
 
-    def __init__(self, postgres_config_updater_factory, cronfile_installer,
-                 ha_conf_file=DEFAULT_HA_CONF_FILE):
+    def __init__(
+        self,
+        postgres_config_updater_factory,
+        cronfile_installer,
+        ha_conf_file=DEFAULT_HA_CONF_FILE,
+    ):
         self._postgres_config_updater_factory = postgres_config_updater_factory
         self._cronfile_installer = cronfile_installer
         self._ha_conf_file = ha_conf_file
@@ -71,12 +70,17 @@ class HAConfigManager(object):
             self._add_slave_cronfile(remote_address)
 
     def _add_master_cronfile(self, remote_address):
-        content = '0 * * * * root /usr/sbin/xivo-master-slave-db-replication %s >/dev/null\n' \
-                  '0 * * * * root /usr/bin/xivo-sync >/dev/null\n' % remote_address
+        content = (
+            '0 * * * * root /usr/sbin/xivo-master-slave-db-replication %s >/dev/null\n'
+            '0 * * * * root /usr/bin/xivo-sync >/dev/null\n' % remote_address
+        )
         self._cronfile_installer.add_cronfile(self.CRONFILE_MASTER, content)
 
     def _add_slave_cronfile(self, remote_address):
-        content = '* * * * * root /usr/sbin/xivo-check-master-status %s >/dev/null\n' % remote_address
+        content = (
+            '* * * * * root /usr/sbin/xivo-check-master-status %s >/dev/null\n'
+            % remote_address
+        )
         self._cronfile_installer.add_cronfile(self.CRONFILE_SLAVE, content)
 
     def _manage_services(self, ha_config):
@@ -147,10 +151,3 @@ class _CronFileInstaller(object):
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
-
-ha_config_manager = HAConfigManager(_PostgresConfigUpdater, _CronFileInstaller())
-http_json_server.register(ha_config_manager.get_ha_config, CMD_R,
-                          name='get_ha_config')
-http_json_server.register(ha_config_manager.update_ha_config, CMD_RW,
-                          name='update_ha_config')

@@ -143,7 +143,6 @@ class TestSysconfd(IntegrationTest):
 
         assert self._file_exists('/etc/local/resolv.conf')
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_ha_config(self):
         self._given_file_absent('/etc/xivo/ha.conf')
         bus_events = self.bus.accumulator('sysconfd.sentinel')

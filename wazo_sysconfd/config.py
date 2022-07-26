@@ -62,6 +62,7 @@ _DEFAULT_CONFIG = {
         'hosts': True,
         'request_handlers': True,
         'status': True,
+        'ha_config': True,
     },
 }
 
