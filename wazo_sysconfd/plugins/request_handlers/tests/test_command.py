@@ -5,7 +5,7 @@
 import unittest
 
 from mock import Mock
-from wazo_sysconfd.request_handlers.command import Command, SimpleCommandFactory
+from wazo_sysconfd.plugins.request_handlers.command import Command, SimpleCommandFactory
 
 
 class TestCommand(unittest.TestCase):

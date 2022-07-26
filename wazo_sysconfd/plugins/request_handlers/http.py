@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter, Depends, Body
-from wazo_sysconfd.request_handlers.request import RequestHandlersProxy
-from wazo_sysconfd.settings import get_request_handlers_proxy
+
+from wazo_sysconfd.plugins.request_handlers.plugin import get_request_handlers_proxy
+from wazo_sysconfd.plugins.request_handlers.request import RequestHandlersProxy
 
 router = APIRouter()
 

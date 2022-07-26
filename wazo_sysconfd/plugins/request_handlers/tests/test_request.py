@@ -6,9 +6,9 @@ import unittest
 
 from mock import ANY, Mock, sentinel
 
-from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.request_handlers.command import Command
-from wazo_sysconfd.request_handlers.request import (
+from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
+from wazo_sysconfd.plugins.request_handlers.command import Command
+from wazo_sysconfd.plugins.request_handlers.request import (
     Request,
     RequestFactory,
     DuplicateRequestOptimizer,

@@ -11,15 +11,15 @@ from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import FailFastPublisher
 from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
-from .asterisk import (
+from wazo_sysconfd.plugins.request_handlers.asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
 )
-from .chown_autoprov_config import (
+from wazo_sysconfd.plugins.request_handlers.chown_autoprov_config import (
     ChownAutoprovCommandExecutor,
     ChownAutoprovCommandFactory,
 )
-from ..exceptions import HttpReqError
+from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 
 logger = logging.getLogger(__name__)
 
