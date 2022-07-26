@@ -15,18 +15,30 @@ class CommonConf:
     def safe_init(self, options):
         global commonconf_config
         commonconf_config['file'] = options.get('commonconf', {}).get('commonconf_file')
-        commonconf_config['generate_cmd'] = options.get('commonconf', {}).get('commonconf_generate_cmd')
-        commonconf_config['update_cmd'] = options.get('commonconf', {}).get('commonconf_update_cmd')
-        commonconf_config['monit'] = options.get('commonconf', {}).get('commonconf_monit')
-        commonconf_config['monit_checks_dir'] = options.get('monit', {}).get('monit_checks_dir')
-        commonconf_config['monit_conf_dir'] = options.get('monit', {}).get('monit_conf_dir')
+        commonconf_config['generate_cmd'] = options.get('commonconf', {}).get(
+            'commonconf_generate_cmd'
+        )
+        commonconf_config['update_cmd'] = options.get('commonconf', {}).get(
+            'commonconf_update_cmd'
+        )
+        commonconf_config['monit'] = options.get('commonconf', {}).get(
+            'commonconf_monit'
+        )
+        commonconf_config['monit_checks_dir'] = options.get('monit', {}).get(
+            'monit_checks_dir'
+        )
+        commonconf_config['monit_conf_dir'] = options.get('monit', {}).get(
+            'monit_conf_dir'
+        )
 
     def generate_commonconf(self):
         try:
-            p = subprocess.Popen([commonconf_config['generate_cmd']],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    close_fds=True)
+            p = subprocess.Popen(
+                [commonconf_config['generate_cmd']],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                close_fds=True,
+            )
         except OSError as e:
             logger.exception(e)
             raise exceptions.HttpReqError(500, "can't generate commonconf file")
@@ -42,11 +54,13 @@ class CommonConf:
     def apply_commonconf(self):
         output = ''
         try:
-            p = subprocess.Popen([commonconf_config['update_cmd']],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    close_fds=True,
-                                    encoding='utf-8')
+            p = subprocess.Popen(
+                [commonconf_config['update_cmd']],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                close_fds=True,
+                encoding='utf-8',
+            )
             ret = p.wait()
             output += p.stdout.read()
             logger.debug("commonconf apply: %d" % ret)
@@ -58,11 +72,13 @@ class CommonConf:
             raise exceptions.HttpReqError(500, "can't apply commonconf changes")
 
         try:
-            p = subprocess.Popen([commonconf_config['monit']],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    close_fds=True,
-                                    encoding='utf-8')
+            p = subprocess.Popen(
+                [commonconf_config['monit']],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                close_fds=True,
+                encoding='utf-8',
+            )
             ret = p.wait()
             output += '\n' + p.stdout.read()
             logger.debug("monit apply: %d" % ret)

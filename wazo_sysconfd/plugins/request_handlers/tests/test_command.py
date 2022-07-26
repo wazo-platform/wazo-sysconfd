@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -9,7 +9,6 @@ from wazo_sysconfd.plugins.request_handlers.command import Command, SimpleComman
 
 
 class TestCommand(unittest.TestCase):
-
     def setUp(self):
         self.value = Mock()
         self.request = Mock()
@@ -38,7 +37,6 @@ class TestCommand(unittest.TestCase):
 
 
 class TestSimpleCommandFactory(unittest.TestCase):
-
     def setUp(self):
         self.executor = Mock()
         self.factory = SimpleCommandFactory(self.executor)

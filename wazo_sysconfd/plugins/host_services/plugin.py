@@ -3,6 +3,7 @@
 
 from .http import router
 
+
 class Plugin:
     def load(self, dependencies: dict):
         api = dependencies['api']

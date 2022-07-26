@@ -6,6 +6,7 @@ from wazo_sysconfd.modules.resolvconf import hosts
 
 router = APIRouter()
 
+
 @router.post('/hosts', status_code=200)
 def update_files(body: dict = Body()):
     hosts(body)

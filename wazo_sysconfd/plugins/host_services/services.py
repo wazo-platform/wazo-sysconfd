@@ -43,11 +43,13 @@ def _run_action_for_service_validated(service, action):
     output = ''
     try:
         command = ['/bin/systemctl', action, '{}.service'.format(service)]
-        p = subprocess.Popen(command,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT,
-                             close_fds=True,
-                             encoding='UTF-8')
+        p = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            close_fds=True,
+            encoding='UTF-8',
+        )
         output = p.communicate()[0]
         logger.debug("%s : return code %d", ' '.join(command), p.returncode)
 

@@ -16,7 +16,6 @@ from ..resolvconf import (
 
 
 class TestValidateResolvConf(unittest.TestCase):
-
     def test_nameservers(self):
         assert_that(
             calling(validate_resolv_conf).with_args({}),
@@ -53,7 +52,9 @@ class TestValidateResolvConf(unittest.TestCase):
 
     def test_search(self):
         assert_that(
-            calling(validate_resolv_conf).with_args({'nameservers': ['valid'], 'search': []}),
+            calling(validate_resolv_conf).with_args(
+                {'nameservers': ['valid'], 'search': []}
+            ),
             raises(exceptions.HttpReqError),
         )
 

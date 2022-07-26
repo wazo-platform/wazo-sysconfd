@@ -15,7 +15,6 @@ from wazo_sysconfd.plugins.resolv_conf.resolv_conf import _validate_resolv_conf
 
 
 class TestValidateResolvConf(unittest.TestCase):
-
     def test_nameservers(self):
         assert_that(
             calling(_validate_resolv_conf).with_args({}),
@@ -52,7 +51,9 @@ class TestValidateResolvConf(unittest.TestCase):
 
     def test_search(self):
         assert_that(
-            calling(_validate_resolv_conf).with_args({'nameservers': ['valid'], 'search': []}),
+            calling(_validate_resolv_conf).with_args(
+                {'nameservers': ['valid'], 'search': []}
+            ),
             raises(HttpReqError),
         )
 
