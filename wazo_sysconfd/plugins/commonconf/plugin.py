@@ -1,13 +1,27 @@
 # Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from .http import router
-from .services import safe_init
+from functools import lru_cache
+
+from .services import CommonConf
+
+
+config = None
+
 
 class Plugin:
     def load(self, dependencies: dict):
-        options = dependencies['config']
+        from .http import router
+        global config
 
-        safe_init(options)
         api = dependencies['api']
+        config = dependencies['config']
+
         api.include_router(router)
+
+
+@lru_cache()
+def get_commonconf():
+    commonconf = CommonConf()
+    commonconf.safe_init(config)
+    return commonconf
