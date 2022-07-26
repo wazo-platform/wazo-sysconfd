@@ -25,15 +25,12 @@ class Controller:
                 'api': api,
                 'config': config,
                 'status_aggregator': self.status_aggregator,
-            }
+            },
         )
         logger.debug('Loaded routes:\n%s', self.list_routes())
 
     def list_routes(self) -> List:
-        url_list = [
-            {'path': route.path, 'name': route.name}
-            for route in api.routes
-        ]
+        url_list = [{'path': route.path, 'name': route.name} for route in api.routes]
         return url_list
 
     def run(self):

@@ -11,6 +11,8 @@ from .config import load_config
 
 def main():
     config = load_config(sys.argv[1:])
-    setup_logging(config['log_file'], log_level=get_log_level_by_name(config['log_level']))
+    setup_logging(
+        config['log_file'], log_level=get_log_level_by_name(config['log_level'])
+    )
     controller = Controller(config)
     controller.run()

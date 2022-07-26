@@ -8,7 +8,7 @@ import uuid
 
 from xivo_bus.resources.asterisk.event import AsteriskReloadProgressEvent
 
-from .command import Command
+from wazo_sysconfd.plugins.request_handlers.command import Command
 
 logger = logging.getLogger(__name__)
 

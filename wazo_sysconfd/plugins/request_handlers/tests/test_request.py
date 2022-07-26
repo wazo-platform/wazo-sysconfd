@@ -5,10 +5,10 @@
 import unittest
 
 from mock import ANY, Mock, sentinel
-from xivo.http_json_server import HttpReqError
 
-from wazo_sysconfd.request_handlers.command import Command
-from wazo_sysconfd.request_handlers.request import (
+from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
+from wazo_sysconfd.plugins.request_handlers.command import Command
+from wazo_sysconfd.plugins.request_handlers.request import (
     Request,
     RequestFactory,
     DuplicateRequestOptimizer,
@@ -21,7 +21,6 @@ from wazo_sysconfd.request_handlers.request import (
 
 
 class TestRequest(unittest.TestCase):
-
     def test_execute(self):
         command1 = Mock()
         command2 = Mock()
@@ -43,12 +42,12 @@ class TestRequest(unittest.TestCase):
 
 
 class TestRequestFactory(unittest.TestCase):
-
     def setUp(self):
         self.asterisk_command_factory = Mock()
         self.chown_autoprov_config_command_factory = Mock()
-        self.request_factory = RequestFactory(self.asterisk_command_factory,
-                                              self.chown_autoprov_config_command_factory)
+        self.request_factory = RequestFactory(
+            self.asterisk_command_factory, self.chown_autoprov_config_command_factory
+        )
 
     def test_new_request_ipbx(self):
         args = {
@@ -58,7 +57,9 @@ class TestRequestFactory(unittest.TestCase):
         request = self.request_factory.new_request(args)
 
         self.asterisk_command_factory.new_command.assert_called_once_with('foo', ANY)
-        self.assertEqual(request.commands, [self.asterisk_command_factory.new_command.return_value])
+        self.assertEqual(
+            request.commands, [self.asterisk_command_factory.new_command.return_value]
+        )
 
     def test_new_request_chown_autoprov(self):
         args = {
@@ -66,7 +67,9 @@ class TestRequestFactory(unittest.TestCase):
         }
 
         request = self.request_factory.new_request(args)
-        self.chown_autoprov_config_command_factory.new_command.assert_called_once_with('foo', ANY)
+        self.chown_autoprov_config_command_factory.new_command.assert_called_once_with(
+            'foo', ANY
+        )
         self.assertEqual(
             request.commands,
             [self.chown_autoprov_config_command_factory.new_command.return_value],
@@ -92,7 +95,6 @@ class TestRequestFactory(unittest.TestCase):
 
 
 class TestDuplicateRequestOptimizer(unittest.TestCase):
-
     def setUp(self):
         self.executor = Mock()
         self.other_executor = Mock()
@@ -169,7 +171,6 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
 
 
 class TestRequestQueue(unittest.TestCase):
-
     def setUp(self):
         self.optimizer = Mock()
         self.request_queue = RequestQueue(self.optimizer)
@@ -190,7 +191,6 @@ class ExitTestException(BaseException):
 
 
 class TestRequestProcessor(unittest.TestCase):
-
     def setUp(self):
         self.request_queue = Mock()
         self.request_processor = RequestProcessor(self.request_queue)
@@ -206,27 +206,31 @@ class TestRequestProcessor(unittest.TestCase):
 
 
 class TestRequestHandlers(unittest.TestCase):
-
     def setUp(self):
         self.bus_publisher = Mock()
         self.request_factory = Mock()
         self.request_queue = Mock()
-        self.request_handlers = RequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
+        self.request_handlers = RequestHandlers(
+            self.request_factory, self.request_queue, self.bus_publisher
+        )
 
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)
 
         self.request_factory.new_request.assert_called_once_with(sentinel.args)
-        self.request_queue.put.assert_called_once_with(self.request_factory.new_request.return_value)
+        self.request_queue.put.assert_called_once_with(
+            self.request_factory.new_request.return_value
+        )
 
     def test_handle_request_invalid(self):
         self.request_factory.new_request.side_effect = Exception()
 
-        self.assertRaises(HttpReqError, self.request_handlers.handle_request, sentinel.args, None)
+        self.assertRaises(
+            HttpReqError, self.request_handlers.handle_request, sentinel.args, None
+        )
 
 
 class TestSyncRequestObserver(unittest.TestCase):
-
     def test_without_timeout(self):
         request = Mock()
         observer = SyncRequestObserver()
@@ -239,14 +243,15 @@ class TestSyncRequestObserver(unittest.TestCase):
 
 
 class TestSyncRequestHandlers(unittest.TestCase):
-
     def setUp(self):
         self.bus_publisher = Mock()
         self.request_factory = Mock()
         self.request_factory.new_request.return_value = Mock(observers=[])
         self.request_queue = Mock()
         self.request_queue.put.side_effect = self._request_queue_put
-        self.request_handlers = SyncRequestHandlers(self.request_factory, self.request_queue, self.bus_publisher)
+        self.request_handlers = SyncRequestHandlers(
+            self.request_factory, self.request_queue, self.bus_publisher
+        )
 
     def _request_queue_put(self, request):
         for observer in request.observers:
@@ -255,4 +260,6 @@ class TestSyncRequestHandlers(unittest.TestCase):
     def test_handle_request(self):
         self.request_handlers.handle_request(sentinel.args, None)
 
-        self.request_queue.put.assert_called_once_with(self.request_factory.new_request.return_value)
+        self.request_queue.put.assert_called_once_with(
+            self.request_factory.new_request.return_value
+        )

@@ -7,25 +7,24 @@ import threading
 import uuid
 
 from kombu import Connection, Exchange, Producer
-from xivo.http_json_server import HttpReqError
 from xivo_bus.marshaler import Marshaler
 from xivo_bus.publisher import FailFastPublisher
 from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
-from .asterisk import (
+from wazo_sysconfd.plugins.request_handlers.asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
 )
-from .chown_autoprov_config import (
+from wazo_sysconfd.plugins.request_handlers.chown_autoprov_config import (
     ChownAutoprovCommandExecutor,
     ChownAutoprovCommandFactory,
 )
+from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 
 logger = logging.getLogger(__name__)
 
 
 class Request(object):
-
     def __init__(self, commands, context=None):
         self.commands = commands
         self.observers = []
@@ -40,10 +39,7 @@ class Request(object):
 
 
 class RequestFactory(object):
-
-    def __init__(self,
-                 asterisk_command_factory,
-                 chown_autoprov_command_factory):
+    def __init__(self, asterisk_command_factory, chown_autoprov_command_factory):
         self._asterisk_command_factory = asterisk_command_factory
         self._chown_autoprov_command_factory = chown_autoprov_command_factory
 
@@ -51,8 +47,16 @@ class RequestFactory(object):
         request = Request([], context=args.get('context'))
         commands = []
         # asterisk commands must be executed first
-        self._append_commands('ipbx', self._asterisk_command_factory, args, request, commands)
-        self._append_commands('chown_autoprov_config', self._chown_autoprov_command_factory, args, request, commands)
+        self._append_commands(
+            'ipbx', self._asterisk_command_factory, args, request, commands
+        )
+        self._append_commands(
+            'chown_autoprov_config',
+            self._chown_autoprov_command_factory,
+            args,
+            request,
+            commands,
+        )
         request.commands = commands
         return request
 
@@ -73,7 +77,6 @@ class RequestFactory(object):
 
 
 class DuplicateRequestOptimizer(object):
-
     def __init__(self, executor):
         self._executor = executor
         self._cache = {}
@@ -101,7 +104,6 @@ class DuplicateRequestOptimizer(object):
 
 
 class RequestQueue(object):
-
     def __init__(self, optimizer):
         self._lock = threading.Lock()
         self._condition = threading.Condition(self._lock)
@@ -124,7 +126,6 @@ class RequestQueue(object):
 
 
 class RequestProcessor(object):
-
     def __init__(self, request_queue):
         self._request_queue = request_queue
 
@@ -138,7 +139,6 @@ class RequestProcessor(object):
 
 
 class RequestHandlers(object):
-
     def __init__(self, request_factory, request_queue, bus_publisher):
         self._request_factory = request_factory
         self._request_queue = request_queue
@@ -164,7 +164,6 @@ class RequestHandlers(object):
 
 
 class RequestCompletedEventObserver(object):
-
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
 
@@ -175,7 +174,6 @@ class RequestCompletedEventObserver(object):
 
 
 class SyncRequestObserver(object):
-
     def __init__(self, timeout=30):
         self._event = threading.Event()
         self._timeout = timeout
@@ -188,7 +186,6 @@ class SyncRequestObserver(object):
 
 
 class SyncRequestHandlers(RequestHandlers):
-
     def _queue_request(self, request):
         observer = SyncRequestObserver()
         request.observers.append(observer)
@@ -198,7 +195,6 @@ class SyncRequestHandlers(RequestHandlers):
 
 
 class LazyBusPublisher(object):
-
     def __init__(self, bus_connection, bus_exchange, marshaler):
         self._bus_connection = bus_connection
         self._bus_exchange = bus_exchange
@@ -211,12 +207,13 @@ class LazyBusPublisher(object):
         return self._publisher.publish(event)
 
     def _new_publisher(self):
-        bus_producer = Producer(self._bus_connection, self._bus_exchange, auto_declare=True)
+        bus_producer = Producer(
+            self._bus_connection, self._bus_exchange, auto_declare=True
+        )
         return FailFastPublisher(bus_producer, self._marshaler)
 
 
 class RequestHandlersProxy(object):
-
     def __init__(self):
         self._request_handlers = None
         self._request_processor = None
@@ -224,6 +221,9 @@ class RequestHandlersProxy(object):
     def safe_init(self, options):
         # read config from main configuration file
         config = options.configuration
+        self.safe_init_from_config(config)
+
+    def safe_init_from_config(self, config):
         synchronous = config.get('request_handlers', {}).get('synchronous')
         username = config.get('bus', {}).get('username')
         password = config.get('bus', {}).get('password')
@@ -236,10 +236,9 @@ class RequestHandlersProxy(object):
         # instantiate bus publisher
         # XXX should fetch the uuid from the config
         uuid = None
-        url = 'amqp://{username}:{password}@{host}:{port}//'.format(username=username,
-                                                                    password=password,
-                                                                    host=host,
-                                                                    port=port)
+        url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+            username=username, password=password, host=host, port=port
+        )
         bus_connection = Connection(url)
         bus_exchange = Exchange(exchange_name, exchange_type, durable=exchange_durable)
         bus_publisher = LazyBusPublisher(bus_connection, bus_exchange, Marshaler(uuid))
@@ -250,17 +249,24 @@ class RequestHandlersProxy(object):
 
         # instantiate factories
         asterisk_command_factory = AsteriskCommandFactory(asterisk_command_executor)
-        chown_autoprov_command_factory = ChownAutoprovCommandFactory(chown_autoprov_command_executor)
+        chown_autoprov_command_factory = ChownAutoprovCommandFactory(
+            chown_autoprov_command_executor
+        )
 
         # instantiate other stuff
-        request_factory = RequestFactory(asterisk_command_factory,
-                                         chown_autoprov_command_factory)
+        request_factory = RequestFactory(
+            asterisk_command_factory, chown_autoprov_command_factory
+        )
         request_optimizer = DuplicateRequestOptimizer(asterisk_command_executor)
         request_queue = RequestQueue(request_optimizer)
         if synchronous:
-            self._request_handlers = SyncRequestHandlers(request_factory, request_queue, bus_publisher)
+            self._request_handlers = SyncRequestHandlers(
+                request_factory, request_queue, bus_publisher
+            )
         else:
-            self._request_handlers = RequestHandlers(request_factory, request_queue, bus_publisher)
+            self._request_handlers = RequestHandlers(
+                request_factory, request_queue, bus_publisher
+            )
         self._request_processor = RequestProcessor(request_queue)
 
     def at_start(self, options):

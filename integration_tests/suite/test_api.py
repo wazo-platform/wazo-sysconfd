@@ -62,7 +62,6 @@ class TestSysconfd(IntegrationTest):
         assert self._command_was_called(bus_events, ['xivo-update-config'])
         assert self._command_was_called(bus_events, ['xivo-monitoring-update'])
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_exec_request_handlers(self):
         asterisk_command = 'dialplan reload'
         autoprov_filename = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
