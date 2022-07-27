@@ -7,12 +7,11 @@ import subprocess
 
 from time import time
 from shutil import copy2
-
-from .utilities import txtsubst
 from xivo import system
 
 from wazo_sysconfd import exceptions, helpers
 from wazo_sysconfd.dns_lock import RESOLVCONFLOCK
+from wazo_sysconfd.utilities import txtsubst
 
 log = logging.getLogger('wazo_sysconfd.modules.resolvconf')
 
@@ -153,76 +152,6 @@ def _resolv_conf_variables(args):
         xvars['_XIVO_DNS_SEARCH'] = ""
 
     return xvars
-
-
-def ResolvConf(args, options):
-    """
-    POST /resolv_conf
-
-    >>> resolv_conf({'nameservers': '192.168.0.254'})
-    >>> resolv_conf({'nameservers': ['192.168.0.254', '10.0.0.254']})
-    >>> resolv_conf({'search': ['toto.tld', 'tutu.tld']
-                     'nameservers': ['192.168.0.254', '10.0.0.254']})
-    """
-
-    if 'nameservers' in args:
-        args['nameservers'] = helpers.extract_scalar(args['nameservers'])
-        nameservers = helpers.unique_case_tuple(args['nameservers'])
-
-        if len(nameservers) == len(args['nameservers']):
-            args['nameservers'] = list(nameservers)
-        else:
-            raise exceptions.HttpReqError(
-                415, "duplicated nameservers in %r" % list(args['nameservers'])
-            )
-
-    if 'search' in args:
-        args['search'] = helpers.extract_scalar(args['search'])
-        search = helpers.unique_case_tuple(args['search'])
-
-        if len(search) == len(args['search']):
-            args['search'] = list(search)
-        else:
-            raise exceptions.HttpReqError(
-                415, "duplicated search in %r" % list(args['search'])
-            )
-
-        if len(''.join(args['search'])) > 255:
-            raise exceptions.HttpReqError(
-                415,
-                "maximum length exceeded for option search: %r" % list(args['search']),
-            )
-
-    _validate_resolv_conf(args)
-
-    if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
-        raise exceptions.HttpReqError(
-            415,
-            "path not found or not writable or not executable: %r"
-            % Rcc['resolvconf_path'],
-        )
-
-    if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
-        raise exceptions.HttpReqError(
-            503,
-            "unable to take RESOLVCONFLOCK for reading after %s seconds"
-            % Rcc['lock_timeout'],
-        )
-
-    resolvconfbakfile = None
-
-    try:
-        try:
-            resolvconfbakfile = _write_config_file(
-                'resolvconf', _resolv_conf_variables(args)
-            )
-            return True
-        except Exception as e:
-            if resolvconfbakfile:
-                copy2(resolvconfbakfile, Rcc['resolvconf_file'])
-            raise e.__class__(str(e))
-    finally:
-        RESOLVCONFLOCK.release()
 
 
 def safe_init(options):

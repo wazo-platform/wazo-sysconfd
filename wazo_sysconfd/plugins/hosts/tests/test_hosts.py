@@ -11,7 +11,7 @@ from hamcrest import (
 )
 from wazo_sysconfd import exceptions
 
-from wazo_sysconfd.modules.resolvconf import (
+from wazo_sysconfd.plugins.resolv_conf.services import (
     _validate_hosts as validate_hosts,
 )
 
