@@ -64,6 +64,7 @@ _DEFAULT_CONFIG = {
         'host_services': True,
         'hosts': True,
         'request_handlers': True,
+        'resolv_conf': True,
         'status': True,
         'xivoctl': True,
     },

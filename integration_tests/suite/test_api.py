@@ -129,7 +129,6 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/hostname')
         assert self._file_exists('/etc/hosts')
 
-    @pytest.mark.skip(reason=FASTAPI_REASON)
     def test_resolv_conf(self):
         self._given_file_absent('/etc/local/resolv.conf')
         body = {
