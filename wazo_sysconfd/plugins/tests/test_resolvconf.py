@@ -11,7 +11,7 @@ from hamcrest import (
 )
 
 from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.plugins.resolv_conf.resolvconf import _validate_resolv_conf
+from wazo_sysconfd.plugins.resolv_conf.resolv_conf import _validate_resolv_conf
 
 
 class TestValidateResolvConf(unittest.TestCase):

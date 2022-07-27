@@ -8,8 +8,8 @@ from time import time
 from shutil import copy2
 
 from wazo_sysconfd.exceptions import HttpReqError
+from wazo_sysconfd.modules.utilities import txtsubst
 from xivo.moresynchro import RWLock
-from xivo.xivo_config import txtsubst
 from xivo import system
 
 from wazo_sysconfd import helpers
@@ -157,3 +157,35 @@ def resolv_conf(args, options):
             raise e.__class__(str(e))
     finally:
         RESOLVCONFLOCK.release()
+
+def safe_init(options):
+    """Load parameters, etc"""
+    global Rcc
+
+
+    tpl_path = options.get('templates_path')
+    custom_tpl_path = options.get('custom_templates_path')
+    backup_path = options.get('backup_path')
+
+    if options.get('resolvconf'):
+        for x in Rcc.keys():
+            if options['resolvconf'].get(x):
+                Rcc[x] = options['resolvconf'].get(x)
+
+    Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
+
+    for optname in ('hostname', 'hosts', 'resolvconf'):
+        Rcc["%s_tpl_file" % optname] = os.path.join(tpl_path, Rcc["%s_tpl_file" % optname])
+
+        Rcc["%s_custom_tpl_file" % optname] = os.path.join(
+            custom_tpl_path, Rcc["%s_tpl_file" % optname],
+        )
+
+        Rcc["%s_path" % optname] = os.path.dirname(Rcc["%s_file" % optname])
+        Rcc["%s_backup_file" % optname] = os.path.join(
+            backup_path, Rcc["%s_file" % optname].lstrip(os.path.sep),
+        )
+        Rcc["%s_backup_path" % optname] = os.path.join(
+            backup_path, Rcc["%s_path" % optname].lstrip(os.path.sep),
+        )
+

@@ -8,5 +8,5 @@ from wazo_sysconfd.plugins.resolv_conf.resolv_conf import resolv_conf
 router = APIRouter()
 
 @router.post('/resolv_conf', status_code=200)
-def resolv_conf_post(body: dict = Body()):
+def post_resolv_conf(body: dict = Body()):
     return resolv_conf(body,None)
