@@ -9,5 +9,5 @@ router = APIRouter()
 
 
 @router.post('/hosts', status_code=200)
-def update_files(body: dict = Body()):
+def update_files(body: dict = Body(default={})):
     hosts(body)

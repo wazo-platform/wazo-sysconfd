@@ -16,7 +16,7 @@ def get_ha_config(ha_config_manager: HAConfigManager = Depends(get_ha_config_man
 
 @router.post('/update_ha_config', status_code=200)
 def post_update_ha_config(
-    body: dict = Body(),
+    body: dict = Body(default={}),
     ha_config_manager: HAConfigManager = Depends(get_ha_config_manager),
 ):
     ha_config_manager.update_ha_config(body, None)

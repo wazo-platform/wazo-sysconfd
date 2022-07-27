@@ -8,5 +8,5 @@ router = APIRouter()
 
 
 @router.post('/services', status_code=200)
-def execute_services(body: dict = Body()):
+def execute_services(body: dict = Body(default={})):
     services(body)

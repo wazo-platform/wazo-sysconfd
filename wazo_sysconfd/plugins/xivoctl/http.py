@@ -9,5 +9,5 @@ router = APIRouter()
 
 
 @router.post('/xivoctl', status_code=200)
-def get_xivoctl(body: dict = Body()):
+def get_xivoctl(body: dict = Body(default={})):
     return xivoctl(body, None)

@@ -9,5 +9,5 @@ router = APIRouter()
 
 
 @router.post('/resolv_conf', status_code=200)
-def post_resolv_conf(body: dict = Body()):
+def post_resolv_conf(body: dict = Body(default={})):
     return resolv_conf(body, None)
