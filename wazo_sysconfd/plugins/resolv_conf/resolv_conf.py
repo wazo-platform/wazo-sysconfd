@@ -9,14 +9,13 @@ from shutil import copy2
 
 from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.modules.utilities import txtsubst
-from xivo.moresynchro import RWLock
 from xivo import system
 
 from wazo_sysconfd import helpers
+from wazo_sysconfd.dns_lock import RESOLVCONFLOCK
 
 log = logging.getLogger('wazo_sysconfd.plugins.resolvconf')
 
-RESOLVCONFLOCK = RWLock()
 
 Rcc = {
     'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),

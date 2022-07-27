@@ -8,15 +8,13 @@ import subprocess
 from time import time
 from shutil import copy2
 
-from xivo.moresynchro import RWLock
 from .utilities import txtsubst
 from xivo import system
 
 from wazo_sysconfd import exceptions, helpers
+from wazo_sysconfd.dns_lock import RESOLVCONFLOCK
 
 log = logging.getLogger('wazo_sysconfd.modules.resolvconf')
-
-RESOLVCONFLOCK = RWLock()
 
 Rcc = {
     'hostname_file': os.path.join(os.path.sep, 'etc', 'hostname'),
