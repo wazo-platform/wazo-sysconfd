@@ -1,7 +1,7 @@
 FROM python:3.7-slim-buster AS compile-image
 LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
-RUN apt-get -qq update && apt-get -qq -y install python3-virtualenv
+RUN apt-get -qq update && apt-get -qq -y install python3-virtualenv gcc
 RUN python3 -m venv /opt/venv
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"

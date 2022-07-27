@@ -1,12 +1,14 @@
 https://github.com/wazo-platform/xivo-bus/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
-fastapi==0.78.0
+fastapi==0.63.0
 gunicorn==20.1.0
+httptools==0.0.11  # from uvicorn
 kombu==4.2.1
-pydantic==1.9.0
+pydantic==1.7.4
 pyyaml==3.13
 requests==2.21.0
 six==1.12.0  # from xivo-lib-python
-starlette==0.19.1
+starlette==0.13.6  # this version differs from the Debian version (0.14.1) because of dependency conflicts
 stevedore==1.29.0
-uvicorn==0.17.6
+uvicorn==0.13.3
+uvloop==0.11.2  # from uvicorn
