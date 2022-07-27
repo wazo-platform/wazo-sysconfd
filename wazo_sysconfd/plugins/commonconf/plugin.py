@@ -12,6 +12,7 @@ config = None
 class Plugin:
     def load(self, dependencies: dict):
         from .http import router
+
         global config
 
         api = dependencies['api']

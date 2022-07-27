@@ -6,6 +6,7 @@ from .services import services
 
 router = APIRouter()
 
+
 @router.post('/services', status_code=200)
 def execute_services(body: dict = Body()):
     services(body)

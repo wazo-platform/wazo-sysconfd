@@ -29,4 +29,6 @@ class ChownAutoprovCommandExecutor(object):
             os.chown(self._CONFIG_FILE, user.pw_uid, user.pw_gid)
         except Exception as e:
             logger.info('%s', e)
-            logger.warning('failed to chown autoprov configuration file %s', self._CONFIG_FILE)
+            logger.warning(
+                'failed to chown autoprov configuration file %s', self._CONFIG_FILE
+            )

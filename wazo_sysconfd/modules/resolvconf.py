@@ -53,7 +53,10 @@ def _write_config_file(optname, xvars):
         'utf8',
     )
 
-    system.file_writelines_flush_sync(Rcc["%s_file" % optname], [text.decode('utf8') if isinstance(text, bytes) else text for text in txt])
+    system.file_writelines_flush_sync(
+        Rcc["%s_file" % optname],
+        [text.decode('utf8') if isinstance(text, bytes) else text for text in txt],
+    )
 
     return backupfilename
 
@@ -77,7 +80,8 @@ def hosts(args):
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
         raise exceptions.HttpReqError(
             415,
-            "path not found or not writable or not executable: %r" % Rcc['hostname_path'],
+            "path not found or not writable or not executable: %r"
+            % Rcc['hostname_path'],
         )
 
     if not os.access(Rcc['hosts_path'], (os.X_OK | os.W_OK)):
@@ -89,7 +93,8 @@ def hosts(args):
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
         raise exceptions.HttpReqError(
             503,
-            "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
+            "unable to take RESOLVCONFLOCK for reading after %s seconds"
+            % Rcc['lock_timeout'],
         )
 
     hostnamebakfile = None
@@ -98,11 +103,13 @@ def hosts(args):
     try:
         try:
             hostnamebakfile = _write_config_file(
-                'hostname', {'_XIVO_HOSTNAME': args['hostname']},
+                'hostname',
+                {'_XIVO_HOSTNAME': args['hostname']},
             )
 
             hostsbakfile = _write_config_file(
-                'hosts', {'_XIVO_HOSTNAME': args['hostname'], '_XIVO_DOMAIN': args['domain']},
+                'hosts',
+                {'_XIVO_HOSTNAME': args['hostname'], '_XIVO_DOMAIN': args['domain']},
             )
 
             subprocess.call(['hostname', '-F', Rcc['hostname_file']])
@@ -136,8 +143,9 @@ def _validate_resolv_conf(args):
 
 def _resolv_conf_variables(args):
     xvars = {}
-    xvars['_XIVO_NAMESERVER_LIST'] = \
-        os.linesep.join(["nameserver %s"] * len(args['nameservers'])) % tuple(args['nameservers'])
+    xvars['_XIVO_NAMESERVER_LIST'] = os.linesep.join(
+        ["nameserver %s"] * len(args['nameservers'])
+    ) % tuple(args['nameservers'])
 
     if 'search' in args:
         xvars['_XIVO_DNS_SEARCH'] = "search %s" % " ".join(args['search'])
@@ -164,7 +172,9 @@ def ResolvConf(args, options):
         if len(nameservers) == len(args['nameservers']):
             args['nameservers'] = list(nameservers)
         else:
-            raise exceptions.HttpReqError(415, "duplicated nameservers in %r" % list(args['nameservers']))
+            raise exceptions.HttpReqError(
+                415, "duplicated nameservers in %r" % list(args['nameservers'])
+            )
 
     if 'search' in args:
         args['search'] = helpers.extract_scalar(args['search'])
@@ -173,7 +183,9 @@ def ResolvConf(args, options):
         if len(search) == len(args['search']):
             args['search'] = list(search)
         else:
-            raise exceptions.HttpReqError(415, "duplicated search in %r" % list(args['search']))
+            raise exceptions.HttpReqError(
+                415, "duplicated search in %r" % list(args['search'])
+            )
 
         if len(''.join(args['search'])) > 255:
             raise exceptions.HttpReqError(
@@ -186,20 +198,24 @@ def ResolvConf(args, options):
     if not os.access(Rcc['resolvconf_path'], (os.X_OK | os.W_OK)):
         raise exceptions.HttpReqError(
             415,
-            "path not found or not writable or not executable: %r" % Rcc['resolvconf_path'],
+            "path not found or not writable or not executable: %r"
+            % Rcc['resolvconf_path'],
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
         raise exceptions.HttpReqError(
             503,
-            "unable to take RESOLVCONFLOCK for reading after %s seconds" % Rcc['lock_timeout'],
+            "unable to take RESOLVCONFLOCK for reading after %s seconds"
+            % Rcc['lock_timeout'],
         )
 
     resolvconfbakfile = None
 
     try:
         try:
-            resolvconfbakfile = _write_config_file('resolvconf', _resolv_conf_variables(args))
+            resolvconfbakfile = _write_config_file(
+                'resolvconf', _resolv_conf_variables(args)
+            )
             return True
         except Exception as e:
             if resolvconfbakfile:
@@ -213,7 +229,6 @@ def safe_init(options):
     """Load parameters, etc"""
     global Rcc
 
-
     tpl_path = options.get('templates_path')
     custom_tpl_path = options.get('custom_templates_path')
     backup_path = options.get('backup_path')
@@ -226,17 +241,21 @@ def safe_init(options):
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 
     for optname in ('hostname', 'hosts', 'resolvconf'):
-        Rcc["%s_tpl_file" % optname] = os.path.join(tpl_path, Rcc["%s_tpl_file" % optname])
+        Rcc["%s_tpl_file" % optname] = os.path.join(
+            tpl_path, Rcc["%s_tpl_file" % optname]
+        )
 
         Rcc["%s_custom_tpl_file" % optname] = os.path.join(
-            custom_tpl_path, Rcc["%s_tpl_file" % optname],
+            custom_tpl_path,
+            Rcc["%s_tpl_file" % optname],
         )
 
         Rcc["%s_path" % optname] = os.path.dirname(Rcc["%s_file" % optname])
         Rcc["%s_backup_file" % optname] = os.path.join(
-            backup_path, Rcc["%s_file" % optname].lstrip(os.path.sep),
+            backup_path,
+            Rcc["%s_file" % optname].lstrip(os.path.sep),
         )
         Rcc["%s_backup_path" % optname] = os.path.join(
-            backup_path, Rcc["%s_path" % optname].lstrip(os.path.sep),
+            backup_path,
+            Rcc["%s_path" % optname].lstrip(os.path.sep),
         )
-

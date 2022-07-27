@@ -13,6 +13,7 @@ from wazo_sysconfd.plugins.ha_config.ha import (
 class Plugin:
     def load(self, dependencies: dict):
         from .http import router
+
         api = dependencies['api']
         api.include_router(router)
 
