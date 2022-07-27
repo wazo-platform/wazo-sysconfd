@@ -1,4 +1,4 @@
-# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -6,7 +6,6 @@ import argparse
 from collections import namedtuple
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
-from xivo.xivo_logging import get_log_level_by_name
 
 
 _DEFAULT_CONFIG = {
@@ -18,6 +17,7 @@ _DEFAULT_CONFIG = {
     'backup_path': '/var/backups/wazo-sysconfd',
     'log_file': '/var/log/wazo-sysconfd.log',
     'log_level': 'info',
+    'workers': 8,
     'rest_api': {
         'listen': '127.0.0.1',
         'port': 8668,
@@ -56,35 +56,42 @@ _DEFAULT_CONFIG = {
         'exchange_type': 'topic',
         'exchange_durable': True,
     },
+    'enabled_plugins': {
+        'asterisk': True,
+        'commonconf': True,
+        'dhcp_update': True,
+        'ha_config': True,
+        'host_services': True,
+        'hosts': True,
+        'request_handlers': True,
+        'resolv_conf': True,
+        'status': True,
+        'xivoctl': True,
+    },
 }
-
-
-def _get_reinterpreted_raw_values(config):
-    result = {}
-
-    log_level = config.get('log_level')
-    if log_level:
-        result['log_level'] = get_log_level_by_name(log_level)
-
-    return result
 
 
 def _parse_cli_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l',
-                        '--log-level',
-                        default='INFO',
-                        help="Emit traces with LOGLEVEL details, must be one of:\n"
-                             "critical, error, warning, info, debug")
-    parser.add_argument('-c',
-                        '--config-file',
-                        default="/etc/wazo-sysconfd/config.yml",
-                        help="Use configuration file <config-file> instead of %(default)s")
-    parser.add_argument('--listen-addr',
-                        help="Listen on address <listen_addr> instead of 127.0.0.1")
-    parser.add_argument('--listen-port',
-                        type=int,
-                        help="Listen on port <listen_port> instead of 8668")
+    parser.add_argument(
+        '-l',
+        '--log-level',
+        default='INFO',
+        help="Emit traces with LOGLEVEL details, must be one of:\n"
+        "critical, error, warning, info, debug",
+    )
+    parser.add_argument(
+        '-c',
+        '--config-file',
+        default="/etc/wazo-sysconfd/config.yml",
+        help="Use configuration file <config-file> instead of %(default)s",
+    )
+    parser.add_argument(
+        '--listen-addr', help="Listen on address <listen_addr> instead of 127.0.0.1"
+    )
+    parser.add_argument(
+        '--listen-port', type=int, help="Listen on port <listen_port> instead of 8668"
+    )
 
     parsed_args = parser.parse_args(argv)
     result = {'rest_api': {}}
@@ -102,9 +109,7 @@ def _parse_cli_args(argv):
 def load_config(argv):
     cli_config = _parse_cli_args(argv)
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    intermediate_config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
-    reinterpreted_config = _get_reinterpreted_raw_values(intermediate_config)
-    return ChainMap(reinterpreted_config, intermediate_config)
+    return ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
 
 
 def prepare_http_server_options(configuration):

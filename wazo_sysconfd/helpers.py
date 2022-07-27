@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import re
@@ -14,7 +13,11 @@ def castint(s):
 
 
 def splitint(s):
-    return map(castint, re.findall(r'(\d+|\D+)', str(s)))
+    return list(map(castint, re.findall(r'(\d+|\D+)', str(s))))
+
+
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 
 def natsort(a, b):
@@ -22,19 +25,20 @@ def natsort(a, b):
 
 
 def is_scalar(var):
-    """ Returns True if is scalar or False otherwise """
-    return isinstance(var, (basestring, bool, int, float))
+    """Returns True if is scalar or False otherwise"""
+    return isinstance(var, (str, bool, int, float))
 
 
 def extract_scalar_from_list(xlist):
-    """ Extract scalar values from a list or tuple """
+    """Extract scalar values from a list or tuple"""
     return [x for x in xlist if is_scalar(x)]
 
 
 def extract_scalar_from_dict(xdict):
-    """ Extract scalar values from a dict natural ordered by key """
-    return [xdict[key] for key in sorted(xdict.iterkeys(), natsort)
-            if is_scalar(xdict[key])]
+    """Extract scalar values from a dict natural ordered by key"""
+    return [
+        xdict[key] for key in sorted(xdict.keys(), natsort) if is_scalar(xdict[key])
+    ]
 
 
 def extract_scalar(var):
@@ -53,7 +57,7 @@ def extract_scalar(var):
 
 
 def unique_case_tuple(sequence):
-    """ Build an ordered case-insensitive collection """
+    """Build an ordered case-insensitive collection"""
     xlist = dict(zip(map(str.lower, sequence), sequence)).values()
     return tuple([x for x in sequence if x in xlist])
 

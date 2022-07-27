@@ -1,4 +1,5 @@
 kombu
+pyhamcrest
 pytest
 
 https://github.com/wazo-platform/wazo-lib-rest-client/archive/master.zip
