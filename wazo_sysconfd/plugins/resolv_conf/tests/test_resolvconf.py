@@ -10,7 +10,7 @@ from hamcrest import (
     raises,
 )
 from wazo_sysconfd import exceptions
-from ..resolvconf import (
+from wazo_sysconfd.plugins.resolv_conf.services import (
     _validate_resolv_conf as validate_resolv_conf,
 )
 

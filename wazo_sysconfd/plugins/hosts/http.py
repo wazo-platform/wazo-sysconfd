@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter, Body
-from wazo_sysconfd.modules.resolvconf import hosts
+
+from .services import hosts
 
 router = APIRouter()
 

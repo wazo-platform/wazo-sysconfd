@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from .http import router
-from .resolv_conf import safe_init
+from .services import safe_init
 
 
 class Plugin:

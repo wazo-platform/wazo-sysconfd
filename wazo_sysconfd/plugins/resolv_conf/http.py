@@ -3,7 +3,7 @@
 
 from fastapi import APIRouter, Body
 
-from wazo_sysconfd.plugins.resolv_conf.resolv_conf import resolv_conf
+from wazo_sysconfd.plugins.resolv_conf.services import resolv_conf
 
 router = APIRouter()
 
