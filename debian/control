@@ -20,7 +20,9 @@ Depends: ${python3:Depends},
          python3-stevedore,
          python3-uvloop,
          rename,
-         sudo
+         sudo,
+# can be removed with python >3.8 (bullseye)
+         python3-typing-extensions
 Provides: xivo-sysconfd
 Conflicts: xivo-sysconfd
 Replaces: xivo-sysconfd
