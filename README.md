@@ -2,7 +2,11 @@
 
 [![Build Status](https://jenkins.wazo.community/buildStatus/icon?job=wazo-sysconfd)](https://jenkins.wazo.community/job/wazo-sysconfd)
 
-wazo-sysconfd is a daemon for configuring system parameters on a Wazo server
+wazo-sysconfd is a daemon for configuring system parameters on a Wazo server. It
+is used to execute commands requiring special privileges on the host (e.g. root
+privileges, asterisk commands). It shims Wazo and the installed host together.
+Its usage is mandatory for a all-in-one installations of Wazo, but *should* be
+unnecessary for container installations.
 
 ## Running unit tests
 
