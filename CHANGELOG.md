@@ -2,7 +2,8 @@
 
 ## 22.11
 
-Code has been rewritten from custom http framework using python2 to FastAPI using python3
+* Code has been rewritten from custom http framework using Python 2 to FastAPI
+  using Python 3. There are no changes in the REST API.
 
 ## 19.16
 
