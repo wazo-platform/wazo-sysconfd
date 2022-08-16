@@ -6,9 +6,7 @@ import logging
 import threading
 import uuid
 
-from kombu import Connection, Exchange, Producer
-from xivo_bus.marshaler import Marshaler
-from xivo_bus.publisher import FailFastPublisher
+from xivo_bus.publisher import BusPublisher
 from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
@@ -169,7 +167,9 @@ class RequestCompletedEventObserver(object):
 
     def on_request_executed(self, request):
         self._bus_publisher.publish(
-            RequestHandlersProgressEvent(request, status='completed')
+            RequestHandlersProgressEvent(
+                request.uuid, request.context, status='completed'
+            )
         )
 
 
@@ -194,25 +194,6 @@ class SyncRequestHandlers(RequestHandlers):
             logger.warning('timeout reached on synchronous request')
 
 
-class LazyBusPublisher(object):
-    def __init__(self, bus_connection, bus_exchange, marshaler):
-        self._bus_connection = bus_connection
-        self._bus_exchange = bus_exchange
-        self._marshaler = marshaler
-        self._publisher = None
-
-    def publish(self, event):
-        if self._publisher is None:
-            self._publisher = self._new_publisher()
-        return self._publisher.publish(event)
-
-    def _new_publisher(self):
-        bus_producer = Producer(
-            self._bus_connection, self._bus_exchange, auto_declare=True
-        )
-        return FailFastPublisher(bus_producer, self._marshaler)
-
-
 class RequestHandlersProxy(object):
     def __init__(self):
         self._request_handlers = None
@@ -225,23 +206,13 @@ class RequestHandlersProxy(object):
 
     def safe_init_from_config(self, config):
         synchronous = config.get('request_handlers', {}).get('synchronous')
-        username = config.get('bus', {}).get('username')
-        password = config.get('bus', {}).get('password')
-        host = config.get('bus', {}).get('host')
-        port = config.get('bus', {}).get('port')
-        exchange_name = config.get('bus', {}).get('exchange_name')
-        exchange_type = config.get('bus', {}).get('exchange_type')
-        exchange_durable = config.get('bus', {}).get('exchange_durable')
+        uuid = config.get('uuid', None)
+        bus_config = config.get('bus', {})
 
         # instantiate bus publisher
-        # XXX should fetch the uuid from the config
-        uuid = None
-        url = 'amqp://{username}:{password}@{host}:{port}//'.format(
-            username=username, password=password, host=host, port=port
+        bus_publisher = BusPublisher(
+            name='wazo-sysconfd', service_uuid=uuid, **bus_config
         )
-        bus_connection = Connection(url)
-        bus_exchange = Exchange(exchange_name, exchange_type, durable=exchange_durable)
-        bus_publisher = LazyBusPublisher(bus_connection, bus_exchange, Marshaler(uuid))
 
         # instantiate executors
         asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)

@@ -6,9 +6,8 @@ import os
 import subprocess
 import uuid
 
-from xivo_bus.resources.asterisk.event import AsteriskReloadProgressEvent
-
 from wazo_sysconfd.plugins.request_handlers.command import Command
+from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 
 logger = logging.getLogger(__name__)
 
@@ -58,14 +57,11 @@ class AsteriskCommandExecutor(object):
         command_string = data
         request_uuids = [request.uuid for request in command.requests]
         task_uuid = str(uuid.uuid4())
-        self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(
-                uuid=task_uuid,
-                status='starting',
-                command=command_string,
-                request_uuids=request_uuids,
-            )
+
+        event = AsteriskReloadProgressEvent(
+            task_uuid, 'starting', command_string, request_uuids
         )
+        self._bus_publisher.publish(event)
 
         if command_string == 'module reload res_pjsip.so':
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
@@ -77,11 +73,7 @@ class AsteriskCommandExecutor(object):
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
 
-        self._bus_publisher.publish(
-            AsteriskReloadProgressEvent(
-                uuid=task_uuid,
-                status='completed',
-                command=command_string,
-                request_uuids=request_uuids,
-            )
+        event = AsteriskReloadProgressEvent(
+            task_uuid, 'completed', command_string, request_uuids
         )
+        self._bus_publisher.publish(event)
