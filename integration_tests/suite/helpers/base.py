@@ -1,4 +1,4 @@
-# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -14,13 +14,25 @@ class IntegrationTest(AssetLaunchingTestCase):
     service = 'sysconfd'
 
     def setUp(self):
-        bus_port = self.service_port(5672, 'rabbitmq')
-        self.bus = BusClient.from_connection_fields(host='127.0.0.1', port=bus_port)
+        self.bus = self.make_bus()
+        self.sysconfd = self.make_sysconfd()
 
-        sysconfd_port = self.service_port(8668, 'sysconfd')
-        self.sysconfd = SysconfdClient(
+    @classmethod
+    def make_bus(cls):
+        port = cls.service_port(5672, 'rabbitmq')
+        return BusClient.from_connection_fields(
+            host='127.0.0.1',
+            port=port,
+            exchange_name='wazo-headers',
+            exchange_type='headers',
+        )
+
+    @classmethod
+    def make_sysconfd(cls):
+        port = cls.service_port(8668, 'sysconfd')
+        return SysconfdClient(
             '127.0.0.1',
-            sysconfd_port,
+            port,
             prefix='',
             https=False,
         )
