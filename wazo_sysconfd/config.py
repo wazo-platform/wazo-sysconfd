@@ -52,9 +52,8 @@ _DEFAULT_CONFIG = {
         'password': 'guest',
         'host': 'localhost',
         'port': 5672,
-        'exchange_name': 'xivo',
-        'exchange_type': 'topic',
-        'exchange_durable': True,
+        'exchange_name': 'wazo-headers',
+        'exchange_type': 'headers',
     },
     'enabled_plugins': {
         'asterisk': True,
