@@ -6,6 +6,8 @@ from hamcrest import (
     calling,
     contains_string,
     has_properties,
+    has_items,
+    has_entries,
 )
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
@@ -21,11 +23,11 @@ class TestSysconfd(IntegrationTest):
     asset = 'base'
 
     def test_dhcpd_update(self):
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
         self.sysconfd.dhcpd_update()
 
-        assert self._command_was_called(bus_events, ['dhcpd-update', '-dr'])
+        self._assert_command_was_called(bus_events, ['dhcpd-update', '-dr'])
 
     def test_move_voicemail(self):
         old_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/oldvoicemail'
@@ -61,29 +63,30 @@ class TestSysconfd(IntegrationTest):
         assert not self._directory_exists(voicemail_directory)
 
     def test_commonconf_generate(self):
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
         self.sysconfd.commonconf_generate()
 
-        assert self._command_was_called(bus_events, ['xivo-create-config'])
+        self._assert_command_was_called(bus_events, ['xivo-create-config'])
 
     def test_commonconf_apply(self):
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
         self.sysconfd.commonconf_apply()
 
-        assert self._command_was_called(bus_events, ['xivo-update-config'])
-        assert self._command_was_called(bus_events, ['xivo-monitoring-update'])
+        self._assert_command_was_called(bus_events, ['xivo-update-config'])
+        self._assert_command_was_called(bus_events, ['xivo-monitoring-update'])
 
     def test_exec_request_handlers(self):
         asterisk_command = 'dialplan reload'
         autoprov_filename = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
         self._create_file(autoprov_filename, owner='root')
-        asterisk_reload_bus_events = self.bus.accumulator('sysconfd.asterisk.reload.#')
-        request_handlers_bus_events = self.bus.accumulator(
-            'sysconfd.request_handlers.#'
+        asterisk_accumulator = self.bus.accumulator(
+            headers={'name': 'asterisk_reload_progress'}
         )
-        command_bus_events = self.bus.accumulator('sysconfd.sentinel')
+        command_accumulator = self.bus.accumulator(
+            headers={'name': 'sysconfd_sentinel'}
+        )
         request_context = [
             {
                 'resource_type': 'meeting',
@@ -101,28 +104,38 @@ class TestSysconfd(IntegrationTest):
         response = self.sysconfd.exec_request_handlers(body)
 
         def asterisk_reload_events_are_sent(request_uuid):
-            assert [
-                message['data']['status']
-                for message in asterisk_reload_bus_events.accumulate()
-                if message['name'] == 'asterisk_reload_progress'
-            ] == ['starting', 'completed']
-            assert all(
-                message['data']['request_uuids'] == [request_uuid]
-                for message in asterisk_reload_bus_events.accumulate()
-                if message['name'] == 'asterisk_reload_progress'
-            )
-
-        def request_handlers_event_was_sent(request_uuid):
-            assert any(
-                message['data']['uuid'] == request_uuid
-                for message in request_handlers_bus_events.accumulate()
-                if message['name'] == 'request_handlers_progress'
+            assert_that(
+                asterisk_accumulator.accumulate(with_headers=True),
+                has_items(
+                    has_entries(
+                        headers=has_entries(
+                            name='asterisk_reload_progress',
+                        ),
+                        message=has_entries(
+                            data=has_entries(
+                                request_uuids=[request_uuid],
+                                status='starting',
+                            ),
+                        ),
+                    ),
+                    has_entries(
+                        headers=has_entries(
+                            name='asterisk_reload_progress',
+                        ),
+                        message=has_entries(
+                            data=has_entries(
+                                request_uuids=[request_uuid],
+                                status='completed',
+                            ),
+                        ),
+                    ),
+                ),
             )
 
         assert 'request_uuid' in response
 
         expected_command = ['asterisk', '-rx', asterisk_command]
-        assert self._command_was_called(command_bus_events, expected_command)
+        self._assert_command_was_called(command_accumulator, expected_command)
         assert self._file_owner(autoprov_filename) == 'asterisk'
 
         until.assert_(
@@ -132,7 +145,7 @@ class TestSysconfd(IntegrationTest):
     def test_hosts(self):
         self._given_file_absent('/etc/local/hostname')
         self._given_file_absent('/etc/local/hosts')
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {
             'hostname': 'wazo',
             'domain': 'example.com',
@@ -141,7 +154,7 @@ class TestSysconfd(IntegrationTest):
         self.sysconfd.hosts(body)
 
         expected_command = ['hostname', '-F', '/etc/local/hostname']
-        assert self._command_was_called(bus_events, expected_command)
+        self._assert_command_was_called(bus_events, expected_command)
         assert self._file_exists('/etc/local/hostname')
         assert self._file_exists('/etc/local/hosts')
 
@@ -158,22 +171,22 @@ class TestSysconfd(IntegrationTest):
 
     def test_ha_config(self):
         self._given_file_absent('/etc/xivo/ha.conf')
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {'node_type': 'master', 'remote_address': '192.168.99.99'}
 
         self.sysconfd.ha_config.update(body)
         result = self.sysconfd.ha_config.get()
 
         expected_command = ['systemctl', 'restart', 'postgresql.service']
-        assert self._command_was_called(bus_events, expected_command)
+        self._assert_command_was_called(bus_events, expected_command)
         expected_command = ['xivo-manage-slave-services', 'start']
-        assert self._command_was_called(bus_events, expected_command)
+        self._assert_command_was_called(bus_events, expected_command)
         assert result == body
         assert self._file_exists('/etc/xivo/ha.conf')
         assert self._file_exists('/etc/cron.d/xivo-ha-master')
 
     def test_services(self):
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {
             'networking': 'restart',
         }
@@ -181,7 +194,7 @@ class TestSysconfd(IntegrationTest):
         self.sysconfd.services(body)
 
         expected_command = ['systemctl', 'restart', 'networking.service']
-        assert self._command_was_called(bus_events, expected_command)
+        self._assert_command_was_called(bus_events, expected_command)
 
     def test_status(self):
         result = self.sysconfd.status()
@@ -189,14 +202,14 @@ class TestSysconfd(IntegrationTest):
         assert result == {'rest_api': {'status': 'ok'}}
 
     def test_xivoctl(self):
-        bus_events = self.bus.accumulator('sysconfd.sentinel')
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {
             'wazo-service': 'start',
         }
 
         self.sysconfd.xivoctl(body)
 
-        assert self._command_was_called(bus_events, ['wazo-service', 'start'])
+        self._assert_command_was_called(bus_events, ['wazo-service', 'start'])
 
     def _create_directory(self, directory):
         self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
@@ -246,13 +259,18 @@ class TestSysconfd(IntegrationTest):
         else:
             raise RuntimeError(f'Unknown output: "{out}"')
 
-    def _command_was_called(self, bus_events, command):
+    def _assert_command_was_called(self, bus_events, command):
         def poll():
-            return any(
-                message
-                for message in bus_events.accumulate()
-                if message['name'] == 'sysconfd_sentinel'
-                and message['data']['command'] == command
+            assert_that(
+                bus_events.accumulate(with_headers=True),
+                has_items(
+                    has_entries(
+                        headers=has_entries(
+                            name='sysconfd_sentinel', origin_uuid='sentinel-uuid'
+                        ),
+                        message=has_entries(data=has_entries(command=command)),
+                    )
+                ),
             )
 
-        return until.true(poll, timeout=5)
+        return until.assert_(poll, timeout=5)
