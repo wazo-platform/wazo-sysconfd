@@ -70,8 +70,19 @@ class AsteriskCommandExecutor(object):
         exit_code = subprocess.call(
             ['asterisk', '-rx', command_string], stdout=self._null, close_fds=True
         )
+
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
+
+        import time
+        cmd = ['pgrep', 'wazo-confgen']
+        for n in range(10):
+            code = subprocess.call(cmd, stdout=self._null, close_fds=True)
+            reload_in_progress = not(bool(code))
+            logger.critical(reload_in_progress)
+            if not reload_in_progress:
+                break
+            time.sleep(1)
 
         event = AsteriskReloadProgressEvent(
             task_uuid, 'completed', command_string, request_uuids
