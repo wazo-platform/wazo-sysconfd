@@ -9,6 +9,10 @@ import uuid
 from wazo_sysconfd.plugins.request_handlers.command import Command
 from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 
+RELOAD_IN_PROGRESS_MSG = (
+    'A module reload request is already in progress; please be patient\n'
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,11 +68,13 @@ class AsteriskCommandExecutor:
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
             subprocess.call(cmd, stdout=self._null, close_fds=True)
 
-        exit_code = subprocess.call(
-            ['asterisk', '-rx', command_string], stdout=self._null, close_fds=True
+        result = subprocess.run(
+            ['asterisk', '-rx', command_string], capture_output=True, text=True
         )
-        if exit_code:
-            logger.error('asterisk returned non-zero status code %s', exit_code)
+        if result.returncode:
+            logger.error('asterisk returned non-zero status code %s', result.returncode)
+        if result.stdout == RELOAD_IN_PROGRESS_MSG:
+            logger.error("asterisk didn't actually reload")
 
         if publish:
             self.publish_status(task_uuid, 'completed', command_string, request_uuids)
