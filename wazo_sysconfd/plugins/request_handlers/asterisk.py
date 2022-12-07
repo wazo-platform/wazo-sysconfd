@@ -59,6 +59,8 @@ def try_reload_command(command: str, attempt: int = 1):
     )
     if result.returncode:
         logger.error('Asterisk returned non-zero status code %s', result.returncode)
+        return
+
     if result.stdout == RELOAD_IN_PROGRESS_MSG:
         if attempt <= MAX_ATTEMPTS:
             logger.error(
@@ -70,6 +72,8 @@ def try_reload_command(command: str, attempt: int = 1):
             logger.error(
                 "Asterisk didn't actually reload. Max retries exceeded. Giving up."
             )
+    else:
+        logger.debug(f'Asterisk command output: {result.stdout}')
 
 
 class AsteriskCommandExecutor:
