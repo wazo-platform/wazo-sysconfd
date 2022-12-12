@@ -23,7 +23,9 @@ class SysconfdApplication(BaseApplication):
         self.cfg.set('loglevel', self.config['log_level'])
         self.cfg.set('accesslog', '-')
         self.cfg.set('errorlog', '-')
-        self.cfg.set('workers', self.config['workers'])
+        # NOTE: We must set this to one worker, since each worker is its own process, and if we have more than one
+        # they will each get their own queue and then not respect the execution order which creates concurrency issues.
+        self.cfg.set('workers', 1)
         # NOTE(afournier): that's the magic class that makes gunicorn ASGI
         self.cfg.set('worker_class', 'uvicorn.workers.UvicornWorker')
 

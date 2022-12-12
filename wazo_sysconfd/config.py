@@ -17,7 +17,6 @@ _DEFAULT_CONFIG = {
     'backup_path': '/var/backups/wazo-sysconfd',
     'log_file': '/var/log/wazo-sysconfd.log',
     'log_level': 'info',
-    'workers': 8,
     'rest_api': {
         'listen': '127.0.0.1',
         'port': 8668,
