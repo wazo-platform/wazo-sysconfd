@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
 from mock import ANY, Mock, patch, sentinel
 
-from xivo_bus import Publisher
+from xivo_bus import BusPublisher
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
     AsteriskCommandFactory,
     AsteriskCommandExecutor,
@@ -47,7 +47,7 @@ class TestAsteriskCommandFactory(unittest.TestCase):
 
 class TestAsteriskCommandExecutor(unittest.TestCase):
     def setUp(self):
-        self.bus_publisher = Mock(Publisher)
+        self.bus_publisher = Mock(BusPublisher)
         self.executor = AsteriskCommandExecutor(self.bus_publisher)
 
     @patch('subprocess.call')
