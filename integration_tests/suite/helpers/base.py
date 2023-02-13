@@ -1,4 +1,4 @@
-# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -9,7 +9,6 @@ from wazo_test_helpers.asset_launching_test_case import AssetLaunchingTestCase
 
 
 class IntegrationTest(AssetLaunchingTestCase):
-
     assets_root = os.path.join(os.path.dirname(__file__), '../..', 'assets')
     service = 'sysconfd'
 

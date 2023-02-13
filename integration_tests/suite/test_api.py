@@ -1,4 +1,4 @@
-# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from hamcrest import (
@@ -19,7 +19,6 @@ FASTAPI_REASON = 'Not reimplemented using FastAPI'
 
 
 class TestSysconfd(IntegrationTest):
-
     asset = 'base'
 
     def test_dhcpd_update(self):
