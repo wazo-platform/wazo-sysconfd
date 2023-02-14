@@ -1,4 +1,4 @@
-# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import functools
@@ -9,8 +9,7 @@ import subprocess
 import tempfile
 import unittest
 from io import StringIO
-
-import mock
+from unittest.mock import Mock
 
 from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
@@ -39,7 +38,7 @@ def mock_subprocess_check_call(f):
     @functools.wraps(f)
     def decorator(*kargs):
         old_subprocess_check_call = subprocess.check_call
-        subprocess.check_call = mock.Mock()
+        subprocess.check_call = Mock()
 
         try:
             f(*kargs)
@@ -54,7 +53,7 @@ class TestHA(unittest.TestCase):
         self._tmp_dir = tempfile.mkdtemp()
         self._ha_conf_file = os.path.join(self._tmp_dir, 'test_ha.conf')
         self._ha_config_mgr = HAConfigManager(
-            mock.Mock(), mock.Mock(), ha_conf_file=self._ha_conf_file
+            Mock(), Mock(), ha_conf_file=self._ha_conf_file
         )
 
     def tearDown(self):
@@ -111,7 +110,7 @@ class TestHA(unittest.TestCase):
 
     def test_update_ha_config(self):
         ha_config = new_master_ha_config('10.0.0.1')
-        self._ha_config_mgr._manage_services = mock.Mock()
+        self._ha_config_mgr._manage_services = Mock()
 
         self._ha_config_mgr.update_ha_config(ha_config, None)
 
