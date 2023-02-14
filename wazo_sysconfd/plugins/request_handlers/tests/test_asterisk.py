@@ -4,7 +4,7 @@
 
 import unittest
 
-from mock import ANY, Mock, patch, sentinel
+from unittest.mock import ANY, Mock, patch, sentinel
 
 from xivo_bus import BusPublisher
 from wazo_sysconfd.plugins.request_handlers.asterisk import (

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
-from mock import ANY, Mock, sentinel
+from unittest.mock import ANY, Mock, sentinel
 
 from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 from wazo_sysconfd.plugins.request_handlers.command import Command
