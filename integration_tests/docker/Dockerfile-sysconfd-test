@@ -9,6 +9,7 @@ RUN python setup.py develop \
     && adduser --quiet --system --group --no-create-home --home /var/lib/asterisk asterisk \
     && mkdir -p /etc/cron.d \
     && mkdir -p /etc/local \
+    && mkdir -p /var/lib/wazo \
     && ln -s /usr/local/bin/mock-command /bin/systemctl \
     && ln -s /usr/local/bin/mock-command /usr/bin/asterisk \
     && ln -s /usr/local/bin/mock-command /usr/local/bin/dhcpd-update \

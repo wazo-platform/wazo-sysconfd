@@ -7,9 +7,12 @@ from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
     _PostgresConfigUpdater,
     _CronFileInstaller,
+    _SentinelFileManager,
 )
 
 
 @lru_cache()
 def get_ha_config_manager():
-    return HAConfigManager(_PostgresConfigUpdater, _CronFileInstaller())
+    return HAConfigManager(
+        _PostgresConfigUpdater, _CronFileInstaller(), _SentinelFileManager()
+    )

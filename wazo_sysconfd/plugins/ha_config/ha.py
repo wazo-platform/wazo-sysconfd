@@ -5,6 +5,18 @@ import errno
 import json
 import os
 import subprocess
+from pathlib import Path
+from enum import Enum
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
+class NodeType(str, Enum):
+    SECONDARY = "slave"
+    PRIMARY = "master"
+    DISABLED = "disabled"
 
 
 class HAConfigManager(object):
@@ -17,10 +29,12 @@ class HAConfigManager(object):
         self,
         postgres_config_updater_factory,
         cronfile_installer,
+        sentinel_file_manager,
         ha_conf_file=DEFAULT_HA_CONF_FILE,
     ):
         self._postgres_config_updater_factory = postgres_config_updater_factory
         self._cronfile_installer = cronfile_installer
+        self._sentinel_file_manager = sentinel_file_manager
         self._ha_conf_file = ha_conf_file
 
     def get_ha_config(self, args, options):
@@ -45,6 +59,7 @@ class HAConfigManager(object):
         self._update_postgres(ha_config)
         self._update_cronfiles(ha_config)
         self._manage_services(ha_config)
+        self._manage_sentinel_files(ha_config)
 
     def _write_ha_config(self, ha_config):
         with open(self._ha_conf_file, 'w') as fobj:
@@ -87,6 +102,9 @@ class HAConfigManager(object):
         if ha_config['node_type'] != 'slave':
             command_args = ['/usr/sbin/xivo-manage-slave-services', 'start']
             subprocess.check_call(command_args, close_fds=True)
+
+    def _manage_sentinel_files(self, ha_config):
+        self._sentinel_file_manager.install(ha_config)
 
 
 class _PostgresConfigUpdater(object):
@@ -151,3 +169,47 @@ class _CronFileInstaller(object):
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
+
+
+class _SentinelFileManager:
+    SENTINEL_ROOT_DIR = Path('/var/lib/wazo')
+    PRIMARY_SENTINEL_NAME = "is-primary"
+    SECONDARY_SENTINEL_NAME = "is-secondary"
+
+    def __init__(self, root_dir: os.PathLike = SENTINEL_ROOT_DIR):
+        self._root_dir = Path(root_dir)
+        self._primary_sentinel = self._root_dir / self.PRIMARY_SENTINEL_NAME
+        self._secondary_sentinel = self._root_dir / self.SECONDARY_SENTINEL_NAME
+
+    def _install_primary(self):
+        if self._secondary_sentinel.exists():
+            self._secondary_sentinel.unlink()
+        sentinel = self._primary_sentinel
+        logger.info("Creating primary sentinel file %s.", sentinel)
+        sentinel.touch()
+
+    def _install_secondary(self):
+        if self._primary_sentinel.exists():
+            self._primary_sentinel.unlink()
+        sentinel = self._secondary_sentinel
+        logger.info("Creating secondary sentinel file %s.", sentinel)
+        sentinel.touch()
+
+    def install(self, ha_config: dict):
+        mode = NodeType(ha_config["node_type"])
+        if mode is NodeType.SECONDARY:
+            logger.info("Node is in secondary HA mode.")
+            self._install_secondary()
+        elif mode is NodeType.PRIMARY:
+            logger.info("Node is in primary HA mode.")
+            self._install_primary()
+        elif mode is NodeType.DISABLED:
+            logger.info("HA disabled on this node.")
+            self.uninstall(ha_config)
+
+    def uninstall(self, ha_config: dict):
+        logger.info("Removing sentinel files.")
+        if self._primary_sentinel.exists():
+            self._primary_sentinel.unlink()
+        if self._secondary_sentinel.exists():
+            self._secondary_sentinel.unlink()

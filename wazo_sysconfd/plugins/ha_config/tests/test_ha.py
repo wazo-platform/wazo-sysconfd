@@ -9,12 +9,14 @@ import subprocess
 import tempfile
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest.mock import Mock
 
 from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
     _PostgresConfigUpdater,
     _CronFileInstaller,
+    _SentinelFileManager,
 )
 
 
@@ -53,7 +55,7 @@ class TestHA(unittest.TestCase):
         self._tmp_dir = tempfile.mkdtemp()
         self._ha_conf_file = os.path.join(self._tmp_dir, 'test_ha.conf')
         self._ha_config_mgr = HAConfigManager(
-            Mock(), Mock(), ha_conf_file=self._ha_conf_file
+            Mock(), Mock(), Mock(), ha_conf_file=self._ha_conf_file
         )
 
     def tearDown(self):
@@ -338,3 +340,36 @@ class TestCronFileInstaller(unittest.TestCase):
         cronfile_installer.remove_cronfile(filename)
 
         self.assertEqual([], self._list_crondir())
+
+
+class TestSentinelFilesManager(unittest.TestCase):
+    def setUp(self):
+        self.root_dir = Path(tempfile.mkdtemp())
+        self.sentinel_file_manager = _SentinelFileManager(self.root_dir)
+
+    def tearDown(self):
+        shutil.rmtree(self.root_dir)
+
+    def test_primary(self):
+        ha_config = new_master_ha_config("10.0.0.1")
+        self.sentinel_file_manager.install(ha_config)
+        sentinel_file = self.root_dir / "is-primary"
+        self.assertTrue(sentinel_file.exists())
+        anti_sentinel_file = self.root_dir / "is-secondary"
+        self.assertFalse(anti_sentinel_file.exists())
+
+    def test_secondary(self):
+        ha_config = new_slave_ha_config("10.0.0.2")
+        self.sentinel_file_manager.install(ha_config)
+        sentinel_file = self.root_dir / "is-secondary"
+        self.assertTrue(sentinel_file.exists())
+        anti_sentinel_file = self.root_dir / "is-primary"
+        self.assertFalse(anti_sentinel_file.exists())
+
+    def test_disabled(self):
+        ha_config = new_disabled_ha_config()
+        self.sentinel_file_manager.install(ha_config)
+        primary_sentinel_file = self.root_dir / "is-primary"
+        secondary_sentinel_file = self.root_dir / "is-secondary"
+        self.assertFalse(primary_sentinel_file.exists())
+        self.assertFalse(secondary_sentinel_file.exists())
