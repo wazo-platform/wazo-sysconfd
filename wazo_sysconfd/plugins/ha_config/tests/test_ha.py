@@ -351,25 +351,25 @@ class TestSentinelFilesManager(unittest.TestCase):
         shutil.rmtree(self.root_dir)
 
     def test_primary(self):
-        ha_config = new_master_ha_config("10.0.0.1")
+        ha_config = new_master_ha_config('10.0.0.1')
         self.sentinel_file_manager.install(ha_config)
-        sentinel_file = self.root_dir / "is-primary"
+        sentinel_file = self.root_dir / 'is-primary'
         self.assertTrue(sentinel_file.exists())
-        anti_sentinel_file = self.root_dir / "is-secondary"
+        anti_sentinel_file = self.root_dir / 'is-secondary'
         self.assertFalse(anti_sentinel_file.exists())
 
     def test_secondary(self):
-        ha_config = new_slave_ha_config("10.0.0.2")
+        ha_config = new_slave_ha_config('10.0.0.2')
         self.sentinel_file_manager.install(ha_config)
-        sentinel_file = self.root_dir / "is-secondary"
+        sentinel_file = self.root_dir / 'is-secondary'
         self.assertTrue(sentinel_file.exists())
-        anti_sentinel_file = self.root_dir / "is-primary"
+        anti_sentinel_file = self.root_dir / 'is-primary'
         self.assertFalse(anti_sentinel_file.exists())
 
     def test_disabled(self):
         ha_config = new_disabled_ha_config()
         self.sentinel_file_manager.install(ha_config)
-        primary_sentinel_file = self.root_dir / "is-primary"
-        secondary_sentinel_file = self.root_dir / "is-secondary"
+        primary_sentinel_file = self.root_dir / 'is-primary'
+        secondary_sentinel_file = self.root_dir / 'is-secondary'
         self.assertFalse(primary_sentinel_file.exists())
         self.assertFalse(secondary_sentinel_file.exists())

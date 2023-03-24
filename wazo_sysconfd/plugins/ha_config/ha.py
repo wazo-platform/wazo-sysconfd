@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class NodeType(str, Enum):
-    SECONDARY = "slave"
-    PRIMARY = "master"
-    DISABLED = "disabled"
+    SECONDARY = 'slave'
+    PRIMARY = 'master'
+    DISABLED = 'disabled'
 
 
 class HAConfigManager(object):
@@ -173,8 +173,8 @@ class _CronFileInstaller(object):
 
 class _SentinelFileManager:
     SENTINEL_ROOT_DIR = Path('/var/lib/wazo')
-    PRIMARY_SENTINEL_NAME = "is-primary"
-    SECONDARY_SENTINEL_NAME = "is-secondary"
+    PRIMARY_SENTINEL_NAME = 'is-primary'
+    SECONDARY_SENTINEL_NAME = 'is-secondary'
 
     def __init__(self, root_dir: os.PathLike = SENTINEL_ROOT_DIR):
         self._root_dir = Path(root_dir)
@@ -185,30 +185,30 @@ class _SentinelFileManager:
         if self._secondary_sentinel.exists():
             self._secondary_sentinel.unlink()
         sentinel = self._primary_sentinel
-        logger.info("Creating primary sentinel file %s.", sentinel)
+        logger.info('Creating primary sentinel file %s.', sentinel)
         sentinel.touch()
 
     def _install_secondary(self):
         if self._primary_sentinel.exists():
             self._primary_sentinel.unlink()
         sentinel = self._secondary_sentinel
-        logger.info("Creating secondary sentinel file %s.", sentinel)
+        logger.info('Creating secondary sentinel file %s.', sentinel)
         sentinel.touch()
 
     def install(self, ha_config: dict):
-        mode = NodeType(ha_config["node_type"])
+        mode = NodeType(ha_config['node_type'])
         if mode is NodeType.SECONDARY:
-            logger.info("Node is in secondary HA mode.")
+            logger.info('Node is in secondary HA mode.')
             self._install_secondary()
         elif mode is NodeType.PRIMARY:
-            logger.info("Node is in primary HA mode.")
+            logger.info('Node is in primary HA mode.')
             self._install_primary()
         elif mode is NodeType.DISABLED:
-            logger.info("HA disabled on this node.")
+            logger.info('HA disabled on this node.')
             self.uninstall(ha_config)
 
     def uninstall(self, ha_config: dict):
-        logger.info("Removing sentinel files.")
+        logger.info('Removing sentinel files.')
         if self._primary_sentinel.exists():
             self._primary_sentinel.unlink()
         if self._secondary_sentinel.exists():
