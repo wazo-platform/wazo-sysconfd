@@ -11,7 +11,7 @@ unnecessary for container installations.
 ## Running unit tests
 
 ```shell
-tox --recreate -e py37
+tox --recreate -e py39
 ```
 
 ## Running integration tests
