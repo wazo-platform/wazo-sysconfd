@@ -19,7 +19,7 @@ RUN python setup.py develop \
     && ln -s /usr/local/bin/mock-command /usr/sbin/xivo-manage-slave-services \
     && ln -s /usr/local/bin/mock-command /usr/sbin/xivo-monitoring-update \
     && ln -s /usr/local/bin/mock-command /usr/sbin/xivo-update-config \
-    && install -D /dev/null /etc/postgresql/11/main/pg_hba.conf \
-    && install -D /dev/null /etc/postgresql/11/main/postgresql.conf \
+    && install -D /dev/null /etc/postgresql/13/main/pg_hba.conf \
+    && install -D /dev/null /etc/postgresql/13/main/postgresql.conf \
     && true
 

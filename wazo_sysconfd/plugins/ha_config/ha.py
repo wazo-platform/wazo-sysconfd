@@ -1,4 +1,4 @@
-# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import errno
@@ -108,7 +108,7 @@ class HAConfigManager(object):
 
 
 class _PostgresConfigUpdater(object):
-    DEFAULT_CONFIG_DIR = '/etc/postgresql/11/main'
+    DEFAULT_CONFIG_DIR = '/etc/postgresql/13/main'
     PG_HBA_FILE = 'pg_hba.conf'
     POSTGRESQL_FILE = 'postgresql.conf'
 
