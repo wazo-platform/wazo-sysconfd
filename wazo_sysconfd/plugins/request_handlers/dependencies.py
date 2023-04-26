@@ -1,4 +1,4 @@
-# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from functools import lru_cache
@@ -8,7 +8,7 @@ from wazo_sysconfd.plugins.request_handlers.request import RequestHandlersProxy
 config = None
 
 
-@lru_cache()
+@lru_cache
 def get_request_handlers_proxy():
     request_handlers_proxy = RequestHandlersProxy()
     request_handlers_proxy.safe_init_from_config(config)

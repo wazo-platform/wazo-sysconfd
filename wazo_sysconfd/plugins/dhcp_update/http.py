@@ -1,4 +1,4 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter
@@ -19,7 +19,7 @@ def get_dhcp_update():
     try:
         returncode = exec_dhcp_update()
     except OSError as e:
-        raise HttpReqError(500, "error while executing dhcpd-update command: %s" % e)
+        raise HttpReqError(500, f"error while executing dhcpd-update command: {e}")
     else:
         if returncode:
-            raise HttpReqError(500, "dhcpd-update command returned %s" % returncode)
+            raise HttpReqError(500, f"dhcpd-update command returned {returncode}")

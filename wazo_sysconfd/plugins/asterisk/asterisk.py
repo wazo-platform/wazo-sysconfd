@@ -1,4 +1,4 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
@@ -11,7 +11,7 @@ ASTERISK_USER = 'asterisk'
 ASTERISK_GROUP = 'asterisk'
 
 
-class Asterisk(object):
+class Asterisk:
     def __init__(self, base_vmail_path='/var/spool/asterisk/voicemail'):
         self._base_vmail_path = base_vmail_path
         self.remove_directory = _remove_directory

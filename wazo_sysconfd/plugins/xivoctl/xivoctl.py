@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -17,7 +17,7 @@ def xivoctl(args, options):
                 if act == 'start':
                     services({'asterisk': 'stop'})
                 p = subprocess.Popen(
-                    ["%s" % service, act],
+                    [f"{service}", act],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     close_fds=True,

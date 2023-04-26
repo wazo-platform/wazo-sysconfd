@@ -12,7 +12,7 @@ from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 logger = logging.getLogger(__name__)
 
 
-class AsteriskCommandFactory(object):
+class AsteriskCommandFactory:
     _COMMANDS = [
         'core reload',
         'core restart now',
@@ -47,7 +47,7 @@ class AsteriskCommandFactory(object):
         raise ValueError('unauthorized command')
 
 
-class AsteriskCommandExecutor(object):
+class AsteriskCommandExecutor:
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
         self._null = open(os.devnull)

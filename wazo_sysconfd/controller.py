@@ -1,9 +1,9 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
 
 import logging
 
-from typing import List
 from xivo import plugin_helpers
 from xivo.status import StatusAggregator
 
@@ -29,7 +29,7 @@ class Controller:
         )
         logger.debug('Loaded routes:\n%s', self.list_routes())
 
-    def list_routes(self) -> List:
+    def list_routes(self) -> list:
         url_list = [{'path': route.path, 'name': route.name} for route in api.routes]
         return url_list
 

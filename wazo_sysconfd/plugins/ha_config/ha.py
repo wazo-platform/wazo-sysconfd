@@ -19,7 +19,7 @@ class NodeType(str, Enum):
     DISABLED = 'disabled'
 
 
-class HAConfigManager(object):
+class HAConfigManager:
     DEFAULT_HA_CONF_FILE = '/etc/xivo/ha.conf'
     DEFAULT_HA_CONFIG = {'node_type': 'disabled', 'remote_address': ''}
     CRONFILE_SLAVE = 'xivo-ha-slave'
@@ -42,9 +42,9 @@ class HAConfigManager(object):
 
     def _read_ha_config(self):
         try:
-            with open(self._ha_conf_file, 'r') as fobj:
+            with open(self._ha_conf_file) as fobj:
                 return self._read_ha_config_from_fobj(fobj)
-        except IOError as e:
+        except OSError as e:
             if e.errno == errno.ENOENT:
                 return dict(self.DEFAULT_HA_CONFIG)
             else:
@@ -86,16 +86,13 @@ class HAConfigManager(object):
 
     def _add_master_cronfile(self, remote_address):
         content = (
-            '0 * * * * root /usr/sbin/xivo-master-slave-db-replication %s >/dev/null\n'
-            '0 * * * * root /usr/bin/xivo-sync >/dev/null\n' % remote_address
+            f'0 * * * * root /usr/sbin/xivo-master-slave-db-replication {remote_address} >/dev/null\n'
+            '0 * * * * root /usr/bin/xivo-sync >/dev/null\n'
         )
         self._cronfile_installer.add_cronfile(self.CRONFILE_MASTER, content)
 
     def _add_slave_cronfile(self, remote_address):
-        content = (
-            '* * * * * root /usr/sbin/xivo-check-master-status %s >/dev/null\n'
-            % remote_address
-        )
+        content = f'* * * * * root /usr/sbin/xivo-check-master-status {remote_address} >/dev/null\n'
         self._cronfile_installer.add_cronfile(self.CRONFILE_SLAVE, content)
 
     def _manage_services(self, ha_config):
@@ -107,7 +104,7 @@ class HAConfigManager(object):
         self._sentinel_file_manager.install(ha_config)
 
 
-class _PostgresConfigUpdater(object):
+class _PostgresConfigUpdater:
     DEFAULT_CONFIG_DIR = '/etc/postgresql/13/main'
     PG_HBA_FILE = 'pg_hba.conf'
     POSTGRESQL_FILE = 'postgresql.conf'
@@ -128,7 +125,7 @@ class _PostgresConfigUpdater(object):
 
     def _append_host_line_in_pg_hba(self):
         master_ip_address = self._ha_config['remote_address']
-        host_line = 'host asterisk postgres %s/32 trust\n' % master_ip_address
+        host_line = f'host asterisk postgres {master_ip_address}/32 trust\n'
         with open(self._pg_hba_file, 'a') as fobj:
             fobj.write(host_line)
 
@@ -151,7 +148,7 @@ class _PostgresConfigUpdater(object):
         subprocess.check_call(command_args, close_fds=True)
 
 
-class _CronFileInstaller(object):
+class _CronFileInstaller:
     DEFAULT_CRON_DIR = '/etc/cron.d'
 
     def __init__(self, cron_dir=DEFAULT_CRON_DIR):

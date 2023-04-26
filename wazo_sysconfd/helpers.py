@@ -1,4 +1,4 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import re
@@ -80,10 +80,8 @@ def search_domain(search_domain):
         search_domain
         and len(search_domain) <= 251
         and all(
-            (
-                ((len(label) <= 63) and DomainLabelOk(label))
-                for label in search_domain.split('.')
-            )
+            ((len(label) <= 63) and DomainLabelOk(label))
+            for label in search_domain.split('.')
         )
     )
 
@@ -93,7 +91,7 @@ def is_ipv4_address_valid(addr):
     try:
         socket.inet_aton(addr)
         return True
-    except (TypeError, socket.error):
+    except (TypeError, OSError):
         return False
 
 

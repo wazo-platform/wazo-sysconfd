@@ -1,4 +1,4 @@
-# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Command(object):
+class Command:
     def __init__(self, value, request, executor, data):
         self.value = value
         self.executor = executor
@@ -30,7 +30,7 @@ class Command(object):
             )
 
 
-class SimpleCommandFactory(object):
+class SimpleCommandFactory:
     def __init__(self, executor):
         self._executor = executor
 

@@ -1,4 +1,4 @@
-# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -22,7 +22,7 @@ from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 logger = logging.getLogger(__name__)
 
 
-class Request(object):
+class Request:
     def __init__(self, commands, context=None):
         self.commands = commands
         self.observers = []
@@ -36,7 +36,7 @@ class Request(object):
             observer.on_request_executed(self)
 
 
-class RequestFactory(object):
+class RequestFactory:
     def __init__(self, asterisk_command_factory, chown_autoprov_command_factory):
         self._asterisk_command_factory = asterisk_command_factory
         self._chown_autoprov_command_factory = chown_autoprov_command_factory
@@ -74,7 +74,7 @@ class RequestFactory(object):
                 commands.append(command)
 
 
-class DuplicateRequestOptimizer(object):
+class DuplicateRequestOptimizer:
     def __init__(self, executor):
         self._executor = executor
         self._cache = {}
@@ -101,7 +101,7 @@ class DuplicateRequestOptimizer(object):
                     self._cache.pop(command.value, None)
 
 
-class RequestQueue(object):
+class RequestQueue:
     def __init__(self, optimizer):
         self._lock = threading.Lock()
         self._condition = threading.Condition(self._lock)
@@ -123,7 +123,7 @@ class RequestQueue(object):
         return request
 
 
-class RequestProcessor(object):
+class RequestProcessor:
     def __init__(self, request_queue):
         self._request_queue = request_queue
 
@@ -136,7 +136,7 @@ class RequestProcessor(object):
                 logger.exception('Unexpected error')
 
 
-class RequestHandlers(object):
+class RequestHandlers:
     def __init__(self, request_factory, request_queue, bus_publisher):
         self._request_factory = request_factory
         self._request_queue = request_queue
@@ -161,7 +161,7 @@ class RequestHandlers(object):
         request.observers.append(observer)
 
 
-class RequestCompletedEventObserver(object):
+class RequestCompletedEventObserver:
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
 
@@ -173,7 +173,7 @@ class RequestCompletedEventObserver(object):
         )
 
 
-class SyncRequestObserver(object):
+class SyncRequestObserver:
     def __init__(self, timeout=30):
         self._event = threading.Event()
         self._timeout = timeout
@@ -189,12 +189,12 @@ class SyncRequestHandlers(RequestHandlers):
     def _queue_request(self, request):
         observer = SyncRequestObserver()
         request.observers.append(observer)
-        super(SyncRequestHandlers, self)._queue_request(request)
+        super()._queue_request(request)
         if not observer.wait():
             logger.warning('timeout reached on synchronous request')
 
 
-class RequestHandlersProxy(object):
+class RequestHandlersProxy:
     def __init__(self):
         self._request_handlers = None
         self._request_processor = None
