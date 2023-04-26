@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 ChownAutoprovCommandFactory = SimpleCommandFactory
 
 
-class ChownAutoprovCommandExecutor(object):
+class ChownAutoprovCommandExecutor:
     _CONFIG_FILE = '/etc/asterisk/pjsip.d/05-autoprov-wizard.conf'
 
     def execute(self, command, data):

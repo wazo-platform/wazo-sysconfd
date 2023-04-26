@@ -1,4 +1,4 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -29,17 +29,17 @@ Rcc = {
 def _write_config_file(optname, xvars):
     backupfilename = None
 
-    if not os.path.isdir(Rcc["%s_backup_path" % optname]):
-        os.makedirs(Rcc["%s_backup_path" % optname])
+    if not os.path.isdir(Rcc[f"{optname}_backup_path"]):
+        os.makedirs(Rcc[f"{optname}_backup_path"])
 
-    if os.access(Rcc["%s_file" % optname], os.R_OK):
-        backupfilename = "%s.%d" % (Rcc["%s_backup_file" % optname], time())
-        copy2(Rcc["%s_file" % optname], backupfilename)
+    if os.access(Rcc[f"{optname}_file"], os.R_OK):
+        backupfilename = f"{Rcc[f'{optname}_backup_file']}.{time():d}"
+        copy2(Rcc[f"{optname}_file"], backupfilename)
 
-    if os.access(Rcc["%s_custom_tpl_file" % optname], (os.F_OK | os.R_OK)):
-        filename = Rcc["%s_custom_tpl_file" % optname]
+    if os.access(Rcc[f"{optname}_custom_tpl_file"], (os.F_OK | os.R_OK)):
+        filename = Rcc[f"{optname}_custom_tpl_file"]
     else:
-        filename = Rcc["%s_tpl_file" % optname]
+        filename = Rcc[f"{optname}_tpl_file"]
 
     template_file = open(filename)
     template_lines = template_file.readlines()
@@ -48,12 +48,12 @@ def _write_config_file(optname, xvars):
     txt = txtsubst(
         template_lines,
         xvars,
-        Rcc["%s_file" % optname],
+        Rcc[f"{optname}_file"],
         'utf8',
     )
 
     system.file_writelines_flush_sync(
-        Rcc["%s_file" % optname],
+        Rcc[f"{optname}_file"],
         [text.decode('utf8') if isinstance(text, bytes) else text for text in txt],
     )
 
@@ -79,21 +79,19 @@ def hosts(args):
     if not os.access(Rcc['hostname_path'], (os.X_OK | os.W_OK)):
         raise exceptions.HttpReqError(
             415,
-            "path not found or not writable or not executable: %r"
-            % Rcc['hostname_path'],
+            f"path not found or not writable or not executable: {Rcc['hostname_path']!r}",
         )
 
     if not os.access(Rcc['hosts_path'], (os.X_OK | os.W_OK)):
         raise exceptions.HttpReqError(
             415,
-            "path not found or not writable or not executable: %r" % Rcc['hosts_path'],
+            f"path not found or not writable or not executable: {Rcc['hosts_path']!r}",
         )
 
     if not RESOLVCONFLOCK.acquire_read(Rcc['lock_timeout']):
         raise exceptions.HttpReqError(
             503,
-            "unable to take RESOLVCONFLOCK for reading after %s seconds"
-            % Rcc['lock_timeout'],
+            f"unable to take RESOLVCONFLOCK for reading after {Rcc['lock_timeout']} seconds",
         )
 
     hostnamebakfile = None
@@ -141,13 +139,14 @@ def _validate_resolv_conf(args):
 
 
 def _resolv_conf_variables(args):
-    xvars = {}
-    xvars['_XIVO_NAMESERVER_LIST'] = os.linesep.join(
-        ["nameserver %s"] * len(args['nameservers'])
-    ) % tuple(args['nameservers'])
+    xvars = {
+        '_XIVO_NAMESERVER_LIST': os.linesep.join(
+            f'nameserver {nameserver}' for nameserver in args['nameservers']
+        )
+    }
 
     if 'search' in args:
-        xvars['_XIVO_DNS_SEARCH'] = "search %s" % " ".join(args['search'])
+        xvars['_XIVO_DNS_SEARCH'] = f"search {' '.join(args['search'])}"
     else:
         xvars['_XIVO_DNS_SEARCH'] = ""
 
@@ -170,21 +169,19 @@ def safe_init(options):
     Rcc['lock_timeout'] = float(Rcc['lock_timeout'])
 
     for optname in ('hostname', 'hosts', 'resolvconf'):
-        Rcc["%s_tpl_file" % optname] = os.path.join(
-            tpl_path, Rcc["%s_tpl_file" % optname]
-        )
+        Rcc[f"{optname}_tpl_file"] = os.path.join(tpl_path, Rcc[f"{optname}_tpl_file"])
 
-        Rcc["%s_custom_tpl_file" % optname] = os.path.join(
+        Rcc[f"{optname}_custom_tpl_file"] = os.path.join(
             custom_tpl_path,
-            Rcc["%s_tpl_file" % optname],
+            Rcc[f"{optname}_tpl_file"],
         )
 
-        Rcc["%s_path" % optname] = os.path.dirname(Rcc["%s_file" % optname])
-        Rcc["%s_backup_file" % optname] = os.path.join(
+        Rcc[f"{optname}_path"] = os.path.dirname(Rcc[f"{optname}_file"])
+        Rcc[f"{optname}_backup_file"] = os.path.join(
             backup_path,
-            Rcc["%s_file" % optname].lstrip(os.path.sep),
+            Rcc[f"{optname}_file"].lstrip(os.path.sep),
         )
-        Rcc["%s_backup_path" % optname] = os.path.join(
+        Rcc[f"{optname}_backup_path"] = os.path.join(
             backup_path,
-            Rcc["%s_path" % optname].lstrip(os.path.sep),
+            Rcc[f"{optname}_path"].lstrip(os.path.sep),
         )

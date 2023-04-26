@@ -11,7 +11,7 @@ from .. import services
 
 class TestServices(TestCase):
     def setUp(self):
-        services_on_disk = ['service%s' % i for i in range(1, 10)]
+        services_on_disk = [f'service{i}' for i in range(1, 10)]
         self.patcher = patch('os.listdir', return_value=services_on_disk)
         self.patcher.start()
 

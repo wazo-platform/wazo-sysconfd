@@ -1,4 +1,4 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -42,7 +42,7 @@ def _validate_action(service_name, action):
 def _run_action_for_service_validated(service, action):
     output = ''
     try:
-        command = ['/bin/systemctl', action, '{}.service'.format(service)]
+        command = ['/bin/systemctl', action, f'{service}.service']
         p = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
