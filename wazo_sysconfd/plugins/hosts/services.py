@@ -33,7 +33,7 @@ def _write_config_file(optname, xvars):
         os.makedirs(Rcc[f"{optname}_backup_path"])
 
     if os.access(Rcc[f"{optname}_file"], os.R_OK):
-        backupfilename = f"{Rcc[f'{optname}_backup_file']}.{time():d}"
+        backupfilename = f"{Rcc[f'{optname}_backup_file']}.{time():f}"
         copy2(Rcc[f"{optname}_file"], backupfilename)
 
     if os.access(Rcc[f"{optname}_custom_tpl_file"], (os.F_OK | os.R_OK)):
