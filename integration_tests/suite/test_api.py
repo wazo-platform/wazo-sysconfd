@@ -1,5 +1,6 @@
 # Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
 
 from hamcrest import (
     assert_that,
@@ -16,6 +17,7 @@ from wazo_sysconfd_client.exceptions import SysconfdError
 from .helpers.base import IntegrationTest
 
 FASTAPI_REASON = 'Not reimplemented using FastAPI'
+BACKUP_DIR = '/var/backups/wazo-sysconfd'
 
 
 class TestSysconfd(IntegrationTest):
@@ -157,6 +159,26 @@ class TestSysconfd(IntegrationTest):
         assert self._file_exists('/etc/local/hostname')
         assert self._file_exists('/etc/local/hosts')
 
+    def test_hosts_file_exists(self) -> None:
+        self._create_file('/etc/local/hostname', owner='root')
+        assert not self._find_file_pattern_in_directory(r'hostname\.[0-9]+', BACKUP_DIR)
+        self._create_file('/etc/local/hosts', owner='root')
+        assert not self._find_file_pattern_in_directory(r'hosts\.[0-9]+', BACKUP_DIR)
+        bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
+        body = {
+            'hostname': 'wazo',
+            'domain': 'example.com',
+        }
+
+        self.sysconfd.hosts(body)
+
+        expected_command = ['hostname', '-F', '/etc/local/hostname']
+        self._assert_command_was_called(bus_events, expected_command)
+        assert self._find_file_pattern_in_directory(r'hostname\.[0-9]+', BACKUP_DIR)
+        assert self._file_exists('/etc/local/hostname')
+        assert self._find_file_pattern_in_directory(r'hosts\.[0-9]+', BACKUP_DIR)
+        assert self._file_exists('/etc/local/hosts')
+
     def test_resolv_conf(self):
         self._given_file_absent('/etc/local/resolv.conf')
         body = {
@@ -167,6 +189,21 @@ class TestSysconfd(IntegrationTest):
         self.sysconfd.resolv_conf(body)
 
         assert self._file_exists('/etc/local/resolv.conf')
+
+    def test_resolv_conf_exists(self) -> None:
+        self._create_file('/etc/local/resolv.conf', owner='root')
+        assert not self._find_file_pattern_in_directory(
+            r'resolv\.conf\.[0-9]+', BACKUP_DIR
+        )
+        body = {
+            'nameservers': ['192.168.0.1'],
+            'search': ['wazo.example.com'],
+        }
+
+        self.sysconfd.resolv_conf(body)
+
+        assert self._file_exists('/etc/local/resolv.conf')
+        assert self._find_file_pattern_in_directory(r'resolv\.conf\.[0-9]+', BACKUP_DIR)
 
     def test_ha_config(self):
         self._given_file_absent('/etc/xivo/ha.conf')
@@ -257,6 +294,26 @@ class TestSysconfd(IntegrationTest):
             return False
         else:
             raise RuntimeError(f'Unknown output: "{out}"')
+
+    def _find_file_pattern_in_directory(
+        self, re_pattern: str, directory: str
+    ) -> str | bool:
+        command = ' '.join(
+            [
+                'find',
+                directory,
+                '-regextype',
+                'posix-egrep',
+                '-regex',
+                fr"'.*/{re_pattern}'",
+                '-print',
+                '-quit',
+            ]
+        )
+        output = (
+            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        )
+        return output or False
 
     def _assert_command_was_called(self, bus_events, command):
         def poll():
