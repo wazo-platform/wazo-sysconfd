@@ -32,7 +32,7 @@ On interactive mode :
 
 After launch wazo-sysconfd.
 
-    wazo-sysconfd -l debug -f
+    wazo-sysconfd -d -f
 
 ## Infos
 

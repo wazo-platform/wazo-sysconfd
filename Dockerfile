@@ -30,4 +30,4 @@ EXPOSE 8668
 
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"
-CMD ["wazo-sysconfd", "-l", "debug"]
+CMD ["wazo-sysconfd"]

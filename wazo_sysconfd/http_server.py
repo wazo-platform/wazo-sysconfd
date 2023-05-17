@@ -1,6 +1,7 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from gunicorn.app.base import BaseApplication
@@ -20,7 +21,7 @@ class SysconfdApplication(BaseApplication):
         port = self.config['rest_api']['port']
         self.cfg.set('bind', [f'{host}:{port}'])
         self.cfg.set('default_proc_name', 'sysconfd-api')
-        self.cfg.set('loglevel', self.config['log_level'])
+        self.cfg.set('loglevel', logging.getLevelName(self.config['log_level']))
         self.cfg.set('accesslog', '-')
         self.cfg.set('errorlog', '-')
         # NOTE: We must set this to one worker, since each worker is its own process, and if we have more than one
