@@ -1,4 +1,4 @@
-# Copyright 2021-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -74,7 +74,6 @@ def _parse_cli_args(argv):
     parser.add_argument(
         '-l',
         '--log-level',
-        default='INFO',
         help="Emit traces with LOGLEVEL details, must be one of:\n"
         "critical, error, warning, info, debug",
     )
