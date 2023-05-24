@@ -116,7 +116,7 @@ class TestSysconfd(BaseSysconfdTest):
     def test_dhcpd_update(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
-        self.sysconfd.dhcpd_update()
+        self.sysconfd.dhcpd.update()
 
         self._assert_command_was_called(bus_events, ['dhcpd-update', '-dr'])
 
@@ -126,7 +126,7 @@ class TestSysconfd(BaseSysconfdTest):
         self._create_directory(old_voicemail_directory)
         self._given_directory_absent(new_voicemail_directory)
 
-        self.sysconfd.move_voicemail(
+        self.sysconfd.voicemail.move(
             old_mailbox='oldvoicemail',
             old_context='mycontext',
             new_mailbox='newvoicemail',
@@ -137,7 +137,7 @@ class TestSysconfd(BaseSysconfdTest):
 
     def test_delete_voicemail_path_injection(self):
         assert_that(
-            calling(self.sysconfd.delete_voicemail).with_args(
+            calling(self.sysconfd.voicemail.delete).with_args(
                 mailbox='../../../attack/me', context='some-context'
             ),
             raises(SysconfdError).matching(
@@ -149,21 +149,21 @@ class TestSysconfd(BaseSysconfdTest):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
         self._create_directory(voicemail_directory)
 
-        self.sysconfd.delete_voicemail(mailbox='myvoicemail', context='mycontext')
+        self.sysconfd.voicemail.delete(mailbox='myvoicemail', context='mycontext')
 
         assert not self._directory_exists(voicemail_directory)
 
     def test_commonconf_generate(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
-        self.sysconfd.commonconf_generate()
+        self.sysconfd.commonconf.generate()
 
         self._assert_command_was_called(bus_events, ['xivo-create-config'])
 
     def test_commonconf_apply(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
-        self.sysconfd.commonconf_apply()
+        self.sysconfd.commonconf.apply()
 
         self._assert_command_was_called(bus_events, ['xivo-update-config'])
         self._assert_command_was_called(bus_events, ['xivo-monitoring-update'])
@@ -242,7 +242,7 @@ class TestSysconfd(BaseSysconfdTest):
             'domain': 'example.com',
         }
 
-        self.sysconfd.hosts(body)
+        self.sysconfd.hosts.update(body)
 
         expected_command = ['hostname', '-F', '/etc/local/hostname']
         self._assert_command_was_called(bus_events, expected_command)
@@ -260,7 +260,7 @@ class TestSysconfd(BaseSysconfdTest):
             'domain': 'example.com',
         }
 
-        self.sysconfd.hosts(body)
+        self.sysconfd.hosts.update(body)
 
         expected_command = ['hostname', '-F', '/etc/local/hostname']
         self._assert_command_was_called(bus_events, expected_command)
@@ -276,7 +276,7 @@ class TestSysconfd(BaseSysconfdTest):
             'search': ['wazo.example.com'],
         }
 
-        self.sysconfd.resolv_conf(body)
+        self.sysconfd.resolv_conf.update(body)
 
         assert self._file_exists('/etc/local/resolv.conf')
 
@@ -290,7 +290,7 @@ class TestSysconfd(BaseSysconfdTest):
             'search': ['wazo.example.com'],
         }
 
-        self.sysconfd.resolv_conf(body)
+        self.sysconfd.resolv_conf.update(body)
 
         assert self._file_exists('/etc/local/resolv.conf')
         assert self._find_file_pattern_in_directory(r'resolv\.conf\.[0-9]+', BACKUP_DIR)
@@ -300,8 +300,8 @@ class TestSysconfd(BaseSysconfdTest):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {'node_type': 'master', 'remote_address': '192.168.99.99'}
 
-        self.sysconfd.ha_config.update(body)
-        result = self.sysconfd.ha_config.get()
+        self.sysconfd.ha.update(body)
+        result = self.sysconfd.ha.get()
 
         expected_command = ['systemctl', 'restart', 'postgresql.service']
         self._assert_command_was_called(bus_events, expected_command)
@@ -327,13 +327,13 @@ class TestSysconfd(BaseSysconfdTest):
 
         assert result == {'rest_api': {'status': 'ok'}}
 
-    def test_xivoctl(self):
+    def test_wazoctl(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {
             'wazo-service': 'start',
         }
 
-        self.sysconfd.xivoctl(body)
+        self.sysconfd.wazoctl(body)
 
         self._assert_command_was_called(bus_events, ['wazo-service', 'start'])
 

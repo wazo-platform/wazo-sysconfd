@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, call, patch
 
 from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.plugins.asterisk.asterisk import (
+from wazo_sysconfd.plugins.voicemail.asterisk import (
     Asterisk,
     _remove_directory,
     _is_valid_path_component,

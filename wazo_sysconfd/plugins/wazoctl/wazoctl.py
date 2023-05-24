@@ -5,12 +5,12 @@ import logging
 import subprocess
 
 from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.plugins.host_services.services import services
+from wazo_sysconfd.plugins.services.services import services
 
-logger = logging.getLogger('wazo_sysconfd.modules.xivoctl')
+logger = logging.getLogger('wazo_sysconfd.modules.wazoctl')
 
 
-def xivoctl(args, options):
+def wazoctl(args, options):
     for service, act in args.items():
         if service == 'wazo-service':
             try:
@@ -29,7 +29,7 @@ def xivoctl(args, options):
                     raise HttpReqError(500, output)
             except OSError:
                 logger.exception("Error while executing %s script", service)
-                raise HttpReqError(500, "can't manage xivoctl")
+                raise HttpReqError(500, "can't manage wazoctl")
         else:
             logger.error("service not exist: %s", service)
 

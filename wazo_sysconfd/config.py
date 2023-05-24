@@ -57,17 +57,17 @@ _DEFAULT_CONFIG = {
         'exchange_type': 'headers',
     },
     'enabled_plugins': {
-        'asterisk': True,
+        'voicemail': True,
         'commonconf': True,
-        'dhcp_update': True,
-        'ha_config': True,
-        'host_services': True,
+        'dhcpd': True,
+        'ha': True,
+        'services': True,
         'hosts': True,
         'request_handlers': True,
         'resolv_conf': True,
         'status': True,
-        'xivoctl': True,
         'networking_info': True,
+        'wazoctl': True,
     },
 }
 

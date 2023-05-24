@@ -4,14 +4,14 @@
 from fastapi import APIRouter
 
 from wazo_sysconfd.exceptions import HttpReqError
-from wazo_sysconfd.plugins.dhcp_update.services import exec_dhcp_update
+from wazo_sysconfd.plugins.dhcpd.services import exec_dhcp_update
 
 
 router = APIRouter()
 
 
-@router.get('/dhcpd_update', status_code=200)
-def get_dhcp_update():
+@router.put('/dhcpd', status_code=200)
+def put_dhcp_update():
     """Download the latest ISC dhcp server configuration files and
     regenerate the affected configuration files via the dhcpd-update
     command.
