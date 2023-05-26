@@ -13,8 +13,8 @@ class IntegrationTest(AssetLaunchingTestCase):
     service = 'sysconfd'
 
     def setUp(self):
-        self.bus = self.make_bus()
-        self.sysconfd = self.make_sysconfd()
+        self.bus: BusClient = self.make_bus()
+        self.sysconfd: SysconfdClient = self.make_sysconfd()
 
     @classmethod
     def make_bus(cls):
