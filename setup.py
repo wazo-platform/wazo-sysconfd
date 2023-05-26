@@ -28,6 +28,7 @@ setup(
             'resolv_conf = wazo_sysconfd.plugins.resolv_conf.plugin:Plugin',
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
             'xivoctl = wazo_sysconfd.plugins.xivoctl.plugin:Plugin',
+            'networking_info = wazo_sysconfd.plugins.networking_info.plugin:Plugin',
         ],
     },
 )
