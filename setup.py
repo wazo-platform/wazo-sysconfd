@@ -10,7 +10,7 @@ setup(
     version='2.0',
     description='Wazo sysconf daemon',
     author='Wazo Authors',
-    author_email='dev.wazo@gmail.com',
+    author_email='dev@wazo.io',
     url='https://wazo-platform.org',
     packages=find_packages(),
     entry_points={
