@@ -9,9 +9,9 @@ from hamcrest import (
     has_properties,
     has_items,
     has_entries,
-    equal_to,
-    contains_inanyorder,
     instance_of,
+    is_in,
+    only_contains,
 )
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
@@ -338,9 +338,12 @@ class TestSysconfd(BaseSysconfdTest):
         self._assert_command_was_called(bus_events, ['wazo-service', 'start'])
 
     def test_networking_info(self):
-        import os
-
-        expected_interfaces = set(os.listdir('/sys/class/net/'))
+        raw_expected_interfaces = self.docker_exec(
+            'ls /sys/class/net/'.split(" "), 'sysconfd'
+        )
+        expected_interfaces = [
+            line for line in raw_expected_interfaces.decode("utf-8").split("\n") if line
+        ]
 
         response = self.sysconfd.session().get(
             self.sysconfd.url('networking', 'interfaces')
@@ -351,12 +354,12 @@ class TestSysconfd(BaseSysconfdTest):
         assert_that(
             interfaces,
             has_entries(
-                data=contains_inanyorder(
+                data=has_items(
                     has_entries(name=instance_of(str), address=instance_of(str))
                 )
             ),
         )
         assert_that(
             set(nic['name'] for nic in interfaces['data']),
-            equal_to(expected_interfaces),
+            only_contains(is_in(expected_interfaces)),
         )
