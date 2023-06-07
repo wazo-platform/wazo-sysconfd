@@ -65,6 +65,7 @@ _DEFAULT_CONFIG = {
         'resolv_conf': True,
         'status': True,
         'xivoctl': True,
+        'networking_info': True,
     },
 }
 

@@ -10,7 +10,7 @@ setup(
     version='2.0',
     description='Wazo sysconf daemon',
     author='Wazo Authors',
-    author_email='dev.wazo@gmail.com',
+    author_email='dev@wazo.io',
     url='https://wazo-platform.org',
     packages=find_packages(),
     entry_points={
@@ -28,6 +28,7 @@ setup(
             'resolv_conf = wazo_sysconfd.plugins.resolv_conf.plugin:Plugin',
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
             'xivoctl = wazo_sysconfd.plugins.xivoctl.plugin:Plugin',
+            'networking_info = wazo_sysconfd.plugins.networking_info.plugin:Plugin',
         ],
     },
 )

@@ -18,7 +18,7 @@ class Controller:
         self.http_server = SysconfdApplication('%(prog)s', config=config)
         self.status_aggregator = StatusAggregator()
 
-        plugin_helpers.load(
+        plugin_manager = plugin_helpers.load(
             namespace='wazo_sysconfd.plugins',
             names=config['enabled_plugins'],
             dependencies={
@@ -27,6 +27,7 @@ class Controller:
                 'status_aggregator': self.status_aggregator,
             },
         )
+        logger.debug('Loaded plugins:\n%s', plugin_manager.names())
         logger.debug('Loaded routes:\n%s', self.list_routes())
 
     def list_routes(self) -> list:

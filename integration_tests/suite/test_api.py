@@ -9,6 +9,9 @@ from hamcrest import (
     has_properties,
     has_items,
     has_entries,
+    instance_of,
+    is_in,
+    only_contains,
 )
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
@@ -16,11 +19,98 @@ from wazo_sysconfd_client.exceptions import SysconfdError
 
 from .helpers.base import IntegrationTest
 
+
 FASTAPI_REASON = 'Not reimplemented using FastAPI'
 BACKUP_DIR = '/var/backups/wazo-sysconfd'
 
 
-class TestSysconfd(IntegrationTest):
+class BaseSysconfdTest(IntegrationTest):
+    def _create_directory(self, directory):
+        self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
+
+    def _directory_exists(self, directory):
+        command = ' '.join(
+            ['test', '-d', directory, '&&', 'echo', 'true', '||', 'echo', 'false']
+        )
+        out = (
+            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        )
+        if out == 'true':
+            return True
+        elif out == 'false':
+            return False
+        else:
+            raise RuntimeError(f'Unknown output: "{out}"')
+
+    def _given_directory_absent(self, directory):
+        self.docker_exec(['rm', '-rf', directory], 'sysconfd')
+
+    def _create_file(self, file_name, owner):
+        command = ['install', '-D', '-o', owner, '/dev/null', file_name]
+        self.docker_exec(command, 'sysconfd')
+
+    def _given_file_absent(self, file_name):
+        self.docker_exec(['rm', '-f', file_name], 'sysconfd')
+
+    def _file_owner(self, file_name):
+        return (
+            self.docker_exec(['stat', '-c', '%U', file_name], 'sysconfd')
+            .strip()
+            .decode('utf-8')
+        )
+
+    def _file_exists(self, file_name):
+        command = ' '.join(
+            ['test', '-f', file_name, '&&', 'echo', 'true', '||', 'echo', 'false']
+        )
+        out = (
+            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        )
+        if out == 'true':
+            return True
+        elif out == 'false':
+            return False
+        else:
+            raise RuntimeError(f'Unknown output: "{out}"')
+
+    def _find_file_pattern_in_directory(
+        self, re_pattern: str, directory: str
+    ) -> str | bool:
+        command = ' '.join(
+            [
+                'find',
+                directory,
+                '-regextype',
+                'posix-egrep',
+                '-regex',
+                fr"'.*/{re_pattern}'",
+                '-print',
+                '-quit',
+            ]
+        )
+        output = (
+            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        )
+        return output or False
+
+    def _assert_command_was_called(self, bus_events, command):
+        def poll():
+            assert_that(
+                bus_events.accumulate(with_headers=True),
+                has_items(
+                    has_entries(
+                        headers=has_entries(
+                            name='sysconfd_sentinel', origin_uuid='sentinel-uuid'
+                        ),
+                        message=has_entries(data=has_entries(command=command)),
+                    )
+                ),
+            )
+
+        return until.assert_(poll, timeout=5)
+
+
+class TestSysconfd(BaseSysconfdTest):
     asset = 'base'
 
     def test_dhcpd_update(self):
@@ -247,86 +337,29 @@ class TestSysconfd(IntegrationTest):
 
         self._assert_command_was_called(bus_events, ['wazo-service', 'start'])
 
-    def _create_directory(self, directory):
-        self.docker_exec(['mkdir', '-p', directory], 'sysconfd')
-
-    def _directory_exists(self, directory):
-        command = ' '.join(
-            ['test', '-d', directory, '&&', 'echo', 'true', '||', 'echo', 'false']
+    def test_networking_info(self):
+        raw_expected_interfaces = self.docker_exec(
+            'ls /sys/class/net/'.split(" "), 'sysconfd'
         )
-        out = (
-            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
+        expected_interfaces = [
+            line for line in raw_expected_interfaces.decode("utf-8").split("\n") if line
+        ]
+
+        response = self.sysconfd.session().get(
+            self.sysconfd.url('networking', 'interfaces')
         )
-        if out == 'true':
-            return True
-        elif out == 'false':
-            return False
-        else:
-            raise RuntimeError(f'Unknown output: "{out}"')
+        response.raise_for_status()
+        interfaces = response.json()
 
-    def _given_directory_absent(self, directory):
-        self.docker_exec(['rm', '-rf', directory], 'sysconfd')
-
-    def _create_file(self, file_name, owner):
-        command = ['install', '-D', '-o', owner, '/dev/null', file_name]
-        self.docker_exec(command, 'sysconfd')
-
-    def _given_file_absent(self, file_name):
-        self.docker_exec(['rm', '-f', file_name], 'sysconfd')
-
-    def _file_owner(self, file_name):
-        return (
-            self.docker_exec(['stat', '-c', '%U', file_name], 'sysconfd')
-            .strip()
-            .decode('utf-8')
+        assert_that(
+            interfaces,
+            has_entries(
+                data=has_items(
+                    has_entries(name=instance_of(str), address=instance_of(str))
+                )
+            ),
         )
-
-    def _file_exists(self, file_name):
-        command = ' '.join(
-            ['test', '-f', file_name, '&&', 'echo', 'true', '||', 'echo', 'false']
+        assert_that(
+            set(nic['name'] for nic in interfaces['data']),
+            only_contains(is_in(expected_interfaces)),
         )
-        out = (
-            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
-        )
-        if out == 'true':
-            return True
-        elif out == 'false':
-            return False
-        else:
-            raise RuntimeError(f'Unknown output: "{out}"')
-
-    def _find_file_pattern_in_directory(
-        self, re_pattern: str, directory: str
-    ) -> str | bool:
-        command = ' '.join(
-            [
-                'find',
-                directory,
-                '-regextype',
-                'posix-egrep',
-                '-regex',
-                fr"'.*/{re_pattern}'",
-                '-print',
-                '-quit',
-            ]
-        )
-        output = (
-            self.docker_exec(['sh', '-c', command], 'sysconfd').strip().decode('utf-8')
-        )
-        return output or False
-
-    def _assert_command_was_called(self, bus_events, command):
-        def poll():
-            assert_that(
-                bus_events.accumulate(with_headers=True),
-                has_items(
-                    has_entries(
-                        headers=has_entries(
-                            name='sysconfd_sentinel', origin_uuid='sentinel-uuid'
-                        ),
-                        message=has_entries(data=has_entries(command=command)),
-                    )
-                ),
-            )
-
-        return until.assert_(poll, timeout=5)
