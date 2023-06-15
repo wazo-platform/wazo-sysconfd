@@ -31,9 +31,8 @@ class TestAsterisk(unittest.TestCase):
         self.is_valid_path_component.return_value = True
         mailbox = '1000'
         context = 'foo'
-        options = {'context': context, 'mailbox': mailbox}
 
-        self.asterisk.delete_voicemail(None, options)
+        self.asterisk.delete_voicemail(context, mailbox)
 
         self.assertEqual(
             [call(context), call(mailbox)], self.is_valid_path_component.call_args_list
@@ -44,9 +43,15 @@ class TestAsterisk(unittest.TestCase):
 
     def test_delete_voicemail_invalid_path_component_raise_error(self):
         self.asterisk.is_valid_path_component.return_value = False
-        options = {'context': '', 'mailbox': ''}
+        context = ''
+        mailbox = ''
 
-        self.assertRaises(HttpReqError, self.asterisk.delete_voicemail, None, options)
+        self.assertRaises(
+            HttpReqError,
+            self.asterisk.delete_voicemail,
+            context,
+            mailbox,
+        )
 
     def test_move_voicemail(self):
         self.is_valid_path_component.return_value = True
@@ -54,14 +59,8 @@ class TestAsterisk(unittest.TestCase):
         old_context = 'foo'
         new_mailbox = '1001'
         new_context = 'bar'
-        options = {
-            'old_context': old_context,
-            'old_mailbox': old_mailbox,
-            'new_context': new_context,
-            'new_mailbox': new_mailbox,
-        }
 
-        self.asterisk.move_voicemail(None, options)
+        self.asterisk.move_voicemail(old_context, old_mailbox, new_context, new_mailbox)
 
         expected_calls = [
             call(old_context),
@@ -83,14 +82,19 @@ class TestAsterisk(unittest.TestCase):
 
     def test_move_voicemail_invalid_path_component_raise_error(self):
         self.asterisk.is_valid_path_component.return_value = False
-        options = {
-            'old_context': '',
-            'old_mailbox': '',
-            'new_context': '',
-            'new_mailbox': '',
-        }
+        old_context = ''
+        old_mailbox = ''
+        new_context = ''
+        new_mailbox = ''
 
-        self.assertRaises(HttpReqError, self.asterisk.move_voicemail, None, options)
+        self.assertRaises(
+            HttpReqError,
+            self.asterisk.move_voicemail,
+            old_context,
+            old_mailbox,
+            new_context,
+            new_mailbox,
+        )
 
 
 class TestRemoveDirectory(unittest.TestCase):

@@ -13,7 +13,7 @@ router = APIRouter()
 def delete_voicemail(
     context: str, mailbox: str = None, asterisk: Asterisk = Depends(get_asterisk)
 ):
-    asterisk.delete_voicemail(None, dict(context=context, mailbox=mailbox))
+    asterisk.delete_voicemail(context, mailbox)
 
 
 @router.put('/voicemail', status_code=200)
@@ -25,11 +25,8 @@ def move_voicemail(
     asterisk: Asterisk = Depends(get_asterisk),
 ):
     asterisk.move_voicemail(
-        None,
-        dict(
-            old_context=old_context,
-            old_mailbox=old_mailbox,
-            new_context=new_context,
-            new_mailbox=new_mailbox,
-        ),
+        old_context,
+        old_mailbox,
+        new_context,
+        new_mailbox,
     )
