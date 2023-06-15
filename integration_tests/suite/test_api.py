@@ -120,7 +120,7 @@ class TestSysconfd(BaseSysconfdTest):
 
         self._assert_command_was_called(bus_events, ['dhcpd-update', '-dr'])
 
-    def test_move_voicemail(self):
+    def test_voicemail_move(self):
         old_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/oldvoicemail'
         new_voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/newvoicemail'
         self._create_directory(old_voicemail_directory)
@@ -135,7 +135,7 @@ class TestSysconfd(BaseSysconfdTest):
 
         assert self._directory_exists(new_voicemail_directory)
 
-    def test_delete_voicemail_path_injection(self):
+    def test_voicemail_delete_when_path_injection(self):
         assert_that(
             calling(self.sysconfd.voicemail.delete).with_args(
                 mailbox='../../../attack/me', context='some-context'
@@ -145,7 +145,7 @@ class TestSysconfd(BaseSysconfdTest):
             ),
         )
 
-    def test_delete_voicemail(self):
+    def test_voicemail_delete(self):
         voicemail_directory = '/var/spool/asterisk/voicemail/mycontext/myvoicemail'
         self._create_directory(voicemail_directory)
 
@@ -233,7 +233,7 @@ class TestSysconfd(BaseSysconfdTest):
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
 
-    def test_hosts(self):
+    def test_hosts_update(self):
         self._given_file_absent('/etc/local/hostname')
         self._given_file_absent('/etc/local/hosts')
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
@@ -249,7 +249,7 @@ class TestSysconfd(BaseSysconfdTest):
         assert self._file_exists('/etc/local/hostname')
         assert self._file_exists('/etc/local/hosts')
 
-    def test_hosts_file_exists(self) -> None:
+    def test_hosts_update_when_file_exists(self) -> None:
         self._create_file('/etc/local/hostname', owner='root')
         assert not self._find_file_pattern_in_directory(r'hostname\.[0-9]+', BACKUP_DIR)
         self._create_file('/etc/local/hosts', owner='root')
@@ -269,7 +269,7 @@ class TestSysconfd(BaseSysconfdTest):
         assert self._find_file_pattern_in_directory(r'hosts\.[0-9]+', BACKUP_DIR)
         assert self._file_exists('/etc/local/hosts')
 
-    def test_resolv_conf(self):
+    def test_resolv_conf_update(self):
         self._given_file_absent('/etc/local/resolv.conf')
         body = {
             'nameservers': ['192.168.0.1'],
@@ -280,7 +280,7 @@ class TestSysconfd(BaseSysconfdTest):
 
         assert self._file_exists('/etc/local/resolv.conf')
 
-    def test_resolv_conf_exists(self) -> None:
+    def test_resolv_conf_update_when_exists(self) -> None:
         self._create_file('/etc/local/resolv.conf', owner='root')
         assert not self._find_file_pattern_in_directory(
             r'resolv\.conf\.[0-9]+', BACKUP_DIR
@@ -295,7 +295,7 @@ class TestSysconfd(BaseSysconfdTest):
         assert self._file_exists('/etc/local/resolv.conf')
         assert self._find_file_pattern_in_directory(r'resolv\.conf\.[0-9]+', BACKUP_DIR)
 
-    def test_ha_config(self):
+    def test_ha(self):
         self._given_file_absent('/etc/xivo/ha.conf')
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
         body = {'node_type': 'master', 'remote_address': '192.168.99.99'}
