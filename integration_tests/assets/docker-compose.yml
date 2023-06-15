@@ -8,6 +8,8 @@ services:
 
   sysconfd:
     image: wazoplatform/wazo-sysconfd-tests
+    environment:
+      XIVO_UUID: 00000000-0000-0000-0000-0000575c04fd
     ports:
       - "8668"
     volumes:
