@@ -57,16 +57,16 @@ _DEFAULT_CONFIG = {
         'exchange_type': 'headers',
     },
     'enabled_plugins': {
-        'voicemail': True,
         'commonconf': True,
         'dhcpd': True,
         'ha': True,
-        'services': True,
         'hosts': True,
         'request_handlers': True,
         'resolv_conf': True,
+        'services': True,
         'status': True,
         'networking_info': True,
+        'voicemail': True,
         'wazoctl': True,
     },
 }
