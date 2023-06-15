@@ -11,8 +11,9 @@ templates_path: /usr/share/wazo-sysconfd/templates
 custom_templates_path: /etc/xivo/sysconfd/custom-templates
 backup_path: /var/backups/wazo-sysconfd
 
-log_file: /var/log/wazo-sysconfd.log
+debug: false
 log_level: info
+log_file: /var/log/wazo-sysconfd.log
 
 rest_api:
   listen: 127.0.0.1

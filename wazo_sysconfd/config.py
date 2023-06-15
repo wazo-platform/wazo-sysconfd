@@ -6,6 +6,7 @@ import argparse
 from collections import namedtuple
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
+from xivo.xivo_logging import get_log_level_by_name
 
 
 _DEFAULT_CONFIG = {
@@ -15,8 +16,9 @@ _DEFAULT_CONFIG = {
     'templates_path': '/usr/share/wazo-sysconfd/templates',
     'custom_templates_path': '/etc/xivo/sysconfd/custom-templates',
     'backup_path': '/var/backups/wazo-sysconfd',
-    'log_file': '/var/log/wazo-sysconfd.log',
+    'debug': True,
     'log_level': 'info',
+    'log_file': '/var/log/wazo-sysconfd.log',
     'rest_api': {
         'listen': '127.0.0.1',
         'port': 8668,
@@ -70,19 +72,25 @@ _DEFAULT_CONFIG = {
 }
 
 
+def _get_reinterpreted_raw_values(*configs):
+    config = ChainMap(*configs)
+    log_level_name = 'debug' if config['debug'] else config['log_level']
+    return {'log_level': get_log_level_by_name(log_level_name)}
+
+
 def _parse_cli_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-l',
-        '--log-level',
-        help="Emit traces with LOGLEVEL details, must be one of:\n"
-        "critical, error, warning, info, debug",
-    )
     parser.add_argument(
         '-c',
         '--config-file',
         default="/etc/wazo-sysconfd/config.yml",
         help="Use configuration file <config-file> instead of %(default)s",
+    )
+    parser.add_argument(
+        '-d',
+        '--debug',
+        action='store_true',
+        help='Log debug mesages. Override log_level',
     )
     parser.add_argument(
         '--listen-addr', help="Listen on address <listen_addr> instead of 127.0.0.1"
@@ -93,8 +101,8 @@ def _parse_cli_args(argv):
 
     parsed_args = parser.parse_args(argv)
     result = {'rest_api': {}}
-    if parsed_args.log_level:
-        result['log_level'] = parsed_args.log_level
+    if parsed_args.debug:
+        result['debug'] = parsed_args.debug
     if parsed_args.config_file:
         result['config_file'] = parsed_args.config_file
     if parsed_args.listen_addr:
@@ -107,7 +115,10 @@ def _parse_cli_args(argv):
 def load_config(argv):
     cli_config = _parse_cli_args(argv)
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    return ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
+    reinterpreted_config = _get_reinterpreted_raw_values(
+        cli_config, file_config, _DEFAULT_CONFIG
+    )
+    return ChainMap(reinterpreted_config, cli_config, file_config, _DEFAULT_CONFIG)
 
 
 def prepare_http_server_options(configuration):
