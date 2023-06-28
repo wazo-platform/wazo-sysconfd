@@ -18,12 +18,9 @@ class Asterisk:
         self.move_directory = _move_directory
         self.is_valid_path_component = _is_valid_path_component
 
-    def delete_voicemail(self, args, options):
-        if not options['mailbox']:
+    def delete_voicemail(self, context, mailbox):
+        if not mailbox:
             raise HttpReqError(400, "missing 'mailbox' arg")
-
-        context = options.get('context', 'default')
-        mailbox = options['mailbox']
 
         if not self.is_valid_path_component(context):
             raise HttpReqError(400, 'invalid context')
@@ -33,29 +30,28 @@ class Asterisk:
         vmpath = os.path.join(self._base_vmail_path, context, mailbox)
         self.remove_directory(vmpath)
 
-        return True
+    def move_voicemail(
+        self,
+        old_context,
+        old_mailbox,
+        new_context,
+        new_mailbox,
+    ):
+        self._validate_option('old_context', old_context)
+        self._validate_option('old_mailbox', old_mailbox)
+        self._validate_option('new_context', new_context)
+        self._validate_option('new_mailbox', new_mailbox)
 
-    def move_voicemail(self, args, options):
-        self._validate_options(options)
-
-        old_path = os.path.join(
-            self._base_vmail_path, options['old_context'], options['old_mailbox']
-        )
-        new_path = os.path.join(
-            self._base_vmail_path, options['new_context'], options['new_mailbox']
-        )
+        old_path = os.path.join(self._base_vmail_path, old_context, old_mailbox)
+        new_path = os.path.join(self._base_vmail_path, new_context, new_mailbox)
 
         self.move_directory(old_path, new_path)
 
-        return True
-
-    def _validate_options(self, options):
-        for param in ('old_context', 'old_mailbox', 'new_context', 'new_mailbox'):
-            value = options.get(param)
-            if not value:
-                raise HttpReqError(400, f"missing '{param}' arg")
-            if not self.is_valid_path_component(value):
-                raise HttpReqError(400, f'invalid {param}')
+    def _validate_option(self, name, value):
+        if not value:
+            raise HttpReqError(400, f"missing '{name}' arg")
+        if not self.is_valid_path_component(value):
+            raise HttpReqError(400, f'invalid {value}')
 
 
 def _remove_directory(path):

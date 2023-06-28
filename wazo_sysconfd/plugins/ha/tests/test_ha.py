@@ -12,7 +12,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock
 
-from wazo_sysconfd.plugins.ha_config.ha import (
+from wazo_sysconfd.plugins.ha.ha import (
     HAConfigManager,
     _PostgresConfigUpdater,
     _CronFileInstaller,
