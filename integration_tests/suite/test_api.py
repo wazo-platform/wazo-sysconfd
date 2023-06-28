@@ -323,9 +323,12 @@ class TestSysconfd(BaseSysconfdTest):
         self._assert_command_was_called(bus_events, expected_command)
 
     def test_status(self):
-        result = self.sysconfd.status()
+        def check():
+            result = self.sysconfd.status()
+            assert result == {'rest_api': {'status': 'ok'}, 'bus_consumer': {'status': 'ok'}}
 
-        assert result == {'rest_api': {'status': 'ok'}}
+        return until.assert_(check, timeout=10)
+
 
     def test_xivoctl(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})

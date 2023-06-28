@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
+from uuid import uuid4
+
 from unittest.mock import Mock
 
 from wazo_sysconfd.plugins.request_handlers.command import Command, SimpleCommandFactory
@@ -13,7 +15,8 @@ class TestCommand(unittest.TestCase):
         self.request = Mock()
         self.executor = Mock()
         self.data = Mock()
-        self.command = Command(self.value, self.request, self.executor, self.data)
+        self.wazo_uuid = str(uuid4())
+        self.command = Command(self.value, self.request, self.executor, self.data, self.wazo_uuid)
 
     def test_execute(self):
         self.command.execute()
@@ -39,12 +42,13 @@ class TestSimpleCommandFactory(unittest.TestCase):
     def setUp(self):
         self.executor = Mock()
         self.factory = SimpleCommandFactory(self.executor)
+        self.wazo_uuid = str(uuid4())
 
     def test_new_command(self):
         value = 'foobar'
         request = Mock()
 
-        command = self.factory.new_command(value, request)
+        command = self.factory.new_command(value, request, self.wazo_uuid)
 
         self.assertEqual(command.value, value)
         self.assertIs(command.executor, self.executor)

@@ -65,7 +65,7 @@ class RequestFactory:
 
         for value in values:
             try:
-                command = factory.new_command(value, request)
+                command = factory.new_command(value, request, args.get('from_wazo_uuid'))
             except ValueError as e:
                 logger.warning('Invalid "%s" command %r: %s', key, value, e)
             except Exception:

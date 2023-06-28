@@ -34,9 +34,9 @@ class AsteriskCommandFactory:
     def __init__(self, asterisk_command_executor):
         self._executor = asterisk_command_executor
 
-    def new_command(self, value, request):
+    def new_command(self, value, request, from_wazo_uuid):
         self._check_validity(value)
-        return Command(value, request, self._executor, value)
+        return Command(value, request, self._executor, value, from_wazo_uuid)
 
     def _check_validity(self, value):
         if value in self._COMMANDS:
@@ -58,7 +58,11 @@ class AsteriskCommandExecutor:
         task_uuid = str(uuid.uuid4())
 
         event = AsteriskReloadProgressEvent(
-            task_uuid, 'starting', command_string, request_uuids
+            task_uuid,
+            'starting',
+            command_string,
+            request_uuids,
+            command.from_wazo_uuid,
         )
         self._bus_publisher.publish(event)
 
@@ -73,6 +77,10 @@ class AsteriskCommandExecutor:
             logger.error('asterisk returned non-zero status code %s', exit_code)
 
         event = AsteriskReloadProgressEvent(
-            task_uuid, 'completed', command_string, request_uuids
+            task_uuid,
+            'completed',
+            command_string,
+            request_uuids,
+            command.from_wazo_uuid,
         )
         self._bus_publisher.publish(event)

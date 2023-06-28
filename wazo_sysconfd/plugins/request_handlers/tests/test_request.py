@@ -2,20 +2,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-from unittest.mock import ANY, Mock, sentinel
+from uuid import uuid4
+from unittest.mock import ANY, Mock, sentinel, patch
 
 from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 from wazo_sysconfd.plugins.request_handlers.command import Command
 from wazo_sysconfd.plugins.request_handlers.request import (
+    DuplicateRequestOptimizer,
     Request,
     RequestFactory,
-    DuplicateRequestOptimizer,
-    RequestQueue,
-    RequestProcessor,
     RequestHandlers,
+    RequestHandlersProxy,
+    RequestProcessor,
+    RequestQueue,
     SyncRequestHandlers,
     SyncRequestObserver,
 )
+from wazo_sysconfd.plugins.request_handlers.bus import BusConsumer, EventHandler
 
 
 class TestRequest(unittest.TestCase):
@@ -54,7 +57,7 @@ class TestRequestFactory(unittest.TestCase):
 
         request = self.request_factory.new_request(args)
 
-        self.asterisk_command_factory.new_command.assert_called_once_with('foo', ANY)
+        self.asterisk_command_factory.new_command.assert_called_once_with('foo', ANY, ANY)
         self.assertEqual(
             request.commands, [self.asterisk_command_factory.new_command.return_value]
         )
@@ -66,7 +69,7 @@ class TestRequestFactory(unittest.TestCase):
 
         request = self.request_factory.new_request(args)
         self.chown_autoprov_config_command_factory.new_command.assert_called_once_with(
-            'foo', ANY
+            'foo', ANY, ANY,
         )
         self.assertEqual(
             request.commands,
@@ -97,6 +100,7 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
         self.executor = Mock()
         self.other_executor = Mock()
         self.optimizer = DuplicateRequestOptimizer(self.executor)
+        self.wazo_uuid = str(uuid4())
 
     def test_on_request_put_same_commands(self):
         request1 = Request([])
@@ -135,6 +139,8 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
         self.assertFalse(cmd2.optimized)
 
     def test_on_request_put_after_get(self):
+        wazo_uuid = str(uuid4())
+
         request1 = Request([])
         request2 = Request([])
         request3 = Request([])
@@ -161,7 +167,7 @@ class TestDuplicateRequestOptimizer(unittest.TestCase):
     def _new_command(self, value, request=None, executor=None):
         if executor is None:
             executor = self.executor
-        return Command(value, request, executor, value)
+        return Command(value, request, executor, value, self.wazo_uuid)
 
     def _new_request_from_command(self, command):
         request = Request()
@@ -260,4 +266,80 @@ class TestSyncRequestHandlers(unittest.TestCase):
 
         self.request_queue.put.assert_called_once_with(
             self.request_factory.new_request.return_value
+        )
+
+
+class TestEventHandler(unittest.TestCase):
+    def setUp(self):
+        self.wazo_uuid = str(uuid4())
+
+        with patch('wazo_sysconfd.plugins.request_handlers.bus.os') as mock_os:
+            mock_os.getenv.return_value = self.wazo_uuid
+            self.event_handler = EventHandler()
+
+        self.consumer = Mock(BusConsumer)
+        self.request_handlers_proxy = Mock(RequestHandlersProxy)
+
+    def test_subscribe(self):
+        self.event_handler.subscribe(self.consumer)
+
+        self.consumer.subscribe.assert_called_once_with(
+            'asterisk_reload_progress',
+            self.event_handler._on_asterisk_reload_progress,
+        )
+
+    def test_on_asterisk_reload_progress_completed(self):
+        event = {
+            'status': 'completed',
+            'from_wazo_uuid': str(uuid4())
+        }
+
+        self.event_handler._on_asterisk_reload_progress(
+            event,
+            self.request_handlers_proxy,
+        )
+
+        self.request_handlers_proxy.handle_request.assert_not_called()
+
+    def test_on_asterisk_reload_progress_no_from_wazo_uuid(self):
+        event = {
+            'status': 'starting',
+        }
+
+        self.event_handler._on_asterisk_reload_progress(
+            event,
+            self.request_handlers_proxy,
+        )
+
+        self.request_handlers_proxy.handle_request.assert_not_called()
+
+    def test_on_asterisk_reload_progress_from_same_wazo(self):
+        event = {
+            'status': 'starting',
+            'from_wazo_uuid': self.wazo_uuid,
+        }
+
+        self.event_handler._on_asterisk_reload_progress(
+            event,
+            self.request_handlers_proxy,
+        )
+
+        self.request_handlers_proxy.handle_request.assert_not_called()
+
+    def test_on_asterisk_reload_progress_executing(self):
+        command = 'module reload res_pjsip.so'
+        event = {
+            'status': 'starting',
+            'command': command,
+            'from_wazo_uuid': str(uuid4()),
+        }
+
+        self.event_handler._on_asterisk_reload_progress(
+            event,
+            self.request_handlers_proxy,
+        )
+
+        self.request_handlers_proxy.handle_request.assert_called_once_with(
+            event,
+            None,
         )

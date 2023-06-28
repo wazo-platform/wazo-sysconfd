@@ -7,12 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class Command:
-    def __init__(self, value, request, executor, data):
+    def __init__(self, value, request, executor, data, from_wazo_uuid):
         self.value = value
         self.executor = executor
         self.data = data
         self.optimized = False
         self.requests = {request}
+        self.from_wazo_uuid = from_wazo_uuid
 
     def execute(self):
         if self.optimized:
@@ -34,5 +35,5 @@ class SimpleCommandFactory:
     def __init__(self, executor):
         self._executor = executor
 
-    def new_command(self, value, request):
-        return Command(value, request, self._executor, value)
+    def new_command(self, value, request, from_wazo_uuid):
+        return Command(value, request, self._executor, value, from_wazo_uuid)

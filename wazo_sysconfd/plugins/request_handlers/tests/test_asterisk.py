@@ -3,6 +3,8 @@
 
 import unittest
 
+from uuid import uuid4
+
 from unittest.mock import ANY, Mock, patch, sentinel
 
 from xivo_bus import BusPublisher
@@ -16,12 +18,13 @@ class TestAsteriskCommandFactory(unittest.TestCase):
     def setUp(self):
         self.executor = Mock()
         self.factory = AsteriskCommandFactory(self.executor)
+        self.wazo_uuid = str(uuid4())
 
     def test_new_command(self):
         value = 'dialplan reload'
         request = Mock()
 
-        command = self.factory.new_command(value, request)
+        command = self.factory.new_command(value, request, self.wazo_uuid)
 
         self.assertEqual(command.value, value)
         self.assertIs(command.executor, self.executor)
@@ -32,7 +35,11 @@ class TestAsteriskCommandFactory(unittest.TestCase):
         value = 'sccp reset SEP001122334455'
         request = Mock()
 
-        command = self.factory.new_command(value, request)
+        command = self.factory.new_command(
+            value,
+            request,
+            self.wazo_uuid,
+        )
 
         self.assertEqual(command.data, value)
         self.assertEqual(command.requests, {request})
@@ -41,7 +48,13 @@ class TestAsteriskCommandFactory(unittest.TestCase):
         value = 'foobar'
         request = Mock()
 
-        self.assertRaises(ValueError, self.factory.new_command, value, request)
+        self.assertRaises(
+            ValueError,
+            self.factory.new_command,
+            value,
+            request,
+            self.wazo_uuid,
+        )
 
 
 class TestAsteriskCommandExecutor(unittest.TestCase):
