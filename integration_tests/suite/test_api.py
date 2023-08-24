@@ -9,10 +9,12 @@ from hamcrest import (
     has_properties,
     has_items,
     has_entries,
+    has_entry,
     instance_of,
     is_in,
     only_contains,
 )
+from uuid import uuid4
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
 from wazo_sysconfd_client.exceptions import SysconfdError
@@ -108,6 +110,11 @@ class BaseSysconfdTest(IntegrationTest):
             )
 
         return until.assert_(poll, timeout=5)
+
+    def _send_bus_message(self, event_name: str, headers: dict, payload: dict):
+        headers.update(name=event_name)
+        payload = dict(name=event_name, data=payload)
+        self.bus.publish(payload, headers=headers)
 
 
 class TestSysconfd(BaseSysconfdTest):
@@ -233,6 +240,27 @@ class TestSysconfd(BaseSysconfdTest):
             asterisk_reload_events_are_sent, response['request_uuid'], timeout=5
         )
 
+    def test_exec_request_handlers_from_event(self):
+        asterisk_command = 'dialplan reload'
+        request_uuids = [str(uuid4())]
+        command_accumulator = self.bus.accumulator(
+            headers={'name': 'sysconfd_sentinel'}
+        )
+
+        self._send_bus_message(
+            'asterisk_reload_progress',
+            dict(origin_uuid='some-other-wazo'),
+            {
+                'uuid': str(uuid4()),
+                'status': 'starting',
+                'command': asterisk_command,
+                'request_uuids': request_uuids,
+            },
+        )
+
+        expected_command = ['asterisk', '-rx', asterisk_command]
+        self._assert_command_was_called(command_accumulator, expected_command)
+
     def test_hosts(self):
         self._given_file_absent('/etc/local/hostname')
         self._given_file_absent('/etc/local/hosts')
@@ -325,7 +353,13 @@ class TestSysconfd(BaseSysconfdTest):
     def test_status(self):
         result = self.sysconfd.status()
 
-        assert result == {'rest_api': {'status': 'ok'}}
+        assert_that(
+            result,
+            has_entries(
+                bus_consumer=has_entry('status', 'ok'),
+                rest_api=has_entry('status', 'ok'),
+            ),
+        )
 
     def test_xivoctl(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})

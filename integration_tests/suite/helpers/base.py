@@ -7,14 +7,20 @@ from wazo_sysconfd_client.client import SysconfdClient
 from wazo_test_helpers.bus import BusClient
 from wazo_test_helpers.asset_launching_test_case import AssetLaunchingTestCase
 
+from .wait_strategy import EverythingOkWaitStrategy
+
 
 class IntegrationTest(AssetLaunchingTestCase):
     assets_root = os.path.join(os.path.dirname(__file__), '../..', 'assets')
     service = 'sysconfd'
+    wait_strategy = EverythingOkWaitStrategy()
 
-    def setUp(self):
-        self.bus: BusClient = self.make_bus()
-        self.sysconfd: SysconfdClient = self.make_sysconfd()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.bus: BusClient = cls.make_bus()
+        cls.sysconfd: SysconfdClient = cls.make_sysconfd()
+        cls.wait_strategy.wait(cls)
 
     @classmethod
     def make_bus(cls):

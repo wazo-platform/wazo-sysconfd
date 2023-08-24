@@ -74,5 +74,5 @@ class TestEventHandler(unittest.TestCase):
         self.event_handler._on_asterisk_reload(event, headers)
 
         self.get_handlers_proxy().handle_request.assert_called_once_with(
-            event, publish=False
+            event, {'publish': False}
         )
