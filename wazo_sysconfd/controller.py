@@ -7,7 +7,9 @@ import logging
 from xivo import plugin_helpers
 from xivo.status import StatusAggregator
 
+from .bus import BusManager
 from .http_server import api, SysconfdApplication
+
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +17,11 @@ logger = logging.getLogger(__name__)
 class Controller:
     def __init__(self, config: dict):
         self.config = config
+        self.bus_manager = BusManager(config)
         self.http_server = SysconfdApplication('%(prog)s', config=config)
         self.status_aggregator = StatusAggregator()
+
+        self.bus_manager.start()
 
         plugin_manager = plugin_helpers.load(
             namespace='wazo_sysconfd.plugins',
@@ -24,6 +29,7 @@ class Controller:
             dependencies={
                 'api': api,
                 'config': config,
+                'get_bus_consumer': self.bus_manager.get_consumer,
                 'status_aggregator': self.status_aggregator,
             },
         )
@@ -36,4 +42,7 @@ class Controller:
 
     def run(self):
         logger.info('wazo-sysconfd starting...')
-        self.http_server.run()
+        try:
+            self.http_server.run()
+        finally:
+            self.bus_manager.stop()
