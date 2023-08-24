@@ -26,4 +26,8 @@ class EventHandler:
 
         # only execute handlers if event originated from another WAZO
         if (origin_uuid := headers.get('origin_uuid')) and origin_uuid != self.uuid:
-            request_handlers_proxy.handle_request(event, {'publish': False})
+            payload = {
+                'ipbx': [event['command']],
+                'request_uuids': event['request_uuids'],
+            }
+            request_handlers_proxy.handle_request(payload, {'publish': False})

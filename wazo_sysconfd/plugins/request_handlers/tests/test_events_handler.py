@@ -65,6 +65,7 @@ class TestEventHandler(unittest.TestCase):
         event = {
             'status': 'starting',
             'command': command,
+            'request_uuids': [str(uuid4())],
         }
         headers = {
             'name': 'asterisk_reload_progress',
@@ -73,6 +74,10 @@ class TestEventHandler(unittest.TestCase):
 
         self.event_handler._on_asterisk_reload(event, headers)
 
+        expected_payload = {
+            'ipbx': [event['command']],
+            'request_uuids': event['request_uuids'],
+        }
         self.get_handlers_proxy().handle_request.assert_called_once_with(
-            event, {'publish': False}
+            expected_payload, {'publish': False}
         )
