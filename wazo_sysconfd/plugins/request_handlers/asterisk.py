@@ -34,9 +34,9 @@ class AsteriskCommandFactory:
     def __init__(self, asterisk_command_executor):
         self._executor = asterisk_command_executor
 
-    def new_command(self, value, request):
+    def new_command(self, value, request, **options):
         self._check_validity(value)
-        return Command(value, request, self._executor, value)
+        return Command(value, request, self._executor, value, **options)
 
     def _check_validity(self, value):
         if value in self._COMMANDS:
@@ -52,15 +52,13 @@ class AsteriskCommandExecutor:
         self._bus_publisher = bus_publisher
         self._null = open(os.devnull)
 
-    def execute(self, command, data):
+    def execute(self, command: Command, data, *, publish: bool = True):
         command_string = data
         request_uuids = [request.uuid for request in command.requests]
         task_uuid = str(uuid.uuid4())
 
-        event = AsteriskReloadProgressEvent(
-            task_uuid, 'starting', command_string, request_uuids
-        )
-        self._bus_publisher.publish(event)
+        if publish:
+            self.publish_status(task_uuid, 'starting', command_string, request_uuids)
 
         if command_string == 'module reload res_pjsip.so':
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
@@ -72,7 +70,12 @@ class AsteriskCommandExecutor:
         if exit_code:
             logger.error('asterisk returned non-zero status code %s', exit_code)
 
-        event = AsteriskReloadProgressEvent(
-            task_uuid, 'completed', command_string, request_uuids
+        if publish:
+            self.publish_status(task_uuid, 'completed', command_string, request_uuids)
+
+    def publish_status(
+        self, task_uuid: str, status: str, command: str, request_uuids: list
+    ) -> None:
+        self._bus_publisher.publish(
+            AsteriskReloadProgressEvent(task_uuid, status, command, request_uuids)
         )
-        self._bus_publisher.publish(event)

@@ -7,12 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class Command:
-    def __init__(self, value, request, executor, data):
+    def __init__(self, value, request, executor, data, **options):
         self.value = value
         self.executor = executor
         self.data = data
         self.optimized = False
         self.requests = {request}
+        self.options = options
 
     def execute(self):
         if self.optimized:
@@ -23,7 +24,7 @@ class Command:
 
         logger.info('Executing command "%s"', self.value)
         try:
-            self.executor.execute(self, self.data)
+            self.executor.execute(self, self.data, **self.options)
         except Exception:
             logger.exception(
                 'Error while executing command "%s" with %s', self.value, self.executor
