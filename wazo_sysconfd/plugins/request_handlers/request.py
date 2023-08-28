@@ -38,40 +38,41 @@ class Request:
 
 class RequestFactory:
     def __init__(self, asterisk_command_factory, chown_autoprov_command_factory):
-        self._asterisk_command_factory = asterisk_command_factory
-        self._chown_autoprov_command_factory = chown_autoprov_command_factory
+        self._factories = {
+            'ipbx': asterisk_command_factory,
+            'chown_autoprov_config': chown_autoprov_command_factory,
+        }
 
-    def new_request(self, args):
+    def new_request(self, args, **options):
         request = Request([], context=args.get('context'))
-        commands = []
         # asterisk commands must be executed first
-        self._append_commands(
-            'ipbx', self._asterisk_command_factory, args, request, commands
-        )
-        self._append_commands(
-            'chown_autoprov_config',
-            self._chown_autoprov_command_factory,
-            args,
-            request,
-            commands,
-        )
-        request.commands = commands
+        self._generate_asterisk_commands(request, args, **options)
+        self._generate_autoprov_commands(request, args, **options)
         return request
 
-    def _append_commands(self, key, factory, args, request, commands):
-        values = args.get(key)
-        if not values:
+    def _generate_asterisk_commands(self, request: Request, args, **options):
+        self._generate_commands('ipbx', request, args, **options)
+
+    def _generate_autoprov_commands(self, request: Request, args, **options):
+        self._generate_commands('chown_autoprov_config', request, args, **options)
+
+    def _generate_commands(self, category: str, request: Request, args, **options):
+        try:
+            factory = self._factories[category]
+        except KeyError:
             return
 
-        for value in values:
+        for value in args.get(category, []):
             try:
-                command = factory.new_command(value, request)
+                command = factory.new_command(value, request, **options)
             except ValueError as e:
-                logger.warning('Invalid "%s" command %r: %s', key, value, e)
+                logger.warning('Invalid "%s" command %r: %s', category, value, e)
             except Exception:
-                logger.exception('Error while creating "%s" command %r', key, value)
+                logger.exception(
+                    'Error while creating "%s" command %r', category, value
+                )
             else:
-                commands.append(command)
+                request.commands.append(command)
 
 
 class DuplicateRequestOptimizer:
@@ -143,8 +144,9 @@ class RequestHandlers:
         self._bus_publisher = bus_publisher
 
     def handle_request(self, args, options):
+        options = options or {}
         try:
-            request = self._request_factory.new_request(args)
+            request = self._request_factory.new_request(args, **options)
         except Exception:
             logger.exception('Error while creating new request %s', args)
             raise HttpReqError(400)
