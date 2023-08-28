@@ -249,8 +249,10 @@ class TestSysconfd(BaseSysconfdTest):
 
         self._send_bus_message(
             'asterisk_reload_progress',
-            dict(origin_uuid='some-other-wazo'),
-            {
+            headers={
+                'origin_uuid': 'some-other-wazo',
+            },
+            payload={
                 'uuid': str(uuid4()),
                 'status': 'starting',
                 'command': asterisk_command,

@@ -13,14 +13,9 @@ class EventHandler:
         self.bus = bus_consumer
 
     def subscribe(self):
-        subscriptions = ((AsteriskReloadProgressEvent.name, self._on_asterisk_reload),)
-
-        for event_name, callback in subscriptions:
-            self.bus.subscribe(event_name, callback)
+        self.bus.subscribe(AsteriskReloadProgressEvent.name, self._on_asterisk_reload)
 
     def _on_asterisk_reload(self, event: dict, headers: dict) -> None:
-        request_handlers_proxy = get_request_handlers_proxy()
-
         if event['status'] != 'starting':
             return
 
@@ -30,4 +25,5 @@ class EventHandler:
                 'ipbx': [event['command']],
                 'request_uuids': event['request_uuids'],
             }
+            request_handlers_proxy = get_request_handlers_proxy()
             request_handlers_proxy.handle_request(payload, {'publish': False})
