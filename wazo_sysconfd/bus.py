@@ -4,6 +4,8 @@
 from __future__ import annotations
 from typing import Callable
 
+from functools import lru_cache
+from gunicorn.util import _setproctitle
 from multiprocessing.managers import BaseManager, BaseProxy
 
 from xivo.status import Status, StatusDict
@@ -83,29 +85,31 @@ class BusManager:
         pass
 
     def __init__(self, config: dict):
-        self._bus_consumer: BusConsumer | None = None
         self._config: dict = config
         self._manager = self._ProxyManager()
-        self._manager.register(
-            'bus_consumer', lambda: self._bus_consumer, BusConsumerProxy
-        )
+        self._manager.register('bus_consumer', self._consumer, BusConsumerProxy)
 
-    def _initialize(self):
+    @lru_cache
+    def _consumer(self) -> BusConsumer:
+        return BusConsumer.from_config(self._config)
+
+    def _initialize(self, config: dict) -> None:
+        _setproctitle('bus manager [sysconfd]')
+
         # Note: must call so request_handler callback can work in bus process, since
         # it will be configured after the bus process has already started
-        request_handlers_deps.config = self._config
+        request_handlers_deps.config = config
 
-        self._bus_consumer = BusConsumer.from_config(self._config)
-        self._bus_consumer.start()
+        bus_consumer = self._consumer()
+        bus_consumer.start()
 
     def get_consumer(self) -> BusConsumerProxy:
         return self._manager.bus_consumer()
 
-    def start(self):
-        self._manager.start(self._initialize)
+    def start(self) -> None:
+        self._manager.start(self._initialize, (self._config,))
 
-    def stop(self):
-        self._bus_consumer.stop()
+    def stop(self) -> None:
         self._manager.shutdown()
         self._manager.join()
 

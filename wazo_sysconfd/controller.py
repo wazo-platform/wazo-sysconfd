@@ -17,8 +17,12 @@ logger = logging.getLogger(__name__)
 class Controller:
     def __init__(self, config: dict):
         self.config = config
+
         self.bus_manager = BusManager(config)
-        self.http_server = SysconfdApplication('%(prog)s', config=config)
+
+        self.http_server = SysconfdApplication(
+            '%(prog)s', config=config, bus_manager=self.bus_manager
+        )
         self.status_aggregator = StatusAggregator()
 
         self.bus_manager.start()
@@ -42,7 +46,4 @@ class Controller:
 
     def run(self):
         logger.info('wazo-sysconfd starting...')
-        try:
-            self.http_server.run()
-        finally:
-            self.bus_manager.stop()
+        self.http_server.run()
