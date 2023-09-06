@@ -66,6 +66,7 @@ class Asterisk:
 
         return True
 
+
 def _remove_directory(path):
     if os.path.exists(path):
         shutil.rmtree(path)

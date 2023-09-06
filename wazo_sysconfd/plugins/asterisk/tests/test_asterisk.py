@@ -98,9 +98,7 @@ class TestAsterisk(unittest.TestCase):
 
         self.asterisk.delete_voicemails_context(context)
 
-        self.assertEqual(
-            [call(context)], self.is_valid_path_component.call_args_list
-        )
+        self.assertEqual([call(context)], self.is_valid_path_component.call_args_list)
 
         expected_path = os.path.join(self.base_voicemail_path, context)
         self.remove_directory.assert_called_once_with(expected_path)
