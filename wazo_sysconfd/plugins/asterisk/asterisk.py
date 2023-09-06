@@ -57,6 +57,14 @@ class Asterisk:
             if not self.is_valid_path_component(value):
                 raise HttpReqError(400, f'invalid {param}')
 
+    def delete_voicemails_context(self, context):
+        if not self.is_valid_path_component(context):
+            raise HttpReqError(400, 'invalid context')
+
+        vmpath = os.path.join(self._base_vmail_path, context)
+        self.remove_directory(vmpath)
+
+        return True
 
 def _remove_directory(path):
     if os.path.exists(path):

@@ -1,6 +1,9 @@
 # Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+
 from __future__ import annotations
+
+import os
 
 from hamcrest import (
     assert_that,
@@ -152,6 +155,16 @@ class TestSysconfd(BaseSysconfdTest):
         self.sysconfd.delete_voicemail(mailbox='myvoicemail', context='mycontext')
 
         assert not self._directory_exists(voicemail_directory)
+
+    def test_delete_voicemails_context(self):
+        context = 'mycontext'
+        context_directory = f'/var/spool/asterisk/voicemail/{context}'
+        voicemail_directory = os.path.join(context_directory, '/myvoicemail')
+        self._create_directory(voicemail_directory)
+
+        self.sysconfd.delete_voicemails_context(context)
+
+        assert not self._directory_exists(context_directory)
 
     def test_commonconf_generate(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
