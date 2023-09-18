@@ -6,9 +6,9 @@ import shutil
 import logging
 import re
 import subprocess
+from wazo_sysconfd.exceptions import HttpReqError
 
 logger = logging.getLogger('wazo-sysconfd')
-from wazo_sysconfd.exceptions import HttpReqError
 
 ASTERISK_USER = 'asterisk'
 ASTERISK_GROUP = 'asterisk'
