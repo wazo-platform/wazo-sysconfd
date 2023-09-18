@@ -166,6 +166,18 @@ class TestSysconfd(BaseSysconfdTest):
 
         assert not self._directory_exists(context_directory)
 
+    def test_delete_voicemails_wrong_context(self):
+        context = '../../../../etc/fake_passwd'
+
+        assert_that(
+            calling(self.sysconfd.delete_voicemails_context).with_args(
+                context=context
+            ),
+            raises(SysconfdError).matching(
+                has_properties(status_code=400, message=contains_string('invalid context'))
+            ),
+        )
+
     def test_commonconf_generate(self):
         bus_events = self.bus.accumulator(headers={'name': 'sysconfd_sentinel'})
 
