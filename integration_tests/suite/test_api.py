@@ -170,11 +170,11 @@ class TestSysconfd(BaseSysconfdTest):
         context = '../../../../etc/fake_passwd'
 
         assert_that(
-            calling(self.sysconfd.delete_voicemails_context).with_args(
-                context=context
-            ),
+            calling(self.sysconfd.delete_voicemails_context).with_args(context=context),
             raises(SysconfdError).matching(
-                has_properties(status_code=400, message=contains_string('invalid context'))
+                has_properties(
+                    status_code=400, message=contains_string('invalid context')
+                )
             ),
         )
 
