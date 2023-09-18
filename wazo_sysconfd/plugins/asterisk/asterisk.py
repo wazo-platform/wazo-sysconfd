@@ -6,6 +6,7 @@ import shutil
 import logging
 import re
 import subprocess
+
 logger = logging.getLogger('wazo-sysconfd')
 from wazo_sysconfd.exceptions import HttpReqError
 
@@ -61,7 +62,9 @@ class Asterisk:
                 raise HttpReqError(400, f'invalid {param}')
 
     def delete_voicemails_context(self, context):
-        if not CONTEXT_REGEX.match(context) or not self.is_valid_path_component(context):
+        if not CONTEXT_REGEX.match(context) or not self.is_valid_path_component(
+            context
+        ):
             raise HttpReqError(400, 'invalid context')
         vmpath = os.path.join(self._base_vmail_path, context)
         self.remove_directory(vmpath)
