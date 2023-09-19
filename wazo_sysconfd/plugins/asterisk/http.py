@@ -1,4 +1,4 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter, Depends
@@ -33,3 +33,8 @@ def move_voicemail(
             new_mailbox=new_mailbox,
         ),
     )
+
+
+@router.delete('/voicemails_context', status_code=200)
+def delete_voicemails_context(context: str, asterisk: Asterisk = Depends(get_asterisk)):
+    asterisk.delete_voicemails_context(context)

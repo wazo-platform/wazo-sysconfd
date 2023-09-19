@@ -92,6 +92,17 @@ class TestAsterisk(unittest.TestCase):
 
         self.assertRaises(HttpReqError, self.asterisk.move_voicemail, None, options)
 
+    def test_delete_voicemails_context(self):
+        self.is_valid_path_component.return_value = True
+        context = 'foo'
+
+        self.asterisk.delete_voicemails_context(context)
+
+        self.assertEqual([call(context)], self.is_valid_path_component.call_args_list)
+
+        expected_path = os.path.join(self.base_voicemail_path, context)
+        self.remove_directory.assert_called_once_with(expected_path)
+
 
 class TestRemoveDirectory(unittest.TestCase):
     def setUp(self):
