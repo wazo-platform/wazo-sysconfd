@@ -26,8 +26,8 @@ class SysconfdApplication(BaseApplication):
         self.cfg.set('loglevel', logging.getLevelName(self.config['log_level']))
         self.cfg.set('accesslog', '-')
         self.cfg.set('errorlog', '-')
-        self.cfg.set('post_worker_init', self.post_worker_init)
         self.cfg.set('on_exit', self.on_exit)
+        self.cfg.set('post_fork', self.post_fork)
         # NOTE: We must set this to one worker, since each worker is its own process, and if we have more than one
         # they will each get their own queue and then not respect the execution order which creates concurrency issues.
         self.cfg.set('workers', 1)
@@ -37,9 +37,12 @@ class SysconfdApplication(BaseApplication):
     def load(self):
         return api
 
-    # Because gunicorn is using the forking model, We must deactivate the multiprocessing atexit default handler.
+    def post_fork(self, server, worker):
+        self._deactivate_at_exit()
+
+    # NOTE: Because gunicorn is using the forking model, We must deactivate the multiprocessing atexit default handler.
     # If not, it will trigger an exception when shutting down (thinking it owns the bus_manager process)
-    def post_worker_init(self, worker):
+    def _deactivate_at_exit(self):
         import atexit
         from multiprocessing.util import _exit_function
 
