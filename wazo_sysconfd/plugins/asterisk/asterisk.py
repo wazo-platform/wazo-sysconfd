@@ -14,10 +14,15 @@ ASTERISK_USER = 'asterisk'
 ASTERISK_GROUP = 'asterisk'
 CONTEXT_REGEX = re.compile('^[a-zA-Z0-9_-]{1,79}$')
 UUID_REGEX = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}'
-MOH_NAME_REGEX = re.compile('^moh-\w+-'+UUID_REGEX+'$')
+MOH_NAME_REGEX = re.compile('^moh-\w+-' + UUID_REGEX + '$')
+
 
 class Asterisk:
-    def __init__(self, base_vmail_path='/var/spool/asterisk/voicemail', base_moh_path='/var/lib/asterisk/moh'):
+    def __init__(
+        self,
+        base_vmail_path='/var/spool/asterisk/voicemail',
+        base_moh_path='/var/lib/asterisk/moh',
+    ):
         self._base_vmail_path = base_vmail_path
         self._base_moh_path = base_moh_path
         self.remove_directory = _remove_directory
@@ -82,6 +87,7 @@ class Asterisk:
         self.remove_directory(vmpath)
 
         return True
+
 
 def _remove_directory(path):
     logger.debug('Remove directory: %s', path)
