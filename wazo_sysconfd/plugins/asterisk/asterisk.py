@@ -14,7 +14,8 @@ ASTERISK_USER = 'asterisk'
 ASTERISK_GROUP = 'asterisk'
 CONTEXT_REGEX = re.compile('^[a-zA-Z0-9_-]{1,79}$')
 UUID_REGEX = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}'
-MOH_NAME_REGEX = re.compile('^moh-\w+-' + UUID_REGEX + '$')
+TENANT_SLUG_REGEX = '[a-zA-Z0-9_]{1,10}'
+MOH_NAME_REGEX = re.compile('^moh-' + TENANT_SLUG_REGEX + '-' + UUID_REGEX + '$')
 
 
 class Asterisk:
