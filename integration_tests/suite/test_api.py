@@ -424,3 +424,12 @@ class TestSysconfd(BaseSysconfdTest):
             set(nic['name'] for nic in interfaces['data']),
             only_contains(is_in(expected_interfaces)),
         )
+
+    def test_delete_moh(self):
+        moh_name = 'moh-mycompany-58432565-9dca-4863-b1ac-a62f731dcd01'
+        moh_directory = f'/var/lib/asterisk/moh/{moh_name}'
+        self._create_directory(moh_directory)
+
+        self.sysconfd.delete_moh(moh_name)
+
+        assert not self._directory_exists(moh_directory)

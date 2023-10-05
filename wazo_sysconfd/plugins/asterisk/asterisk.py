@@ -13,11 +13,13 @@ logger = logging.getLogger('wazo-sysconfd')
 ASTERISK_USER = 'asterisk'
 ASTERISK_GROUP = 'asterisk'
 CONTEXT_REGEX = re.compile('^[a-zA-Z0-9_-]{1,79}$')
-
+UUID_REGEX = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}'
+MOH_NAME_REGEX = re.compile('^moh-\w+-'+UUID_REGEX+'$')
 
 class Asterisk:
-    def __init__(self, base_vmail_path='/var/spool/asterisk/voicemail'):
+    def __init__(self, base_vmail_path='/var/spool/asterisk/voicemail', base_moh_path='/var/lib/asterisk/moh'):
         self._base_vmail_path = base_vmail_path
+        self._base_moh_path = base_moh_path
         self.remove_directory = _remove_directory
         self.move_directory = _move_directory
         self.is_valid_path_component = _is_valid_path_component
@@ -71,6 +73,15 @@ class Asterisk:
 
         return True
 
+    def delete_moh(self, moh_name):
+        if not MOH_NAME_REGEX.match(moh_name) or not self.is_valid_path_component(
+            moh_name
+        ):
+            raise HttpReqError(400, 'invalid moh')
+        vmpath = os.path.join(self._base_moh_path, moh_name)
+        self.remove_directory(vmpath)
+
+        return True
 
 def _remove_directory(path):
     logger.debug('Remove directory: %s', path)
