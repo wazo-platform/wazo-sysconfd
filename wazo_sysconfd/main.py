@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from xivo.xivo_logging import setup_logging
+from xivo.xivo_logging import setup_logging, silence_loggers
 from xivo.config_helper import set_xivo_uuid
 
 from .controller import Controller
@@ -20,6 +20,7 @@ def main():
         debug=config['debug'],
         log_level=config['log_level'],
     )
+    silence_loggers(('amqp.connection.Connection.heartbeat_tick',), logging.INFO)
     set_xivo_uuid(config, logger)
     controller = Controller(config)
     controller.run()
