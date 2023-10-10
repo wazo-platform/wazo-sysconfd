@@ -19,10 +19,11 @@ from wazo_sysconfd.plugins.asterisk.asterisk import (
 class TestAsterisk(unittest.TestCase):
     def setUp(self):
         self.base_voicemail_path = '/tmp/foo/bar'
+        self.base_moh_path = '/tmp/foo/bar'
         self.remove_directory = Mock()
         self.move_directory = Mock()
         self.is_valid_path_component = Mock()
-        self.asterisk = Asterisk(self.base_voicemail_path)
+        self.asterisk = Asterisk(self.base_voicemail_path, self.base_moh_path)
         self.asterisk.remove_directory = self.remove_directory
         self.asterisk.move_directory = self.move_directory
         self.asterisk.is_valid_path_component = self.is_valid_path_component
@@ -101,6 +102,17 @@ class TestAsterisk(unittest.TestCase):
         self.assertEqual([call(context)], self.is_valid_path_component.call_args_list)
 
         expected_path = os.path.join(self.base_voicemail_path, context)
+        self.remove_directory.assert_called_once_with(expected_path)
+
+    def test_delete_moh(self):
+        self.is_valid_path_component.return_value = True
+        moh_name = 'moh-mycompany-58432565-9dca-4863-b1ac-a62f731dcd01'
+
+        self.asterisk.delete_moh(moh_name)
+
+        self.assertEqual([call(moh_name)], self.is_valid_path_component.call_args_list)
+
+        expected_path = os.path.join(self.base_moh_path, moh_name)
         self.remove_directory.assert_called_once_with(expected_path)
 
 

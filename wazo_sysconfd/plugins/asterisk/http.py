@@ -38,3 +38,8 @@ def move_voicemail(
 @router.delete('/voicemails_context', status_code=200)
 def delete_voicemails_context(context: str, asterisk: Asterisk = Depends(get_asterisk)):
     asterisk.delete_voicemails_context(context)
+
+
+@router.delete('/moh', status_code=200)
+def delete_moh(name: str, asterisk: Asterisk = Depends(get_asterisk)):
+    asterisk.delete_moh(name)
