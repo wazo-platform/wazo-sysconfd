@@ -2,23 +2,13 @@ Source: wazo-sysconfd
 Section: python
 Priority: extra
 Maintainer: Wazo Maintainers <dev@wazo.community>
-Build-Depends: debhelper (>= 12), dh-python, python3-all, python3-setuptools
+Build-Depends: debhelper (>= 12), python3, python3-venv, python3-dev, dh-virtualenv (>= 1.1)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.9
 
 Package: wazo-sysconfd
 Architecture: all
-Depends: ${python3:Depends},
-         ${misc:Depends},
-         xivo-bus-python3,
-         xivo-lib-python-python3,
-         python3-fastapi,
-         python3-gunicorn,
-         python3-httptools,
-         python3-kombu,
-         python3-netifaces,
-         python3-stevedore,
-         python3-uvloop,
+Depends: ${misc:Depends},
          rename,
          sudo
 Provides: xivo-sysconfd

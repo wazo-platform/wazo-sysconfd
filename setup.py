@@ -1,4 +1,4 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import setup
@@ -13,6 +13,24 @@ setup(
     author_email='dev@wazo.io',
     url='https://wazo-platform.org',
     packages=find_packages(),
+    install_requires=[
+        "xivo_bus@https://github.com/wazo-platform/xivo-bus/archive/master.zip",
+        "xivo@https://github.com/wazo-platform/xivo-lib-python/archive/master.zip",
+        "fastapi==0.65.1",
+        "gunicorn==20.1.0",
+        "httptools==0.1.1",
+        "kombu==5.0.2",
+        "pydantic==1.7.4",
+        "pyyaml==5.3.1",
+        "requests==2.25.1",
+        "starlette==0.14.2",
+        "stevedore==3.2.2",
+        "uvicorn==0.13.3",
+        "uvloop==0.17.0",
+    ],
+    extras_require={
+        'tests': ['pyhamcrest', 'pytest'],
+    },
     entry_points={
         'console_scripts': [
             'wazo-sysconfd=wazo_sysconfd.main:main',
