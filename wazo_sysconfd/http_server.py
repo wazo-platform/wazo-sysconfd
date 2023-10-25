@@ -31,8 +31,9 @@ class SysconfdApplication(BaseApplication):
         self.cfg.set('on_starting', self.on_start)
         self.cfg.set('on_exit', self.on_exit)
         self.cfg.set('post_fork', self.post_fork)
-        # NOTE: We must set this to one worker, since each worker is its own process, and if we have more than one
-        # they will each get their own queue and then not respect the execution order which creates concurrency issues.
+        # NOTE: We must set this to one worker, since each worker is its own process,
+        # and if we have more than one they will each get their own queue and then
+        # not respect the execution order which creates concurrency issues.
         self.cfg.set('workers', 1)
         # NOTE(afournier): that's the magic class that makes gunicorn ASGI
         self.cfg.set('worker_class', 'uvicorn.workers.UvicornWorker')
@@ -49,16 +50,18 @@ class SysconfdApplication(BaseApplication):
     def post_fork(self, server, worker):
         self._deactivate_at_exit()
 
-    # NOTE: Because gunicorn is using the forking model, We must deactivate the multiprocessing atexit default handler.
-    # If not, it will trigger an exception when shutting down (thinking it owns the bus_manager process)
+    # NOTE: Because gunicorn is using the forking model,
+    # We must deactivate the multiprocessing atexit default handler.
+    # If not, it will trigger an exception when shutting down
+    # (thinking it owns the bus_manager process)
     def _deactivate_at_exit(self):
         import atexit
         from multiprocessing.util import _exit_function
 
         atexit.unregister(_exit_function)
 
-    # NOTE: Because logging from signal handler can result in a deadlock with slow I/O, we disable its logger before
-    # calling `handle_chld`
+    # NOTE: Because logging from signal handler can result in a
+    # deadlock with slow I/O, we disable its logger before calling `handle_chld`
     # (see: https://github.com/benoitc/gunicorn/issues/2816)
     def _rebind_handle_chld(self, server):
         def handle_chld_logsafe(self, sig, frame):
