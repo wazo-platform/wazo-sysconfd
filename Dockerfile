@@ -7,7 +7,7 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /usr/local/src/wazo-sysconfd
-COPY setup.py /usr/local/src/wazo-sysconfd/
+COPY pyproject.toml /usr/local/src/wazo-sysconfd/
 COPY wazo_sysconfd /usr/local/src/wazo-sysconfd/wazo_sysconfd
 RUN python -m pip install -e .
 
