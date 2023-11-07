@@ -10,7 +10,3 @@ repos:
     rev: 23.10.1
     hooks:
       - id: black
-  - repo: https://gitlab.com/vojko.pribudic/pre-commit-update
-    rev: v0.1.0
-    hooks:
-      - id: pre-commit-update
