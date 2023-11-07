@@ -86,13 +86,13 @@ class HAConfigManager:
 
     def _add_master_cronfile(self, remote_address):
         content = (
-            f'0 * * * * root /usr/sbin/xivo-master-slave-db-replication {remote_address} >/dev/null\n'
+            f'0 * * * * root /usr/sbin/xivo-master-slave-db-replication {remote_address} >/dev/null\n'  # noqa
             '0 * * * * root /usr/bin/xivo-sync >/dev/null\n'
         )
         self._cronfile_installer.add_cronfile(self.CRONFILE_MASTER, content)
 
     def _add_slave_cronfile(self, remote_address):
-        content = f'* * * * * root /usr/sbin/xivo-check-master-status {remote_address} >/dev/null\n'
+        content = f'* * * * * root /usr/sbin/xivo-check-master-status {remote_address} >/dev/null\n'  # noqa
         self._cronfile_installer.add_cronfile(self.CRONFILE_SLAVE, content)
 
     def _manage_services(self, ha_config):
