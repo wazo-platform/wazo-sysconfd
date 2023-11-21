@@ -1,7 +1,3 @@
-[project]
-name = "wazo_sysconfd"
-version = '2.0'
-
 [tool.black]
 skip-string-normalization = true
 
