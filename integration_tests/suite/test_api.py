@@ -198,7 +198,7 @@ class TestSysconfd(BaseSysconfdTest):
         self.sysconfd.commonconf_apply()
 
         self._assert_command_was_called(bus_events, ['xivo-update-config'])
-        self._assert_command_was_called(bus_events, ['xivo-monitoring-update'])
+        self._assert_command_was_called(bus_events, ['wazo-monitoring-update'])
 
     def test_exec_request_handlers(self):
         asterisk_command = 'dialplan reload'
