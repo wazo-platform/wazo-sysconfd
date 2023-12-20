@@ -7,12 +7,12 @@ from unittest.mock import ANY, Mock, sentinel
 from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 from wazo_sysconfd.plugins.request_handlers.command import Command
 from wazo_sysconfd.plugins.request_handlers.request import (
+    DuplicateRequestOptimizer,
     Request,
     RequestFactory,
-    DuplicateRequestOptimizer,
-    RequestQueue,
-    RequestProcessor,
     RequestHandlers,
+    RequestProcessor,
+    RequestQueue,
     SyncRequestHandlers,
     SyncRequestObserver,
 )

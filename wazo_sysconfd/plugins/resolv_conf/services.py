@@ -1,16 +1,16 @@
 # Copyright 2010-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 import logging
-
-from time import time
+import os
 from shutil import copy2
+from time import time
+
 from xivo import system
 
 from wazo_sysconfd import helpers
-from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.dns_lock import RESOLVCONFLOCK
+from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.utilities import txtsubst
 
 log = logging.getLogger('wazo_sysconfd.plugins.resolvconf')

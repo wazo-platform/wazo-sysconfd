@@ -4,11 +4,11 @@
 import logging
 import sys
 
-from xivo.xivo_logging import setup_logging, silence_loggers
 from xivo.config_helper import set_xivo_uuid
+from xivo.xivo_logging import setup_logging, silence_loggers
 
-from .controller import Controller
 from .config import load_config
+from .controller import Controller
 
 logger = logging.getLogger(__name__)
 

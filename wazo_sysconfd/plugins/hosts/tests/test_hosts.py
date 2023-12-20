@@ -1,19 +1,12 @@
-# Copyright 2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
-from hamcrest import (
-    assert_that,
-    calling,
-    not_,
-    raises,
-)
-from wazo_sysconfd import exceptions
+from hamcrest import assert_that, calling, not_, raises
 
-from wazo_sysconfd.plugins.resolv_conf.services import (
-    _validate_hosts as validate_hosts,
-)
+from wazo_sysconfd import exceptions
+from wazo_sysconfd.plugins.resolv_conf.services import _validate_hosts as validate_hosts
 
 
 class TestValidateHosts(unittest.TestCase):

@@ -5,8 +5,8 @@ from functools import lru_cache
 
 from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
-    _PostgresConfigUpdater,
     _CronFileInstaller,
+    _PostgresConfigUpdater,
     _SentinelFileManager,
 )
 

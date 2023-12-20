@@ -3,12 +3,11 @@
 
 import errno
 import json
+import logging
 import os
 import subprocess
-from pathlib import Path
 from enum import Enum
-import logging
-
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

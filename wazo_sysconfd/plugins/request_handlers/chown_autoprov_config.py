@@ -1,9 +1,8 @@
 # Copyright 2018-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 import logging
-
+import os
 from pwd import getpwnam
 
 from wazo_sysconfd.plugins.request_handlers.command import SimpleCommandFactory

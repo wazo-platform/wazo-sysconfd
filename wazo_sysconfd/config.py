@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
-
 from collections import namedtuple
+
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.xivo_logging import get_log_level_by_name
-
 
 _DEFAULT_CONFIG = {
     'config_file': '/etc/wazo-sysconfd/config.yml',

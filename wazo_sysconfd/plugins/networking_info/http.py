@@ -5,7 +5,6 @@ from fastapi import APIRouter
 
 from .services import get_system_network_interfaces
 
-
 router = APIRouter()
 
 

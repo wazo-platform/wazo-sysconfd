@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from typing import Callable
 
 from functools import lru_cache
-from gunicorn.util import _setproctitle
 from multiprocessing.managers import BaseManager, BaseProxy
+from typing import Callable
 
+from gunicorn.util import _setproctitle
 from xivo.status import Status, StatusDict
 from xivo_bus.consumer import BusConsumer as Consumer
 from xivo_bus.publisher import BusPublisher as Publisher

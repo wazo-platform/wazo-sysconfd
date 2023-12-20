@@ -9,6 +9,7 @@ import uuid
 from xivo_bus.publisher import BusPublisher
 from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
+from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
     AsteriskCommandExecutor,
     AsteriskCommandFactory,
@@ -17,7 +18,6 @@ from wazo_sysconfd.plugins.request_handlers.chown_autoprov_config import (
     ChownAutoprovCommandExecutor,
     ChownAutoprovCommandFactory,
 )
-from wazo_sysconfd.plugin_helpers.exceptions import HttpReqError
 
 logger = logging.getLogger(__name__)
 

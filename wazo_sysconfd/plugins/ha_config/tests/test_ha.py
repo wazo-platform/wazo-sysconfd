@@ -14,8 +14,8 @@ from unittest.mock import Mock
 
 from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
-    _PostgresConfigUpdater,
     _CronFileInstaller,
+    _PostgresConfigUpdater,
     _SentinelFileManager,
 )
 

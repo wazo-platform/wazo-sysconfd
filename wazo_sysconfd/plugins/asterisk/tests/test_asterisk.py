@@ -10,9 +10,9 @@ from unittest.mock import Mock, call, patch
 from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.plugins.asterisk.asterisk import (
     Asterisk,
-    _remove_directory,
     _is_valid_path_component,
     _move_directory,
+    _remove_directory,
 )
 
 

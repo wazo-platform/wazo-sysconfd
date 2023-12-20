@@ -3,8 +3,10 @@
 
 import logging
 import subprocess
-from . import exceptions
+
 from wazo_sysconfd.exceptions import HttpReqError
+
+from . import exceptions
 
 logger = logging.getLogger('wazo_sysconfd.modules.services')
 

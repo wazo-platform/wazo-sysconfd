@@ -6,7 +6,6 @@ from fastapi import APIRouter
 from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.plugins.dhcp_update.services import exec_dhcp_update
 
-
 router = APIRouter()
 
 

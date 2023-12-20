@@ -6,8 +6,9 @@ import os
 import subprocess
 import uuid
 
-from wazo_sysconfd.plugins.request_handlers.command import Command
 from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
+
+from wazo_sysconfd.plugins.request_handlers.command import Command
 
 logger = logging.getLogger(__name__)
 

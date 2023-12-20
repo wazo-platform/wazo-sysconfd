@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
-from uuid import uuid4
 from unittest.mock import Mock, patch
+from uuid import uuid4
 
 from wazo_sysconfd.bus import BusConsumer
 from wazo_sysconfd.plugins.request_handlers.events_handler import EventHandler

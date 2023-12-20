@@ -1,11 +1,12 @@
 # Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os.path
-import shutil
 import logging
+import os.path
 import re
+import shutil
 import subprocess
+
 from wazo_sysconfd.exceptions import HttpReqError
 
 logger = logging.getLogger('wazo-sysconfd')

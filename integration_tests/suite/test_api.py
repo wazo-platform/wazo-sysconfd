@@ -4,26 +4,25 @@
 from __future__ import annotations
 
 import os
+from uuid import uuid4
 
 from hamcrest import (
     assert_that,
     calling,
     contains_string,
-    has_properties,
-    has_items,
     has_entries,
     has_entry,
+    has_items,
+    has_properties,
     instance_of,
     is_in,
     only_contains,
 )
-from uuid import uuid4
+from wazo_sysconfd_client.exceptions import SysconfdError
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
-from wazo_sysconfd_client.exceptions import SysconfdError
 
 from .helpers.base import IntegrationTest
-
 
 FASTAPI_REASON = 'Not reimplemented using FastAPI'
 BACKUP_DIR = '/var/backups/wazo-sysconfd'
@@ -421,7 +420,7 @@ class TestSysconfd(BaseSysconfdTest):
             ),
         )
         assert_that(
-            set(nic['name'] for nic in interfaces['data']),
+            {nic['name'] for nic in interfaces['data']},
             only_contains(is_in(expected_interfaces)),
         )
 
