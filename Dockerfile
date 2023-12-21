@@ -6,13 +6,10 @@ RUN python3 -m venv /opt/venv
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.txt /usr/local/src/wazo-sysconfd/requirements.txt
 WORKDIR /usr/local/src/wazo-sysconfd
-RUN pip install -r requirements.txt
-
-COPY setup.py /usr/local/src/wazo-sysconfd/
+COPY pyproject.toml /usr/local/src/wazo-sysconfd/
 COPY wazo_sysconfd /usr/local/src/wazo-sysconfd/wazo_sysconfd
-RUN python setup.py install
+RUN python -m pip install -e .
 
 FROM python:3.9-slim-bullseye AS build-image
 COPY --from=compile-image /opt/venv /opt/venv

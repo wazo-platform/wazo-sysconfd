@@ -1,3 +1,60 @@
+[project]
+name = "wazo_sysconfd"
+authors = [
+    {name = "Wazo Authors", email = "dev@wazo.io"},
+]
+description = "Wazo sysconf daemon"
+readme = "README.md"
+version = "2.0"
+license = { text = "GPL-3.0-or-later" }
+requires-python = ">=3.9"
+dependencies = [
+    "xivo_bus@https://github.com/wazo-platform/xivo-bus/archive/master.zip",
+    "xivo@https://github.com/wazo-platform/xivo-lib-python/archive/master.zip",
+    "fastapi==0.65.1",
+    "gunicorn==20.1.0",
+    "httptools==0.1.1",
+    "kombu==5.0.2",
+    "pydantic==1.7.4",
+    "pyyaml==5.3.1",
+    "requests==2.25.1",
+    "starlette==0.14.2",
+    "stevedore==3.2.2",
+    "uvicorn==0.13.3",
+    "uvloop==0.17.0",
+]
+
+[project.urls]
+Homepage = "https://wazo-platform.org"
+Repository = "https://github.com/wazo-platform/wazo-sysconfd.git"
+Changelog = "https://github.com/wazo-platform/wazo-sysconfd/blob/master/CHANGELOG.md"
+
+[project.optional-dependencies]
+tests = ['pyhamcrest', 'pytest']
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["wazo_sysconfd*"]
+
+[project.scripts]
+wazo-sysconfd = "wazo_sysconfd.main:main"
+
+[project.entry-points."wazo_sysconfd.plugins"]
+asterisk = "wazo_sysconfd.plugins.asterisk.plugin:Plugin"
+commonconf = "wazo_sysconfd.plugins.commonconf.plugin:Plugin"
+dhcp_update = "wazo_sysconfd.plugins.dhcp_update.plugin:Plugin"
+ha_config = "wazo_sysconfd.plugins.ha_config.plugin:Plugin"
+host_services = "wazo_sysconfd.plugins.host_services.plugin:Plugin"
+hosts = "wazo_sysconfd.plugins.hosts.plugin:Plugin"
+request_handlers = "wazo_sysconfd.plugins.request_handlers.plugin:Plugin"
+resolv_conf = "wazo_sysconfd.plugins.resolv_conf.plugin:Plugin"
+status = "wazo_sysconfd.plugins.status.plugin:Plugin"
+xivoctl = "wazo_sysconfd.plugins.xivoctl.plugin:Plugin"
+networking_info = "wazo_sysconfd.plugins.networking_info.plugin:Plugin"
+
 [tool.black]
 skip-string-normalization = true
 
