@@ -4,7 +4,7 @@
 import unittest
 
 from uuid import uuid4
-from unittest.mock import ANY, Mock, patch, sentinel
+from unittest.mock import Mock, patch, sentinel
 
 from xivo_bus import BusPublisher
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
@@ -52,12 +52,14 @@ class TestAsteriskCommandExecutor(unittest.TestCase):
         self.bus_publisher = Mock(BusPublisher)
         self.executor = AsteriskCommandExecutor(self.bus_publisher)
 
-    @patch('subprocess.call')
+    @patch('subprocess.run')
     def test_execute(self, mock_call):
         command = Mock(requests=[])
-        mock_call.return_value = 0
+        mock_result = Mock()
+        mock_result.returncode = 0
+        mock_call.return_value = mock_result
 
         self.executor.execute(command, sentinel.data)
 
         expected_args = ['asterisk', '-rx', sentinel.data]
-        mock_call.assert_called_once_with(expected_args, stdout=ANY, close_fds=True)
+        mock_call.assert_called_once_with(expected_args, capture_output=True, text=True)

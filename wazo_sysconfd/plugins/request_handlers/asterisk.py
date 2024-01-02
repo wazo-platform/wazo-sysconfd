@@ -5,9 +5,15 @@ import logging
 import os
 import subprocess
 import uuid
+import time
 
 from wazo_sysconfd.plugins.request_handlers.command import Command
 from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
+
+MAX_ATTEMPTS = 10
+RELOAD_IN_PROGRESS_MSG = (
+    'A module reload request is already in progress; please be patient\n'
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +53,29 @@ class AsteriskCommandFactory:
         raise ValueError('unauthorized command')
 
 
+def try_reload_command(command: str, attempt: int = 1):
+    result = subprocess.run(
+        ['asterisk', '-rx', command], capture_output=True, text=True
+    )
+    if result.returncode:
+        logger.error('Asterisk returned non-zero status code %s', result.returncode)
+        return
+
+    if result.stdout == RELOAD_IN_PROGRESS_MSG:
+        if attempt <= MAX_ATTEMPTS:
+            logger.error(
+                f"Asterisk didn't actually reload. Attempt {attempt}. Will retry."
+            )
+            time.sleep(1)
+            try_reload_command(command, attempt + 1)
+        else:
+            logger.error(
+                "Asterisk didn't actually reload. Max retries exceeded. Giving up."
+            )
+    else:
+        logger.debug(f'Asterisk command output: {result.stdout}')
+
+
 class AsteriskCommandExecutor:
     def __init__(self, bus_publisher):
         self._bus_publisher = bus_publisher
@@ -64,11 +93,7 @@ class AsteriskCommandExecutor:
             cmd = ['wazo-confgen', 'asterisk/pjsip.conf', '--invalidate']
             subprocess.call(cmd, stdout=self._null, close_fds=True)
 
-        exit_code = subprocess.call(
-            ['asterisk', '-rx', command_string], stdout=self._null, close_fds=True
-        )
-        if exit_code:
-            logger.error('asterisk returned non-zero status code %s', exit_code)
+        try_reload_command(command_string)
 
         if publish:
             self.publish_status(task_uuid, 'completed', command_string, request_uuids)
