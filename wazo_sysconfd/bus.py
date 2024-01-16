@@ -1,4 +1,4 @@
-# Copyright 2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2023-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
@@ -9,8 +9,8 @@ from gunicorn.util import _setproctitle
 from multiprocessing.managers import BaseManager, BaseProxy
 
 from xivo.status import Status, StatusDict
-from xivo_bus.consumer import BusConsumer as Consumer
-from xivo_bus.publisher import BusPublisher as Publisher
+from wazo_bus.consumer import BusConsumer as Consumer
+from wazo_bus.publisher import BusPublisher as Publisher
 
 from .plugins.request_handlers import dependencies as request_handlers_deps
 
