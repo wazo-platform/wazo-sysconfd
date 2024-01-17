@@ -10,7 +10,7 @@ Package: wazo-sysconfd
 Architecture: all
 Depends: ${python3:Depends},
          ${misc:Depends},
-         xivo-bus-python3,
+         wazo-bus-python3,
          xivo-lib-python-python3,
          python3-fastapi,
          python3-gunicorn,

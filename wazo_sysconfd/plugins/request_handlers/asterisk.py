@@ -1,4 +1,4 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -8,7 +8,7 @@ import uuid
 import time
 
 from wazo_sysconfd.plugins.request_handlers.command import Command
-from xivo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
+from wazo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 
 MAX_ATTEMPTS = 10
 RELOAD_IN_PROGRESS_MSG = (

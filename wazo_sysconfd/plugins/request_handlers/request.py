@@ -1,4 +1,4 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -6,8 +6,8 @@ import logging
 import threading
 import uuid
 
-from xivo_bus.publisher import BusPublisher
-from xivo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
+from wazo_bus.publisher import BusPublisher
+from wazo_bus.resources.sysconfd.event import RequestHandlersProgressEvent
 
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
     AsteriskCommandExecutor,
