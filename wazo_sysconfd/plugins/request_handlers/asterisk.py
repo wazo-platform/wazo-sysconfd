@@ -4,11 +4,12 @@
 import logging
 import os
 import subprocess
-import uuid
 import time
+import uuid
+
+from wazo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 
 from wazo_sysconfd.plugins.request_handlers.command import Command
-from wazo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
 
 MAX_ATTEMPTS = 10
 RELOAD_IN_PROGRESS_MSG = (

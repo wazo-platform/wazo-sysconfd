@@ -1,12 +1,12 @@
-# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
+from types import MethodType
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from gunicorn.app.base import BaseApplication
-from types import MethodType
 
 from wazo_sysconfd.bus import BusManager
 from wazo_sysconfd.exceptions import HttpReqError

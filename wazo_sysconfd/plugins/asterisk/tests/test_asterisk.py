@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -10,9 +10,9 @@ from unittest.mock import Mock, call, patch
 from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.plugins.asterisk.asterisk import (
     Asterisk,
-    _remove_directory,
     _is_valid_path_component,
     _move_directory,
+    _remove_directory,
 )
 
 

@@ -1,12 +1,12 @@
-# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 import logging
+import os
 import subprocess
-
-from time import time
 from shutil import copy2
+from time import time
+
 from xivo import system
 
 from wazo_sysconfd import exceptions, helpers

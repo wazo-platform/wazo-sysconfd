@@ -1,11 +1,10 @@
-# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from fastapi import APIRouter
 
 from wazo_sysconfd.exceptions import HttpReqError
 from wazo_sysconfd.plugins.dhcp_update.services import exec_dhcp_update
-
 
 router = APIRouter()
 
