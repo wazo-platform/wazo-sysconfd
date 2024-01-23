@@ -1,4 +1,4 @@
-# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import functools
@@ -14,8 +14,8 @@ from unittest.mock import Mock
 
 from wazo_sysconfd.plugins.ha_config.ha import (
     HAConfigManager,
-    _PostgresConfigUpdater,
     _CronFileInstaller,
+    _PostgresConfigUpdater,
     _SentinelFileManager,
 )
 

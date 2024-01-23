@@ -1,9 +1,10 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import subprocess
 import traceback
+
 from wazo_sysconfd import exceptions
 
 logger = logging.getLogger('wazo_sysconfd.modules.commonconf')

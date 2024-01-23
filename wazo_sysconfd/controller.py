@@ -1,4 +1,4 @@
-# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
@@ -8,8 +8,7 @@ from xivo import plugin_helpers
 from xivo.status import StatusAggregator
 
 from .bus import BusManager
-from .http_server import api, SysconfdApplication
-
+from .http_server import SysconfdApplication, api
 
 logger = logging.getLogger(__name__)
 

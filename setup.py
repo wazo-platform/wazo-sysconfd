@@ -1,9 +1,7 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from setuptools import setup
-from setuptools import find_packages
-
+from setuptools import find_packages, setup
 
 setup(
     name='wazo_sysconfd',

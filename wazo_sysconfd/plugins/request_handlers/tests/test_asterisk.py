@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
-from uuid import uuid4
 from unittest.mock import Mock, patch, sentinel
+from uuid import uuid4
 
 from wazo_bus import BusPublisher
+
 from wazo_sysconfd.plugins.request_handlers.asterisk import (
-    AsteriskCommandFactory,
     AsteriskCommandExecutor,
+    AsteriskCommandFactory,
 )
 
 

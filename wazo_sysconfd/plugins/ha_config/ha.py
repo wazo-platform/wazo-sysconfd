@@ -1,14 +1,13 @@
-# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import errno
 import json
+import logging
 import os
 import subprocess
-from pathlib import Path
 from enum import Enum
-import logging
-
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

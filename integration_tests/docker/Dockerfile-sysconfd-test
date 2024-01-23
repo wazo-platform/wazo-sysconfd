@@ -22,4 +22,3 @@ RUN python3 -m pip install -e . \
     && install -D /dev/null /etc/postgresql/13/main/pg_hba.conf \
     && install -D /dev/null /etc/postgresql/13/main/postgresql.conf \
     && true
-

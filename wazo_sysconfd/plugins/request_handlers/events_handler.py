@@ -1,8 +1,9 @@
 # Copyright 2023-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_sysconfd.bus import BusConsumerProxy
 from wazo_bus.resources.sysconfd.event import AsteriskReloadProgressEvent
+
+from wazo_sysconfd.bus import BusConsumerProxy
 
 from .dependencies import get_request_handlers_proxy
 

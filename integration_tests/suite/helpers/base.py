@@ -1,11 +1,11 @@
-# Copyright 2021-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 
 from wazo_sysconfd_client.client import SysconfdClient
-from wazo_test_helpers.bus import BusClient
 from wazo_test_helpers.asset_launching_test_case import AssetLaunchingTestCase
+from wazo_test_helpers.bus import BusClient
 
 from .wait_strategy import EverythingOkWaitStrategy
 

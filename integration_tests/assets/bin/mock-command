@@ -2,8 +2,8 @@
 # Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os.path
 import logging
+import os.path
 import sys
 
 from wazo_bus.publisher import BusPublisher
@@ -18,7 +18,7 @@ class SentinelEvent(ServiceEvent):
 
     def __init__(self):
         content = {'command': [os.path.basename(sys.argv[0])] + sys.argv[1:]}
-        super(SentinelEvent, self).__init__(content)
+        super().__init__(content)
 
 
 bus_publisher = BusPublisher(
