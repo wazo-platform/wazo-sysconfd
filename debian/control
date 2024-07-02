@@ -19,6 +19,7 @@ Depends: ${python3:Depends},
          python3-uvloop,
          sudo,
          wazo-bus-python3,
+         wazo-uuid,
          xivo-lib-python-python3
 Description: Wazo sysconf daemon
  Wazo is a system based on a powerful IPBX, to bring an easy to
