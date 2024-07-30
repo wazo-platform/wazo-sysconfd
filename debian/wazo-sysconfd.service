@@ -8,6 +8,7 @@ StartLimitIntervalSec=150
 ExecStart=/usr/bin/wazo-sysconfd
 Restart=on-failure
 RestartSec=5
+SyslogIdentifier=wazo-sysconfd
 
 [Install]
 WantedBy=multi-user.target

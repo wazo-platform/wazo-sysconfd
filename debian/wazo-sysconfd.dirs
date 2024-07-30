@@ -1,4 +1,5 @@
 etc/wazo-sysconfd/conf.d
+etc/rsyslog.d
 etc/xivo/custom-templates
 etc/xivo/sysconfd/custom-templates
 usr/share/wazo-sysconfd/templates
