@@ -2,7 +2,7 @@ https://github.com/wazo-platform/wazo-bus/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
 fastapi==0.94.1  # 0.92.0 (bookworm) breaks with starlette 0.26.1; Debian dropped compat check
 gunicorn==20.1.0
-httptools==0.1.1 # from uvicorn
+httptools==0.5.0 # from uvicorn; 0.1.1 (bookworm) breaks with python3.11; Debian patch it
 kombu==5.2.4
 pydantic==1.10.4
 pyyaml==6.0
