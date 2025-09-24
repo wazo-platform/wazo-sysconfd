@@ -1,6 +1,6 @@
 https://github.com/wazo-platform/wazo-bus/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
-fastapi==0.92.0
+fastapi==0.94.1  # 0.92.0 (bookworm) breaks with starlette 0.26.1; Debian dropped compat check
 gunicorn==20.1.0
 httptools==0.1.1 # from uvicorn
 kombu==5.2.4
