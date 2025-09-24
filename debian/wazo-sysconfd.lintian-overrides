@@ -1,2 +1,2 @@
 # Historical name
-non-standard-dir-in-var var/backups/
+wazo-sysconfd: non-standard-dir-in-var [var/backups/]
