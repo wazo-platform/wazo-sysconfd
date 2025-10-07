@@ -1,4 +1,4 @@
-# Copyright 2010-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -44,12 +44,11 @@ class CommonConf:
             logger.exception(e)
             raise exceptions.HttpReqError(500, "can't generate commonconf file")
 
-        ret = p.wait()
-        output = p.stdout.read()
-        logger.debug("commonconf generate: return code %d" % ret)
+        output, _ = p.communicate()
+        logger.debug(f"commonconf generate: return code {p.returncode}")
 
-        if ret != 0:
-            logger.error("Error while generating commonconf: %s", output)
+        if p.returncode != 0:
+            logger.error(f"Error while generating commonconf: {output}")
             raise exceptions.HttpReqError(500, "can't generate commonconf file")
 
     def apply_commonconf(self):
