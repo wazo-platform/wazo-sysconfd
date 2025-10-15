@@ -1,14 +1,13 @@
 https://github.com/wazo-platform/wazo-bus/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
-# Bullseye actually includes a patched version of 0.63.0 hacked to support starlette==0.14.1
-fastapi==0.65.1
+fastapi==0.94.1  # 0.92.0 (bookworm) breaks with starlette 0.26.1; Debian dropped compat check
 gunicorn==20.1.0
-httptools==0.1.1 # from uvicorn
-kombu==5.0.2
-pydantic==1.7.4
-pyyaml==5.3.1
-requests==2.25.1
-starlette==0.14.2  # Bullseye actually includes version of 0.14.1
+httptools==0.5.0 # from uvicorn; 0.1.1 (bookworm) breaks with python3.11; Debian patch it
+kombu==5.2.4
+pydantic==1.10.4
+pyyaml==6.0
+requests==2.28.1
+starlette==0.26.1
 stevedore==4.0.2
-uvicorn==0.13.3
-uvloop==0.17.0  # from uvicorn (Bullseye has 0.14.0, but it won't build from pip)
+uvicorn==0.17.6
+uvloop==0.17.0  # from uvicorn
