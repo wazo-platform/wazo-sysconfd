@@ -19,6 +19,6 @@ RUN python3 -m pip install -e . \
     && ln -s /usr/local/bin/mock-command /usr/sbin/xivo-manage-slave-services \
     && ln -s /usr/local/bin/mock-command /usr/sbin/wazo-monitoring-update \
     && ln -s /usr/local/bin/mock-command /usr/sbin/xivo-update-config \
-    && install -D /dev/null /etc/postgresql/13/main/pg_hba.conf \
-    && install -D /dev/null /etc/postgresql/13/main/postgresql.conf \
+    && install -D /dev/null /etc/postgresql/15/main/pg_hba.conf \
+    && install -D /dev/null /etc/postgresql/15/main/postgresql.conf \
     && true
