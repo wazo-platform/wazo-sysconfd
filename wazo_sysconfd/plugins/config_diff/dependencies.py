@@ -5,6 +5,7 @@ from functools import lru_cache
 
 config = None
 
+
 @lru_cache
 def get_config():
     return config

@@ -5,6 +5,7 @@ import logging
 
 from . import dependencies as dependencies_module
 from .http import router
+
 logger = logging.getLogger(__name__)
 
 logger.info("Loading config_diff plugin")
