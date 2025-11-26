@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+import logging
 
 from . import services
 from fastapi import APIRouter
 
 from .models import ConfigHistoryDiff, ConfigHistoryLog
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -19,7 +21,9 @@ def get_config_history() -> ConfigHistoryLog:
 
 @router.get('/config-history/diff', status_code=200)
 def get_config_history_diff(
-    date_start: datetime.datetime | None, date_end: datetime.datetime | None
+    start_date: datetime.datetime | None = None,
+    end_date: datetime.datetime | None = None
 ) -> ConfigHistoryDiff:
-    config_diff = services.get_config_diff_by_date_range(date_start, date_end)
+    logger.debug(f"AFDEBUG: start_date: {start_date} end_date: {end_date}")
+    config_diff = services.get_config_diff_by_date_range(start_date, end_date)
     return config_diff
