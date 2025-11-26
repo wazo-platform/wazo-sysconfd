@@ -30,12 +30,6 @@ def get_config_diff_by_date_range(
     start_date: datetime.datetime, end_date: datetime.datetime
 ) -> ConfigHistoryDiff:
     repo = Repo(get_config()['repo_path'])
-    params = ["-p"]
-    if start_date:
-        params.append("--since")
-        params.append(start_date.isoformat())
-    if end_date:
-        params.append("--until")
-        params.append(end_date.isoformat())
-    patch_str = repo.git.log(*params)
+    commits = list(repo.iter_commits(after=start_date, before=end_date))
+    patch_str = repo.git.diff(commits[0], commits[-1])
     return ConfigHistoryDiff(item=patch_str)
