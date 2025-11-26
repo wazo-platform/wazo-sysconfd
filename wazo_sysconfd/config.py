@@ -1,4 +1,4 @@
-# Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -55,6 +55,9 @@ _DEFAULT_CONFIG = {
         'exchange_name': 'wazo-headers',
         'exchange_type': 'headers',
     },
+    'config_diff': {
+        'repo_path': '/var/lib/wazo-config-repo',
+    },
     'enabled_plugins': {
         'asterisk': True,
         'commonconf': True,
@@ -67,6 +70,7 @@ _DEFAULT_CONFIG = {
         'status': True,
         'xivoctl': True,
         'networking_info': True,
+        'config_diff': True,
     },
 }
 
