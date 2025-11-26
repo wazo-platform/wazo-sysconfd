@@ -56,7 +56,7 @@ _DEFAULT_CONFIG = {
         'exchange_type': 'headers',
     },
     'config_diff': {
-        'repo_path': '/var/lib/wazo-config-repo',
+        'repo_path': '/etc/wazo-gitd',
     },
     'enabled_plugins': {
         'asterisk': True,
