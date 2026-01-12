@@ -51,3 +51,6 @@ bus:
   port: 5672
   exchange_name: wazo-headers
   exchange_type: headers
+
+config_diff:
+  repo_path: /etc/wazo-gitd
