@@ -19,7 +19,7 @@ services:
       # - "${LOCAL_GIT_REPOS}/wazo-bus/wazo_bus:/opt/venv/lib/python3.11/site-packages/wazo_bus"
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3
     ports:
       - "5672"
     volumes:
