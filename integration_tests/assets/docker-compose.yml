@@ -18,6 +18,14 @@ services:
       # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python3.11/site-packages/xivo"
       # - "${LOCAL_GIT_REPOS}/wazo-bus/wazo_bus:/opt/venv/lib/python3.11/site-packages/wazo_bus"
 
+  asterisk-ari:
+    image: wazoplatform/wazo-sysconfd-tests
+    command: mock-ari
+    ports:
+      - "5039"
+    volumes:
+      - "./bin/mock-ari:/usr/local/bin/mock-ari"
+
   rabbitmq:
     image: rabbitmq:3
     ports:

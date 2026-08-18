@@ -1,4 +1,4 @@
-# Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -54,6 +54,15 @@ _DEFAULT_CONFIG = {
         'port': 5672,
         'exchange_name': 'wazo-headers',
         'exchange_type': 'headers',
+    },
+    'ari': {
+        'connection': {
+            'base_url': 'http://localhost:5039',
+            'username': 'xivo',
+            'password': 'opensesame',
+            'connect_timeout': 10,
+            'read_timeout': 120,
+        },
     },
     'enabled_plugins': {
         'asterisk': True,

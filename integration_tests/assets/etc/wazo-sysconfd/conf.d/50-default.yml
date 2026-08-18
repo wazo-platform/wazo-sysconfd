@@ -8,3 +8,9 @@ resolvconf:
 
 bus:
   host: rabbitmq
+
+ari:
+  connection:
+    base_url: http://asterisk-ari:5039
+    username: xivo
+    password: opensesame
