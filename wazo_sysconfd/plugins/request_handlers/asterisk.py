@@ -1,4 +1,4 @@
-# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -21,8 +21,6 @@ logger = logging.getLogger(__name__)
 
 class AsteriskCommandFactory:
     _COMMANDS = [
-        'core reload',
-        'core restart now',
         'dialplan reload',
         'moh reload',
         'iax2 reload',
@@ -36,7 +34,6 @@ class AsteriskCommandFactory:
         'module reload res_rtp_asterisk.so',
         'module reload res_hep.so',
     ]
-    _ARG_COMMANDS = ['sccp reset']
 
     def __init__(self, asterisk_command_executor):
         self._executor = asterisk_command_executor
@@ -46,12 +43,8 @@ class AsteriskCommandFactory:
         return Command(value, request, self._executor, value, **options)
 
     def _check_validity(self, value):
-        if value in self._COMMANDS:
-            return
-        for arg_cmd in self._ARG_COMMANDS:
-            if value.startswith(arg_cmd):
-                return
-        raise ValueError('unauthorized command')
+        if value not in self._COMMANDS:
+            raise ValueError('unauthorized command')
 
 
 def try_reload_command(command: str, attempt: int = 1):
