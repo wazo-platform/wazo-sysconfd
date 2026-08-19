@@ -1,4 +1,4 @@
-# Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
@@ -256,7 +256,7 @@ class TestSysconfd(BaseSysconfdTest):
 
         assert 'request_uuid' in response
 
-        expected_command = ['asterisk', '-rx', asterisk_command]
+        expected_command = ['ari', 'PUT', '/ari/asterisk/modules/pbx_config']
         self._assert_command_was_called(command_accumulator, expected_command)
         assert self._file_owner(autoprov_filename) == 'asterisk'
 
@@ -284,7 +284,7 @@ class TestSysconfd(BaseSysconfdTest):
             },
         )
 
-        expected_command = ['asterisk', '-rx', asterisk_command]
+        expected_command = ['ari', 'PUT', '/ari/asterisk/modules/pbx_config']
         self._assert_command_was_called(command_accumulator, expected_command)
 
     def test_hosts(self):

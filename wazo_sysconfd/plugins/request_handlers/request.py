@@ -1,4 +1,4 @@
-# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -210,6 +210,7 @@ class RequestHandlersProxy:
         synchronous = config.get('request_handlers', {}).get('synchronous')
         uuid = config.get('uuid', None)
         bus_config = config.get('bus', {})
+        ari_config = config.get('ari', {}).get('connection', {})
 
         # instantiate bus publisher
         bus_publisher = BusPublisher(
@@ -217,7 +218,7 @@ class RequestHandlersProxy:
         )
 
         # instantiate executors
-        asterisk_command_executor = AsteriskCommandExecutor(bus_publisher)
+        asterisk_command_executor = AsteriskCommandExecutor(bus_publisher, ari_config)
         chown_autoprov_command_executor = ChownAutoprovCommandExecutor()
 
         # instantiate factories

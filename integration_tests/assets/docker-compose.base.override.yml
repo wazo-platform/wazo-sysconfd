@@ -3,5 +3,6 @@ services:
     depends_on:
       - sysconfd
       - rabbitmq
+      - asterisk-ari
     environment:
-      TARGETS: "rabbitmq:5672 sysconfd:8668"
+      TARGETS: "rabbitmq:5672 sysconfd:8668 asterisk-ari:5039"
