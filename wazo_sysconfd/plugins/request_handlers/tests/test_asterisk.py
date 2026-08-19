@@ -1,4 +1,4 @@
-# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -30,8 +30,8 @@ class TestAsteriskCommandFactory(unittest.TestCase):
         self.assertEqual(command.data, value)
         self.assertEqual(command.requests, {request})
 
-    def test_new_command_with_arg(self):
-        value = 'sccp reset SEP001122334455'
+    def test_new_command_with_option(self):
+        value = 'dialplan reload'
         request = Mock()
 
         command = self.factory.new_command(value, request, some_option=True)
