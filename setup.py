@@ -1,4 +1,4 @@
-# Copyright 2010-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import find_packages, setup
@@ -27,6 +27,7 @@ setup(
             'status = wazo_sysconfd.plugins.status.plugin:Plugin',
             'xivoctl = wazo_sysconfd.plugins.xivoctl.plugin:Plugin',
             'networking_info = wazo_sysconfd.plugins.networking_info.plugin:Plugin',
+            'config_diff = wazo_sysconfd.plugins.config_diff.plugin:Plugin',
         ],
     },
 )
