@@ -1,4 +1,4 @@
-# Copyright 2022-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -7,11 +7,22 @@ from types import MethodType
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from gunicorn.app.base import BaseApplication
+from gunicorn.glogging import Logger
 
 from wazo_sysconfd.bus import BusManager
 from wazo_sysconfd.exceptions import HttpReqError
 
 api = FastAPI(title='wazo-sysconfd', openapi_url='/api/api.yml')
+
+
+class ServiceLogger(Logger):
+    # gunicorn writes to stderr, which the service logs as errors; uvicorn
+    # copies these handlers, so replacing them rather than propagating keeps it
+    def setup(self, cfg):
+        super().setup(cfg)
+        root_handlers = logging.getLogger().handlers
+        self.error_log.handlers = list(root_handlers)
+        self.access_log.handlers = list(root_handlers)
 
 
 class SysconfdApplication(BaseApplication):
@@ -28,6 +39,7 @@ class SysconfdApplication(BaseApplication):
         self.cfg.set('loglevel', logging.getLevelName(self.config['log_level']))
         self.cfg.set('accesslog', '-')
         self.cfg.set('errorlog', '-')
+        self.cfg.set('logger_class', ServiceLogger)
         self.cfg.set('on_starting', self.on_start)
         self.cfg.set('on_exit', self.on_exit)
         self.cfg.set('post_fork', self.post_fork)
